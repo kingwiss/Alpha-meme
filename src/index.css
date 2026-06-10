@@ -1,0 +1,101 @@
+@import "tailwindcss";
+
+@keyframes slide-infinite {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(calc(-100% - 1rem)); }
+}
+.animate-slide-infinite {
+  animation: slide-infinite 20s linear infinite;
+  will-change: transform;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.02); }
+}
+
+/* 
+  Elegant Dark Web3 Glow Theme
+*/
+
+body {
+  background-color: #050505;
+  color: #e2e8f0;
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(16, 185, 129, 0.04), transparent 50%),
+    radial-gradient(circle at 85% 30%, rgba(56, 189, 248, 0.04), transparent 50%);
+  background-attachment: fixed;
+  overflow-x: hidden;
+}
+
+html {
+  overflow-x: hidden;
+}
+
+/* Hide scrollbar clean */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Smooth glassmorphism containers */
+.glass-panel {
+  background: linear-gradient(145deg, rgba(23, 23, 23, 0.6) 0%, rgba(10, 10, 10, 0.8) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+}
+
+.glass-panel-heavy {
+  background: linear-gradient(145deg, rgba(15, 15, 15, 0.9) 0%, rgba(5, 5, 5, 0.95) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.02);
+  box-shadow: 0 16px 40px 0 rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Remove hard borders, replace with glowing vibrant shadows for Web3 feel */
+.glow-emerald {
+  border: none;
+  box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.4), inset 0 1px 1px rgba(16, 185, 129, 0.2);
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0.05), transparent 60%), rgba(10, 10, 10, 0.6);
+}
+
+.glow-emerald:hover {
+  box-shadow: 0 0 35px -2px rgba(16, 185, 129, 0.6), inset 0 2px 2px rgba(16, 185, 129, 0.3);
+}
+
+.glow-rose {
+  border: none;
+  box-shadow: 0 0 25px -5px rgba(244, 63, 94, 0.4), inset 0 1px 1px rgba(244, 63, 94, 0.2);
+  background: linear-gradient(180deg, rgba(244, 63, 94, 0.05), transparent 60%), rgba(10, 10, 10, 0.6);
+}
+
+.glow-rose:hover {
+  box-shadow: 0 0 35px -2px rgba(244, 63, 94, 0.6), inset 0 2px 2px rgba(244, 63, 94, 0.3);
+}
+
+.glow-amber {
+  border: none;
+  box-shadow: 0 0 25px -5px rgba(245, 158, 11, 0.4), inset 0 1px 1px rgba(245, 158, 11, 0.2);
+  background: linear-gradient(180deg, rgba(245, 158, 11, 0.05), transparent 60%), rgba(10, 10, 10, 0.6);
+}
+
+.glow-amber:hover {
+  box-shadow: 0 0 35px -2px rgba(245, 158, 11, 0.6), inset 0 2px 2px rgba(245, 158, 11, 0.3);
+}
+
+.glow-sky {
+  border: none;
+  box-shadow: 0 0 25px -5px rgba(56, 189, 248, 0.4), inset 0 1px 1px rgba(56, 189, 248, 0.2);
+  background: linear-gradient(180deg, rgba(56, 189, 248, 0.05), transparent 60%), rgba(10, 10, 10, 0.6);
+}
+
+.glow-sky:hover {
+  box-shadow: 0 0 35px -2px rgba(56, 189, 248, 0.6), inset 0 2px 2px rgba(56, 189, 248, 0.3);
+}
+

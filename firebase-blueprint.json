@@ -1,0 +1,43 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "username": { "type": "string" },
+        "profileImage": { "type": "string" },
+        "isPublic": { "type": "boolean" },
+        "createdAt": { "type": "timestamp" },
+        "updatedAt": { "type": "timestamp" }
+      },
+      "required": ["username", "isPublic", "createdAt", "updatedAt"]
+    },
+    "CoinAction": {
+      "title": "CoinAction",
+      "description": "A coin that user interacted with (saved or viewed)",
+      "type": "object",
+      "properties": {
+        "coinId": { "type": "string" },
+        "symbol": { "type": "string" },
+        "address": { "type": "string" },
+        "actionAt": { "type": "timestamp" }
+      },
+      "required": ["coinId", "symbol", "address", "actionAt"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User profile data"
+    },
+    "users/{userId}/savedCoins/{coinId}": {
+      "schema": { "$ref": "#/entities/CoinAction" },
+      "description": "Coins saved by the user"
+    },
+    "users/{userId}/viewedCoins/{coinId}": {
+      "schema": { "$ref": "#/entities/CoinAction" },
+      "description": "Coins viewed by the user"
+    }
+  }
+}

@@ -1,0 +1,87 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['username', 'isPublic', 'createdAt', 'updatedAt']) &&
+             data.keys().size() <= 6 &&
+             data.username is string && data.username.size() >= 1 && data.username.size() <= 64 &&
+             data.isPublic is bool &&
+             (data.keys().hasAny(['profileImage']) == false || (data.profileImage is string && data.profileImage.size() <= 1024)) &&
+             data.createdAt is timestamp &&
+             data.updatedAt is timestamp;
+    }
+
+    function isValidCoinAction(data) {
+      return data.keys().hasAll(['coinId', 'symbol', 'address', 'actionAt']) &&
+             data.coinId is string && data.coinId.size() <= 128 &&
+             data.symbol is string && data.symbol.size() <= 64 &&
+             data.address is string && data.address.size() <= 128 &&
+             data.actionAt is timestamp;
+    }
+
+    match /users/{userId} {
+      allow read: if isSignedIn() && (request.auth.uid == userId || (resource != null && resource.data.isPublic == true));
+      allow create: if isSignedIn() && request.auth.uid == userId &&
+                       isValidId(userId) &&
+                       isValidUser(incoming()) &&
+                       incoming().createdAt == request.time &&
+                       incoming().updatedAt == request.time;
+      allow update: if isSignedIn() && request.auth.uid == userId &&
+                       isValidId(userId) &&
+                       isValidUser(incoming()) &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().updatedAt == request.time &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['username', 'profileImage', 'isPublic', 'updatedAt']);
+    }
+
+    match /users/{userId}/viewedCoins/{coinId} {
+      allow get: if isSignedIn() && (
+        request.auth.uid == userId || 
+        get(/databases/$(database)/documents/users/$(userId)).data.isPublic == true
+      );
+      allow list: if isSignedIn() && request.auth.uid == userId;
+      
+      allow create: if isSignedIn() && request.auth.uid == userId &&
+                       isValidId(userId) && isValidId(coinId) &&
+                       isValidCoinAction(incoming()) &&
+                       incoming().actionAt == request.time;
+                       
+      allow delete: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    match /users/{userId}/savedCoins/{coinId} {
+      allow get: if isSignedIn() && (
+        request.auth.uid == userId || 
+        get(/databases/$(database)/documents/users/$(userId)).data.isPublic == true
+      );
+      allow list: if isSignedIn() && request.auth.uid == userId;
+      
+      allow create: if isSignedIn() && request.auth.uid == userId &&
+                       isValidId(userId) && isValidId(coinId) &&
+                       isValidCoinAction(incoming()) &&
+                       incoming().actionAt == request.time;
+                       
+      allow delete: if isSignedIn() && request.auth.uid == userId;
+    }
+  }
+}

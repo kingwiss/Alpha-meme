@@ -1,0 +1,6 @@
+{
+  "name": "Meme Coin Breakout Screener",
+  "description": "Professional real-time analytics dashboard for identifying hyper-early high-potential meme coins using bonding curve progress, transaction velocity, liquidity analysis, and social sentiment metrics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
