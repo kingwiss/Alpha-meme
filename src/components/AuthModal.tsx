@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import { X, Mail, Lock } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebase';
 
 interface AuthModalProps {
   onClose: () => void;
@@ -10,25 +8,7 @@ interface AuthModalProps {
 
 export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
   const { signInWithGoogle } = useAuth();
-  const [isRegistering, setIsRegistering] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-
-  const handleEmailSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    try {
-      if (isRegistering) {
-        await createUserWithEmailAndPassword(auth, email, password);
-      } else {
-        await signInWithEmailAndPassword(auth, email, password);
-      }
-      onClose();
-    } catch (err: any) {
-      setError(err.message || 'Authentication failed');
-    }
-  };
 
   const handleGoogleSignIn = async () => {
     try {
@@ -52,8 +32,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
         </button>
         
         <div className="p-6">
-          <h2 className="text-xl font-bold font-sans text-white mb-6">
-            {isRegistering ? 'Create Account' : 'Sign In'}
+          <h2 className="text-xl font-bold font-sans text-white mb-6 text-center">
+            Sign In to Alpha Pump
           </h2>
           
           {error && (
@@ -61,49 +41,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
               {error}
             </div>
           )}
-
-          <form onSubmit={handleEmailSubmit} className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[11px] font-mono text-neutral-400 uppercase">Email</label>
-              <div className="relative">
-                <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" />
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-neutral-950 border border-neutral-800 focus:border-emerald-500 rounded-lg py-2 pl-9 pr-4 text-sm font-mono text-white outline-none transition-colors"
-                />
-              </div>
-            </div>
-            
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[11px] font-mono text-neutral-400 uppercase">Password</label>
-              <div className="relative">
-                <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" />
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-neutral-950 border border-neutral-800 focus:border-emerald-500 rounded-lg py-2 pl-9 pr-4 text-sm font-mono text-white outline-none transition-colors"
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              className="mt-2 w-full bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold font-mono text-xs px-5 py-2.5 rounded-lg transition-colors uppercase tracking-wider"
-            >
-              {isRegistering ? 'Sign Up' : 'Sign In'}
-            </button>
-          </form>
-
-          <div className="my-6 flex items-center gap-3">
-            <div className="h-px flex-1 bg-neutral-800"></div>
-            <span className="text-[10px] text-neutral-500 font-mono uppercase">or</span>
-            <div className="h-px flex-1 bg-neutral-800"></div>
-          </div>
 
           <button
             type="button"
@@ -118,19 +55,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
             </svg>
             Sign in with Google
           </button>
-
-          <p className="mt-6 text-center text-xs text-neutral-500 font-mono">
-            {isRegistering ? "Already have an account? " : "Don't have an account? "}
-            <button 
-              type="button"
-              onClick={() => setIsRegistering(!isRegistering)}
-              className="text-emerald-400 hover:text-emerald-300 underline"
-            >
-              {isRegistering ? 'Sign In' : 'Sign Up'}
-            </button>
-          </p>
         </div>
       </div>
     </div>
   );
 };
+

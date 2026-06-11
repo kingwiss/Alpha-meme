@@ -81,8 +81,9 @@ export const generateBackupCoins = (): MemeCoin[] => {
       priceHistory5m: [0.00012, 0.00013, 0.00014, 0.00015, 0.00016, 0.00017],
       createdTimeAgo: `${ageDays}d ago`,
       ageInMinutes: ageDays * 24 * 60,
+      createdAtMs: Date.now() - (ageDays * 24 * 60 * 60000),
       scannedTime: new Date().toLocaleTimeString('en-US', {hour12: false}).substring(0, 8),
-      topAuditsPassed: isVerified ? ['Verified Contract', 'High LP Depth', 'Volume Verified'] : ['Mint Renounced', 'LP Locked', 'Fomo.family Audited'],
+      topAuditsPassed: isVerified ? ['Verified Contract', 'High LP Depth', 'Volume Verified'] : ['Mint Renounced', 'LP Locked', 'Alpha Pump Audited'],
       redFlagsCount: 0,
       redFlagsList: [],
       passesRugCheck: true,
@@ -139,6 +140,7 @@ export const generateBackupCoins = (): MemeCoin[] => {
       priceHistory5m: [0.00001, 0.000012, 0.000015, 0.000018, 0.000022, 0.000025],
       createdTimeAgo: `${ageMin}m ago`,
       ageInMinutes: ageMin,
+      createdAtMs: Date.now() - (ageMin * 60000),
       scannedTime: new Date().toLocaleTimeString('en-US', {hour12: false}).substring(0, 8),
       topAuditsPassed: ['Mint Renounced', 'LP Burned', 'Zero Creator Rugs'],
       redFlagsCount: 0,
@@ -183,10 +185,32 @@ export function calculateExecutiveStats(coins: MemeCoin[]): ExecutiveStats {
 
 export function simulateCoinTick(coins: MemeCoin[]): { updatedCoins: MemeCoin[]; log: SystemLog | null } {
   if (coins.length === 0) return { updatedCoins: coins, log: null };
-  const indexToUpdate = Math.floor(Math.random() * coins.length);
+  
+  // Locally age the coins based on real elapsed time
+  const updatedAgedCoins = coins.map(c => {
+    let newAge = c.ageInMinutes;
+    if (c.createdAtMs) {
+      newAge = Math.max(0, Math.floor((Date.now() - c.createdAtMs) / 60000));
+    }
+    
+    let timeAgo = c.createdTimeAgo;
+    if (newAge < 60) {
+      timeAgo = newAge === 0 ? 'Just now' : `${newAge}m ago`;
+    } else {
+      const ageHours = Math.floor(newAge / 60);
+      if (ageHours < 24) {
+        timeAgo = `${ageHours}h ago`;
+      } else {
+        timeAgo = `${Math.floor(ageHours / 24)}d ago`;
+      }
+    }
+    return { ...c, ageInMinutes: newAge, createdTimeAgo: timeAgo };
+  });
+
+  const indexToUpdate = Math.floor(Math.random() * updatedAgedCoins.length);
   
   // Actually mutate a coin to make the simulation useful
-  const updatedCoins = [...coins];
+  const updatedCoins = [...updatedAgedCoins];
   const coin = { ...updatedCoins[indexToUpdate] };
   
   coin.priceUsd = coin.priceUsd * (1 + (Math.random() * 0.04 - 0.02)); // +/- 2%

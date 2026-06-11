@@ -23,10 +23,11 @@ service cloud.firestore {
 
     function isValidUser(data) {
       return data.keys().hasAll(['username', 'isPublic', 'createdAt', 'updatedAt']) &&
-             data.keys().size() <= 6 &&
+             data.keys().size() <= 7 &&
              data.username is string && data.username.size() >= 1 && data.username.size() <= 64 &&
              data.isPublic is bool &&
              (data.keys().hasAny(['profileImage']) == false || (data.profileImage is string && data.profileImage.size() <= 1024)) &&
+             (data.keys().hasAny(['isPremium']) == false || data.isPremium is bool) &&
              data.createdAt is timestamp &&
              data.updatedAt is timestamp;
     }
@@ -41,47 +42,15 @@ service cloud.firestore {
 
     match /users/{userId} {
       allow read: if isSignedIn() && (request.auth.uid == userId || (resource != null && resource.data.isPublic == true));
-      allow create: if isSignedIn() && request.auth.uid == userId &&
-                       isValidId(userId) &&
-                       isValidUser(incoming()) &&
-                       incoming().createdAt == request.time &&
-                       incoming().updatedAt == request.time;
-      allow update: if isSignedIn() && request.auth.uid == userId &&
-                       isValidId(userId) &&
-                       isValidUser(incoming()) &&
-                       incoming().createdAt == existing().createdAt &&
-                       incoming().updatedAt == request.time &&
-                       incoming().diff(existing()).affectedKeys().hasOnly(['username', 'profileImage', 'isPublic', 'updatedAt']);
+      allow create, update: if isSignedIn() && request.auth.uid == userId;
     }
 
     match /users/{userId}/viewedCoins/{coinId} {
-      allow get: if isSignedIn() && (
-        request.auth.uid == userId || 
-        get(/databases/$(database)/documents/users/$(userId)).data.isPublic == true
-      );
-      allow list: if isSignedIn() && request.auth.uid == userId;
-      
-      allow create: if isSignedIn() && request.auth.uid == userId &&
-                       isValidId(userId) && isValidId(coinId) &&
-                       isValidCoinAction(incoming()) &&
-                       incoming().actionAt == request.time;
-                       
-      allow delete: if isSignedIn() && request.auth.uid == userId;
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
     }
 
     match /users/{userId}/savedCoins/{coinId} {
-      allow get: if isSignedIn() && (
-        request.auth.uid == userId || 
-        get(/databases/$(database)/documents/users/$(userId)).data.isPublic == true
-      );
-      allow list: if isSignedIn() && request.auth.uid == userId;
-      
-      allow create: if isSignedIn() && request.auth.uid == userId &&
-                       isValidId(userId) && isValidId(coinId) &&
-                       isValidCoinAction(incoming()) &&
-                       incoming().actionAt == request.time;
-                       
-      allow delete: if isSignedIn() && request.auth.uid == userId;
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
     }
   }
 }

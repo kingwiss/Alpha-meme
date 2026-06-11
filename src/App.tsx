@@ -24,7 +24,8 @@ import {
   Moon,
   Loader2,
   RefreshCw,
-  User as UserIcon
+  User as UserIcon,
+  Check
 } from 'lucide-react';
 import { MemeCoin, ExecutiveStats, ScreenerFilters, SystemLog } from './types';
 import { INITIAL_MEME_COINS, MOCK_SYSTEM_LOGS, calculateExecutiveStats, simulateCoinTick } from './mockData';
@@ -40,15 +41,50 @@ import { ProfileDashboard } from './components/ProfileDashboard';
 import { viewCoin } from './lib/coinActions';
 
 export default function App() {
-  const { user, profile } = useAuth();
+  const { user, profile, updateProfile } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
 
   // Core application states
   const [coins, setCoins] = useState<MemeCoin[]>(INITIAL_MEME_COINS);
   const [selectedCoinId, setSelectedCoinId] = useState<string>('');
   
   const [selectedExternalCoin, setSelectedExternalCoin] = useState<MemeCoin | null>(null);
+
+  // Check for payment success parameter on mount
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const session_id = urlParams.get('session_id');
+    const payment = urlParams.get('payment');
+
+    if (payment === 'success' && session_id && profile) {
+      if (profile.isPremium) return; // avoid duplicate
+      
+      const verifyPayment = async () => {
+        try {
+          const res = await fetch('/api/verify-session', {
+             method: 'POST',
+             headers: { 'Content-Type': 'application/json' },
+             body: JSON.stringify({ sessionId: session_id })
+          });
+          const data = await res.json();
+          if (data.isPremium) {
+            await updateProfile({ isPremium: true });
+            alert("Payment successful! You are now premium and can see all coins!");
+          } else {
+             alert("Payment not yet successful. If this is a mistake, contact support.");
+          }
+          // Clean the URL
+          window.history.replaceState({}, document.title, window.location.pathname);
+        } catch (e) {
+          console.error("Verification error", e);
+        }
+      };
+
+      verifyPayment();
+    }
+  }, [profile, updateProfile]);
   
   useEffect(() => {
     if (selectedCoinId && user) {
@@ -58,6 +94,7 @@ export default function App() {
       }
     }
   }, [selectedCoinId, user, coins, selectedExternalCoin]);
+
   const [logs, setLogs] = useState<SystemLog[]>(MOCK_SYSTEM_LOGS);
   const [alerts, setAlerts] = useState<string[]>(['AURA', 'CHAD']);
   const [isSimulating, setIsSimulating] = useState<boolean>(true);
@@ -170,6 +207,10 @@ export default function App() {
 
   // Terminal box automatic scrolling ref
   const terminalLogsRef = useRef<HTMLDivElement>(null);
+
+  const handleSelectCoin = (coin: MemeCoin) => {
+    setSelectedCoinId(coin.id === selectedCoinId ? '' : coin.id);
+  }
 
   // Auto-scroll log console
   useEffect(() => {
@@ -328,7 +369,7 @@ export default function App() {
       id: 'load-' + Math.random().toString(36).substring(2, 5),
       timestamp,
       type: 'info',
-      message: '⚙️ [SYNC INITIATED] Connecting to DexScreener & Fomo.family indexing APIs...'
+      message: '⚙️ [SYNC INITIATED] Connecting to DexScreener & Alpha Pump indexing APIs...'
     }, ...prev]);
 
     try {
@@ -646,7 +687,7 @@ export default function App() {
             
             <div className="flex flex-col xl:flex-row xl:items-center gap-3 xl:gap-5 w-full">
               <h1 className="text-base sm:text-lg font-extrabold tracking-tight font-sans text-white shrink-0">
-                Alpha Velocity Tracker
+                Alpha Pump
               </h1>
 
               <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
@@ -860,7 +901,8 @@ export default function App() {
                         )
                         .sort((a,b) => b.velocityScore - a.velocityScore)
                       } 
-                      onSelectCoin={(coin) => setSelectedCoinId(coin.id === selectedCoinId ? '' : coin.id)}
+                      onSelectCoin={handleSelectCoin}
+                      onPremiumBlocked={() => setShowPremiumModal(true)}
                       selectedCoinId={selectedCoinId}
                     />
                   </>
@@ -874,7 +916,8 @@ export default function App() {
                     </h3>
                     <ScreenerTable 
                       coins={filteredAndSortedCoins.filter(c => !c.isSafe && c.passesRugCheck)} 
-                      onSelectCoin={(coin) => setSelectedCoinId(coin.id === selectedCoinId ? '' : coin.id)}
+                      onSelectCoin={handleSelectCoin}
+                      onPremiumBlocked={() => setShowPremiumModal(true)}
                       selectedCoinId={selectedCoinId}
                     />
                   </>
@@ -888,7 +931,8 @@ export default function App() {
                     </h3>
                     <ScreenerTable 
                       coins={filteredAndSortedCoins.filter(c => c.isSafe)} 
-                      onSelectCoin={(coin) => setSelectedCoinId(coin.id === selectedCoinId ? '' : coin.id)}
+                      onSelectCoin={handleSelectCoin}
+                      onPremiumBlocked={() => setShowPremiumModal(true)}
                       selectedCoinId={selectedCoinId}
                     />
                   </>
@@ -1176,7 +1220,7 @@ export default function App() {
         <span>Developed to meet professional decentralized exchange audit specifications.</span>
         <span className="text-neutral-500 flex items-center gap-1.5">
           <Globe size={11} className="text-emerald-500" />
-          <span>Solana Heuristics Client Core &bull; Secured by Fomo.family & DexScreener</span>
+          <span>Solana Heuristics Client Core &bull; Secured by Alpha Pump & DexScreener</span>
         </span>
       </footer>
 
@@ -1205,6 +1249,65 @@ export default function App() {
       )}
 
       {/* Global Modals */}
+      {showPremiumModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-sm shadow-2xl">
+          <div className="bg-neutral-900 border border-emerald-500/30 rounded-2xl p-6 max-w-sm w-full relative overflow-hidden shadow-[0_0_40px_rgba(16,185,129,0.15)] auto-fade-in relative z-10 flex flex-col items-center">
+            <button 
+              onClick={() => setShowPremiumModal(false)}
+              className="absolute top-4 right-4 text-neutral-500 hover:text-white bg-neutral-800 hover:bg-neutral-700 w-8 h-8 rounded-full flex items-center justify-center transition-colors shadow"
+            >
+              x
+            </button>
+            <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mb-4 border border-emerald-500/20">
+              <span className="text-3xl">✨</span>
+            </div>
+            <h2 className="text-xl font-bold font-sans text-center mb-2">Unlock the Best Coins</h2>
+            <p className="text-neutral-400 text-sm text-center mb-6">
+              You must buy Premium to view the very best, most promising coins on the market and get an improved experience.
+            </p>
+            
+            <div className="w-full bg-neutral-950 rounded-xl p-4 mb-6 border border-neutral-800">
+               <div className="flex justify-between items-center mb-1">
+                 <span className="font-mono text-emerald-400 font-bold">Premium Access</span>
+                 <span className="font-mono text-white">$4.99 <span className="text-neutral-500 text-xs">/ week</span></span>
+               </div>
+               <ul className="text-xs font-mono text-neutral-400 mt-3 space-y-2">
+                 <li className="flex items-center gap-2"><Check size={12} className="text-emerald-500" /> View all Golden Targets</li>
+                 <li className="flex items-center gap-2"><Check size={12} className="text-emerald-500" /> See exact breakout predictions &gt; 85%</li>
+               </ul>
+            </div>
+            
+            <button 
+              onClick={async () => {
+                 if (!user) {
+                   setShowPremiumModal(false);
+                   setShowAuthModal(true);
+                   return;
+                 }
+                 try {
+                    const res = await fetch('/api/create-checkout-session', {
+                      method: 'POST',
+                      headers: {'Content-Type': 'application/json'},
+                      body: JSON.stringify({ uid: user.uid, username: profile?.username || 'User' })
+                    });
+                    const data = await res.json();
+                    if (data.url) {
+                       window.location.href = data.url;
+                    } else {
+                       alert("Error checking out: " + (data.error || 'Unknown Error'));
+                    }
+                 } catch(e) {
+                    alert("Failed to initiate checkout");
+                 }
+              }}
+              className="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold font-mono tracking-wider rounded-xl uppercase transition-colors shadow-[0_0_20px_rgba(16,185,129,0.2)]"
+            >
+              Get Premium Now
+            </button>
+          </div>
+        </div>
+      )}
+
       {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
       {showProfile && <ProfileDashboard onClose={() => setShowProfile(false)} onSelectCoin={(id) => {
         // If the coin isn't found in current state, we still try. 

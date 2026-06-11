@@ -7,18 +7,36 @@ import { saveCoin, unsaveCoin } from '../lib/coinActions';
 interface ScreenerTableProps {
   coins: MemeCoin[];
   onSelectCoin: (coin: MemeCoin) => void;
+  onPremiumBlocked?: () => void;
   selectedCoinId?: string;
 }
 
 export const ScreenerTable: React.FC<ScreenerTableProps> = ({
   coins,
   onSelectCoin,
+  onPremiumBlocked,
   selectedCoinId,
 }) => {
-  const { user, savedCoinIds } = useAuth();
+  const { user, profile, savedCoinIds } = useAuth();
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [copiedLinkId, setCopiedLinkId] = useState<string | null>(null);
   const [copiedPhantomId, setCopiedPhantomId] = useState<string | null>(null);
+
+  const blurredIds = React.useMemo(() => {
+    const sortedByBest = [...coins].sort((a, b) => b.breakoutProbability - a.breakoutProbability);
+    const numToBlur = Math.ceil(coins.length * 0.25);
+    return new Set(sortedByBest.slice(0, numToBlur).map(c => c.id));
+  }, [coins]);
+
+  const displayCoins = React.useMemo(() => {
+    // Pseudo-random but stable sort to mix premium and non-premium scattered
+    return [...coins].sort((a, b) => {
+      const aVal = (a.address.charCodeAt(a.address.length - 1) || 0) + a.name.charCodeAt(0);
+      const bVal = (b.address.charCodeAt(b.address.length - 1) || 0) + b.name.charCodeAt(0);
+      if (aVal !== bVal) return bVal - aVal;
+      return a.id.localeCompare(b.id);
+    });
+  }, [coins]);
 
   const truncateAddress = (addr: string) => {
     if (!addr) return '';
@@ -126,7 +144,7 @@ export const ScreenerTable: React.FC<ScreenerTableProps> = ({
                 </td>
               </tr>
             ) : (
-              coins.map((coin) => {
+              displayCoins.map((coin) => {
                 const isSelected = selectedCoinId === coin.id;
                 const isPositive = coin.priceChange1h >= 0;
                 
@@ -136,19 +154,28 @@ export const ScreenerTable: React.FC<ScreenerTableProps> = ({
                 
                 // Expert Consensus Golden Target criteria
                 const isGoldenTarget = coin.securityScore >= 85 && coin.combinedScore >= 80 && coin.breakoutProbability >= 85;
+                
+                // Blur the top ~25% of coins for premium
+                const isPremiumHidden = profile?.isPremium !== true && blurredIds.has(coin.id);
 
                 return (
                   <React.Fragment key={coin.id}>
                     <tr
                       id={`token-row-${coin.symbol}`}
-                      onClick={() => onSelectCoin(coin)}
-                      className={`hover:bg-neutral-800/40 transition-colors cursor-pointer text-xs ${
+                      onClick={() => {
+                        if (isPremiumHidden) {
+                          if (onPremiumBlocked) onPremiumBlocked();
+                        } else {
+                          onSelectCoin(coin);
+                        }
+                      }}
+                      className={`hover:bg-neutral-800/40 transition-colors cursor-pointer text-xs relative ${
                         isSelected ? 'bg-emerald-500/5 border-l-4 border-l-emerald-500' : ''
                       }`}
                     >
                     {/* Token details and copy address */}
-                    <td className="py-3.5 px-4">
-                      <div className="flex items-center gap-2">
+                    <td className="py-3.5 px-4 relative">
+                      <div className={`flex items-center gap-2 ${isPremiumHidden ? 'blur-md opacity-50 select-none' : ''}`}>
                         <div className="flex flex-col">
                           <div className="flex items-center gap-1.5 flex-wrap">
                             <span className="font-bold text-neutral-100 font-sans">{coin.name}</span>
@@ -174,9 +201,9 @@ export const ScreenerTable: React.FC<ScreenerTableProps> = ({
                             }`}>
                               {coin.platform}
                             </span>
-                            <div className="flex items-center gap-1 bg-neutral-950 px-2 py-1 rounded border border-neutral-800 hover:border-emerald-500/50 hover:bg-neutral-900 transition-colors cursor-pointer max-w-[120px] md:max-w-[180px] xl:max-w-[250px] overflow-hidden" onClick={(e) => copyAddress(e, coin.id, coin.address)} title="Click to copy full contract address">
-                              <span className="text-[10px] text-neutral-400 font-mono tracking-tight select-all truncate shrink">
-                                {coin.address}
+                            <div className="flex items-center gap-1 bg-neutral-950 px-2 py-1 rounded border border-neutral-800 hover:border-emerald-500/50 hover:bg-neutral-900 transition-colors max-w-[120px] md:max-w-[180px] xl:max-w-[250px] overflow-hidden" onClick={(e) => { if (!isPremiumHidden) copyAddress(e, coin.id, coin.address); }} title="Click to copy full contract address">
+                              <span className="text-[10px] text-neutral-400 font-mono tracking-tight truncate shrink">
+                                {isPremiumHidden ? 'XXXXXXXXXXXXXXXXXXXXXXXXX' : coin.address}
                               </span>
                               <div className="text-neutral-500 p-0.5 shrink-0">
                                 {copiedId === coin.id ? (
@@ -186,14 +213,14 @@ export const ScreenerTable: React.FC<ScreenerTableProps> = ({
                                 )}
                               </div>
                             </div>
-                            <div className="flex items-center justify-center p-1 bg-neutral-950 rounded border border-neutral-800 hover:border-sky-500/50 hover:bg-neutral-900 transition-colors cursor-pointer" onClick={(e) => copyLink(e, coin.id, coin.address)} title="Click to copy Address for Phantom">
+                            <div className="flex items-center justify-center p-1 bg-neutral-950 rounded border border-neutral-800 hover:border-sky-500/50 hover:bg-neutral-900 transition-colors" onClick={(e) => { if (!isPremiumHidden) copyLink(e, coin.id, coin.address); }} title="Click to copy Address for Phantom">
                               {copiedLinkId === coin.id ? (
                                 <Check size={12} className="text-sky-400" />
                               ) : (
                                 <ExternalLink size={12} className="text-sky-500" />
                               )}
                             </div>
-                            {user && (
+                            {user && !isPremiumHidden && (
                               <button 
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -203,7 +230,7 @@ export const ScreenerTable: React.FC<ScreenerTableProps> = ({
                                     saveCoin(user.uid, coin).catch(console.error);
                                   }
                                 }}
-                                className="flex items-center justify-center gap-1 px-2 py-1 bg-neutral-950 rounded border border-neutral-800 hover:border-emerald-500/50 hover:bg-neutral-900 transition-colors cursor-pointer text-[10px] text-emerald-400 font-mono font-bold" 
+                                className="flex items-center justify-center gap-1 px-2 py-1 bg-neutral-950 rounded border border-neutral-800 hover:border-emerald-500/50 hover:bg-neutral-900 transition-colors text-[10px] text-emerald-400 font-mono font-bold" 
                                 title={savedCoinIds.has(coin.id) ? "Remove from Dashboard" : "Save to Dashboard"}
                               >
                                 <Bookmark size={12} fill={savedCoinIds.has(coin.id) ? "currentColor" : "none"} /> {savedCoinIds.has(coin.id) ? 'SAVED' : 'SAVE'}
@@ -212,18 +239,28 @@ export const ScreenerTable: React.FC<ScreenerTableProps> = ({
                           </div>
                         </div>
                       </div>
+                      
+                      {isPremiumHidden && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-neutral-950/20 backdrop-blur-sm z-10">
+                           <button className="bg-emerald-500 hover:bg-emerald-400 text-neutral-950 px-3 py-1.5 rounded text-xs font-bold font-mono tracking-wider shadow">
+                             VIEW
+                           </button>
+                        </div>
+                      )}
                     </td>
 
                     {/* Price USD */}
-                    <td className="py-3.5 px-4 text-right font-mono font-medium text-neutral-200">
-                      ${coin.priceUsd.toLocaleString(undefined, { minimumFractionDigits: 4, maximumFractionDigits: 6 })}
+                    <td className="py-3.5 px-4 text-right font-mono font-medium text-neutral-200 relative">
+                      <span className={isPremiumHidden ? 'blur-md opacity-40 select-none' : ''}>
+                        ${isPremiumHidden ? '0.0000' : coin.priceUsd.toLocaleString(undefined, { minimumFractionDigits: 4, maximumFractionDigits: 6 })}
+                      </span>
                     </td>
 
                     {/* Price Change 1H */}
-                    <td className="py-3.5 px-4 text-right font-mono">
-                      <div className="flex flex-col items-end">
+                    <td className="py-3.5 px-4 text-right font-mono relative">
+                      <div className={`flex flex-col items-end ${isPremiumHidden ? 'blur-md opacity-40 select-none' : ''}`}>
                         <span className={`font-semibold ${isPositive ? 'text-emerald-400' : 'text-rose-400'}`}>
-                          {isPositive ? '+' : ''}{coin.priceChange1h.toFixed(1)}%
+                          {isPositive ? '+' : ''}{isPremiumHidden ? '0' : coin.priceChange1h.toFixed(1)}%
                         </span>
                         <span className="text-[8px] text-neutral-500 tracking-wider font-sans uppercase mt-0.5">
                           PAST HOUR
@@ -232,8 +269,8 @@ export const ScreenerTable: React.FC<ScreenerTableProps> = ({
                     </td>
 
                     {/* Calculated Probabilities */}
-                    <td className="py-3.5 px-4 text-center">
-                      <div className="flex flex-col items-center justify-center gap-1">
+                    <td className="py-3.5 px-4 text-center relative">
+                      <div className={`flex flex-col items-center justify-center gap-1 ${isPremiumHidden ? 'blur-md opacity-40 select-none' : ''}`}>
                         <div className="flex items-center gap-1">
                           <span className={`text-xs font-mono font-bold ${
                             coin.breakoutProbability >= 85 
@@ -242,7 +279,7 @@ export const ScreenerTable: React.FC<ScreenerTableProps> = ({
                                 ? 'text-amber-400'
                                 : 'text-neutral-400'
                           }`}>
-                            {coin.breakoutProbability}%
+                            {isPremiumHidden ? '99' : coin.breakoutProbability}%
                           </span>
                           {coin.breakoutProbability >= 85 && (
                             <Zap size={10} className="text-emerald-400 fill-emerald-400 animate-pulse" />
@@ -257,20 +294,22 @@ export const ScreenerTable: React.FC<ScreenerTableProps> = ({
                                   ? 'bg-amber-500'
                                   : 'bg-neutral-600'
                             }`}
-                            style={{ width: `${coin.breakoutProbability}%` }}
+                            style={{ width: `${isPremiumHidden ? 99 : coin.breakoutProbability}%` }}
                           />
                         </div>
                       </div>
                     </td>
 
                     {/* Age */}
-                    <td className="py-3.5 px-4 text-center text-neutral-400 font-mono text-xs">
-                      {coin.createdTimeAgo}
+                    <td className="py-3.5 px-4 text-center text-neutral-400 font-mono text-xs relative">
+                       <span className={isPremiumHidden ? 'blur-md opacity-40 select-none' : ''}>
+                         {coin.createdTimeAgo}
+                       </span>
                     </td>
 
                     {/* Price History Sparklines */}
-                    <td className="py-3.5 px-4 text-center">
-                      <div className="flex items-center justify-center">
+                    <td className="py-3.5 px-4 text-center relative">
+                      <div className={`flex items-center justify-center ${isPremiumHidden ? 'blur-md opacity-40' : ''}`}>
                         {renderSparkline(coin.priceHistory5m)}
                       </div>
                     </td>
@@ -290,22 +329,38 @@ export const ScreenerTable: React.FC<ScreenerTableProps> = ({
             ⚠️ No micro-assets pass the configured security threshold or search filters.
           </div>
         ) : (
-          coins.map((coin) => {
+          displayCoins.map((coin) => {
             const isSelected = selectedCoinId === coin.id;
             const isPositive = coin.priceChange1h >= 0;
             const isSecure = coin.securityScore >= 75;
             const isHighlyCompromised = coin.securityScore < 30;
             const isGoldenTarget = coin.securityScore >= 85 && coin.combinedScore >= 80 && coin.breakoutProbability >= 85;
+            
+            // Blur the top ~25% of coins for premium
+            const isPremiumHidden = profile?.isPremium !== true && blurredIds.has(coin.id);
 
             return (
-              <div key={coin.id} className="flex flex-col">
+              <div key={coin.id} className={`flex flex-col relative`}>
                 <div 
-                  onClick={() => onSelectCoin(coin)}
+                  onClick={() => {
+                    if (isPremiumHidden) {
+                      if (onPremiumBlocked) onPremiumBlocked();
+                    } else {
+                      onSelectCoin(coin);
+                    }
+                  }}
                   className={`flex flex-col gap-3 p-4 glass-panel rounded-xl overflow-hidden cursor-pointer transition-colors ${
                     isSelected ? 'border-emerald-500 bg-emerald-500/5' : 'border-neutral-800 hover:bg-neutral-800/50'
                   }`}
                 >
-                  <div className="flex justify-between items-start gap-2">
+                  {isPremiumHidden && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-neutral-950/20 backdrop-blur-md z-10 rounded-xl">
+                       <button className="bg-emerald-500 hover:bg-emerald-400 text-neutral-950 px-4 py-2 rounded text-sm font-bold font-mono tracking-wider shadow">
+                         VIEW PREMIUM COIN
+                       </button>
+                    </div>
+                  )}
+                  <div className={`flex justify-between items-start gap-2 ${isPremiumHidden ? 'blur-md opacity-40 select-none' : ''}`}>
                     <div className="flex flex-col gap-1.5 min-w-0">
                       <div className="flex flex-wrap items-center gap-1.5">
                         <span className="font-bold text-neutral-100 font-sans text-sm">{coin.name}</span>

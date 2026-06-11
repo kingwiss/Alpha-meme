@@ -58,6 +58,7 @@ export interface MemeCoin {
   // Metadata
   createdTimeAgo: string;
   ageInMinutes: number;
+  createdAtMs?: number;
   scannedTime: string;
   topAuditsPassed: string[];
   redFlagsCount: number;

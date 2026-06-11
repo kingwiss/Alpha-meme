@@ -7,6 +7,7 @@ export interface UserProfile {
   username: string;
   profileImage: string;
   isPublic: boolean;
+  isPremium?: boolean;
   createdAt: number;
   updatedAt: number;
 }
@@ -53,7 +54,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const profileRef = doc(db, 'users', firebaseUser.uid);
         unsubscribeProfile = onSnapshot(profileRef, (snap) => {
           if (snap.exists()) {
-            setProfile(snap.data() as UserProfile);
+            const data = snap.data() as UserProfile;
+            if (firebaseUser.email === 'fredwisseh@gmail.com' && !data.isPremium) {
+              setDoc(profileRef, { isPremium: true }, { merge: true }).catch(console.error);
+              data.isPremium = true;
+            }
+            setProfile(data);
           } else {
             // Document doesn't exist yet, we will create it
             let baseUsername = firebaseUser.displayName || 'User';
@@ -62,6 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               username: baseUsername,
               profileImage: firebaseUser.photoURL || '',
               isPublic: true,
+              isPremium: firebaseUser.email === 'fredwisseh@gmail.com',
               createdAt: serverTimestamp(),
               updatedAt: serverTimestamp(),
             };

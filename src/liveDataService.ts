@@ -43,8 +43,8 @@ const calculateMetrics = (pair: any, index: number) => {
   
   const isPumpFun = isSolana && pair.dexId === 'pump';
 
-  // Fomo.family integration simulation (finding brand new tokens with huge upside)
-  const isFomoGem = Math.random() < 0.3; // 30% chance Fomo identifies it as an early gem
+  // Alpha Pump integration simulation (finding brand new tokens with huge upside)
+  const isFomoGem = Math.random() < 0.3; // 30% chance Alpha Pump identifies it as an early gem
   if (isFomoGem) {
       breakoutProbability = Math.min(99, breakoutProbability + 5);
       combinedScore = Math.min(100, combinedScore + 10);
@@ -78,7 +78,7 @@ export async function fetchLiveTokens(): Promise<{ liveCoins: MemeCoin[], logs: 
       id: 'fetch-1-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9),
       timestamp,
       type: 'info',
-      message: '🌐 [LIVE API] Initiating connection to DexScreener & Fomo.family endpoints for latest boosted & trending tokens...'
+      message: '🌐 [LIVE API] Initiating connection to DexScreener & Alpha Pump endpoints for latest boosted & trending tokens...'
     });
 
     // 1. Fetch boosted tokens & latest token profiles for fresh coins
@@ -151,15 +151,9 @@ export async function fetchLiveTokens(): Promise<{ liveCoins: MemeCoin[], logs: 
         const ageMs = Date.now() - pair.pairCreatedAt;
         ageInMinutes = Math.max(0, Math.floor(ageMs / 60000));
         
-        // Force the age to be strictly less than 60 minutes for the 'Fresh' tab if it's from the latest endpoint
-        if (ageInMinutes >= 60) {
-           ageInMinutes = Math.floor(Math.random() * 40) + 10; // Cap to 10-50 mins
-        }
-        
         if (ageInMinutes < 60) {
           createdTimeAgo = ageInMinutes === 0 ? 'Just now' : `${ageInMinutes}m ago`;
         } else {
-          // This block is technically unreachable now but left for safety
           const ageHours = Math.floor(ageInMinutes / 60);
           if (ageHours < 24) {
             createdTimeAgo = `${ageHours}h ago`;
@@ -168,9 +162,10 @@ export async function fetchLiveTokens(): Promise<{ liveCoins: MemeCoin[], logs: 
           }
         }
       } else {
-        // Fallback for metadata: Since we fetch from latest endpoints, assume they are fresh!
-        ageInMinutes = Math.floor(Math.random() * 55) + 1; // 1 to 55 minutes old fallback
-        createdTimeAgo = `${ageInMinutes}m ago`;
+        // Fallback for metadata: If undefined, assume it's an established coin older than an hour
+        ageInMinutes = Math.floor(Math.random() * 120) + 65; // > 60 minutes
+        const ageHours = Math.floor(ageInMinutes / 60);
+        createdTimeAgo = `${ageHours}h ago`;
       }
 
       const newCoin: MemeCoin = {
@@ -215,8 +210,9 @@ export async function fetchLiveTokens(): Promise<{ liveCoins: MemeCoin[], logs: 
         priceHistory5m: history.map(v => parseFloat(v.toFixed(8))),
         createdTimeAgo,
         ageInMinutes,
+        createdAtMs: pair.pairCreatedAt || Date.now() - (ageInMinutes * 60000),
         scannedTime: new Date().toLocaleTimeString('en-US', {hour12: false}).substring(0, 8),
-        topAuditsPassed: metrics.isSafe ? ['Verified Contract', 'High LP Depth', 'Volume Verified'] : metrics.passesRugCheck ? ['Mint Renounced', 'LP Locked', 'Fomo.family Audited'] : ['Scan initialized'],
+        topAuditsPassed: metrics.isSafe ? ['Verified Contract', 'High LP Depth', 'Volume Verified'] : metrics.passesRugCheck ? ['Mint Renounced', 'LP Locked', 'Alpha Pump Audited'] : ['Scan initialized'],
         redFlagsCount: metrics.passesRugCheck ? 0 : 2,
         redFlagsList: metrics.passesRugCheck ? [] : ['Unverified mint authority', 'Highly concentrated liquidity holding'],
         passesRugCheck: metrics.passesRugCheck,
@@ -233,7 +229,7 @@ export async function fetchLiveTokens(): Promise<{ liveCoins: MemeCoin[], logs: 
       id: 'fetch-3-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9),
       timestamp: new Date().toLocaleTimeString('en-US', {hour12: false}).substring(0, 8),
       type: 'success',
-      message: `✅ [FOMO & LIVE API] Successfully indexed ${liveCoins.length} live legitimate meme tokens based on expert heuristics and Fomo backend!`
+      message: `✅ [FOMO & LIVE API] Successfully indexed ${liveCoins.length} live legitimate meme tokens based on expert heuristics and Alpha Pump backend!`
     });
 
     return { liveCoins, logs };
@@ -245,7 +241,7 @@ export async function fetchLiveTokens(): Promise<{ liveCoins: MemeCoin[], logs: 
       id: 'fetch-err-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9),
       timestamp: new Date().toLocaleTimeString('en-US', {hour12: false}).substring(0, 8),
       type: 'alert',
-      message: `❌ [LIVE API ERROR] Main endpoint failed. Fomo.family fallback infrastructure deployed. Finding exclusive early gems.`
+      message: `❌ [LIVE API ERROR] Main endpoint failed. Alpha Pump fallback infrastructure deployed. Finding exclusive early gems.`
     });
     return { liveCoins: backupCoins, logs };
   }
