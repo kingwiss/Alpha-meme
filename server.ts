@@ -24,7 +24,10 @@ async function startServer() {
 
     try {
       const { uid, username } = req.body;
-      const appUrl = process.env.APP_URL || "http://localhost:3000";
+      let appUrl = process.env.APP_URL || req.headers.origin || req.protocol + '://' + req.get('host');
+      if (appUrl.endsWith('/')) {
+        appUrl = appUrl.slice(0, -1);
+      }
 
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ["card"],

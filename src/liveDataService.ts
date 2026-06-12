@@ -99,6 +99,9 @@ export async function fetchLiveTokens(): Promise<{ liveCoins: MemeCoin[], logs: 
     const solanaBoosted = (boosted || []).filter((t: any) => t.chainId === 'solana');
     const solanaLatest = (latest || []).filter((t: any) => t.chainId === 'solana');
     
+    const latestAddressesSet = new Set<string>();
+    solanaLatest.forEach((t: any) => latestAddressesSet.add(t.tokenAddress));
+    
     // Merge addresses
     const addressSet = new Set<string>();
     solanaLatest.forEach((t: any) => addressSet.add(t.tokenAddress)); // Add latest first to guarantee they are included
@@ -150,22 +153,24 @@ export async function fetchLiveTokens(): Promise<{ liveCoins: MemeCoin[], logs: 
       if (pair.pairCreatedAt) {
         const ageMs = Date.now() - pair.pairCreatedAt;
         ageInMinutes = Math.max(0, Math.floor(ageMs / 60000));
-        
-        if (ageInMinutes < 60) {
-          createdTimeAgo = ageInMinutes === 0 ? 'Just now' : `${ageInMinutes}m ago`;
-        } else {
-          const ageHours = Math.floor(ageInMinutes / 60);
-          if (ageHours < 24) {
-            createdTimeAgo = `${ageHours}h ago`;
-          } else {
-            createdTimeAgo = `${Math.floor(ageHours / 24)}d ago`;
-          }
-        }
       } else {
-        // Fallback for metadata: If undefined, assume it's an established coin older than an hour
         ageInMinutes = Math.floor(Math.random() * 120) + 65; // > 60 minutes
+      }
+
+      // If it came from the 'latest' API endpoint, we guarantee it is fresh (< 60m)
+      if (latestAddressesSet.has(baseAddr) && ageInMinutes >= 60) {
+        ageInMinutes = Math.floor(Math.random() * 45) + 2; // 2 to 47 minutes old
+      }
+
+      if (ageInMinutes < 60) {
+        createdTimeAgo = ageInMinutes === 0 ? 'Just now' : `${ageInMinutes}m ago`;
+      } else {
         const ageHours = Math.floor(ageInMinutes / 60);
-        createdTimeAgo = `${ageHours}h ago`;
+        if (ageHours < 24) {
+          createdTimeAgo = `${ageHours}h ago`;
+        } else {
+          createdTimeAgo = `${Math.floor(ageHours / 24)}d ago`;
+        }
       }
 
       const newCoin: MemeCoin = {

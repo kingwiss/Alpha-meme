@@ -25,7 +25,8 @@ import {
   Loader2,
   RefreshCw,
   User as UserIcon,
-  Check
+  Check,
+  Mail
 } from 'lucide-react';
 import { MemeCoin, ExecutiveStats, ScreenerFilters, SystemLog } from './types';
 import { INITIAL_MEME_COINS, MOCK_SYSTEM_LOGS, calculateExecutiveStats, simulateCoinTick } from './mockData';
@@ -39,18 +40,34 @@ import { useAuth } from './contexts/AuthContext';
 import { AuthModal } from './components/AuthModal';
 import { ProfileDashboard } from './components/ProfileDashboard';
 import { viewCoin } from './lib/coinActions';
+import { FooterModals } from './components/FooterModals';
+import { ContactFloatingButton } from './components/ContactFloatingButton';
 
 export default function App() {
   const { user, profile, updateProfile } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
+  
+  const [showAbout, setShowAbout] = useState(false);
+  const [showPrivacy, setShowPrivacy] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
 
   // Core application states
   const [coins, setCoins] = useState<MemeCoin[]>(INITIAL_MEME_COINS);
   const [selectedCoinId, setSelectedCoinId] = useState<string>('');
   
   const [selectedExternalCoin, setSelectedExternalCoin] = useState<MemeCoin | null>(null);
+
+  // Show premium modal after 3 minutes if not premium
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!profile?.isPremium) {
+        setShowPremiumModal(true);
+      }
+    }, 3 * 60 * 1000); // 3 minutes
+    return () => clearTimeout(timer);
+  }, [profile?.isPremium]);
 
   // Check for payment success parameter on mount
   useEffect(() => {
@@ -686,9 +703,12 @@ export default function App() {
             </div>
             
             <div className="flex flex-col xl:flex-row xl:items-center gap-3 xl:gap-5 w-full">
-              <h1 className="text-base sm:text-lg font-extrabold tracking-tight font-sans text-white shrink-0">
-                Alpha Pump
-              </h1>
+              <div className="flex items-center gap-2">
+                <img src="/src/assets/images/3d_gold_coin_1781261394514.jpg" alt="Logo" className="w-8 h-8 rounded-full border border-emerald-500/30" />
+                <h1 className="text-base sm:text-lg font-extrabold tracking-tight font-sans text-white shrink-0">
+                  Alpha Pump
+                </h1>
+              </div>
 
               <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
                 {/* Active alerts counter badge */}
@@ -894,11 +914,7 @@ export default function App() {
                     </h3>
                     <ScreenerTable 
                       coins={filteredAndSortedCoins
-                        .filter(c => 
-                          c.ageInMinutes < 60
-                          && c.breakoutProbability > 75 
-                          && c.passesRugCheck
-                        )
+                        .filter(c => c.ageInMinutes < 60)
                         .sort((a,b) => b.velocityScore - a.velocityScore)
                       } 
                       onSelectCoin={handleSelectCoin}
@@ -912,10 +928,10 @@ export default function App() {
                   <>
                     <h3 className="text-xs sm:text-sm font-bold text-neutral-300 font-mono mb-3 flex items-center gap-2">
                       <Activity className="text-amber-400" size={16} />
-                      <span className="truncate">Showing strictly unverified breakout tokens</span>
+                      <span className="truncate">Showing strictly unverified breakout tokens (1hr+)</span>
                     </h3>
                     <ScreenerTable 
-                      coins={filteredAndSortedCoins.filter(c => !c.isSafe && c.passesRugCheck)} 
+                      coins={filteredAndSortedCoins.filter(c => !c.isSafe && c.passesRugCheck && c.ageInMinutes >= 60)} 
                       onSelectCoin={handleSelectCoin}
                       onPremiumBlocked={() => setShowPremiumModal(true)}
                       selectedCoinId={selectedCoinId}
@@ -927,10 +943,10 @@ export default function App() {
                   <>
                     <h3 className="text-xs sm:text-sm font-bold text-neutral-300 font-mono mb-3 flex items-center gap-2">
                       <ShieldCheck className="text-emerald-400" size={16} />
-                      <span className="truncate">All Verified & Monitored Signals</span>
+                      <span className="truncate">All Verified & Monitored Signals (1hr+)</span>
                     </h3>
                     <ScreenerTable 
-                      coins={filteredAndSortedCoins.filter(c => c.isSafe)} 
+                      coins={filteredAndSortedCoins.filter(c => c.isSafe && c.ageInMinutes >= 60)} 
                       onSelectCoin={handleSelectCoin}
                       onPremiumBlocked={() => setShowPremiumModal(true)}
                       selectedCoinId={selectedCoinId}
@@ -1218,11 +1234,23 @@ export default function App() {
       {/* Footer Branding Acknowledgement */}
       <footer id="branding-footer" className="bg-neutral-900/40 border border-neutral-800/50 rounded-xl p-4 text-center text-xs font-mono text-neutral-500 mt-2 flex flex-col sm:flex-row justify-between items-center gap-2">
         <span>Developed to meet professional decentralized exchange audit specifications.</span>
+        <div className="flex items-center gap-4 text-neutral-400">
+          <button onClick={() => setShowAbout(true)} className="hover:text-emerald-400 transition-colors">About Us</button>
+          <button onClick={() => setShowPrivacy(true)} className="hover:text-emerald-400 transition-colors">Privacy Policy</button>
+          <button onClick={() => setShowTerms(true)} className="hover:text-emerald-400 transition-colors">Terms of Service</button>
+        </div>
         <span className="text-neutral-500 flex items-center gap-1.5">
           <Globe size={11} className="text-emerald-500" />
           <span>Solana Heuristics Client Core &bull; Secured by Alpha Pump & DexScreener</span>
         </span>
       </footer>
+
+      <FooterModals 
+        showAbout={showAbout} setShowAbout={setShowAbout}
+        showPrivacy={showPrivacy} setShowPrivacy={setShowPrivacy}
+        showTerms={showTerms} setShowTerms={setShowTerms}
+      />
+      <ContactFloatingButton />
 
       {/* Modal for viewing coin details without jumping screen */}
       {selectedCoin && (
@@ -1292,7 +1320,12 @@ export default function App() {
                     });
                     const data = await res.json();
                     if (data.url) {
-                       window.location.href = data.url;
+                       // Fix for Stripe checkout in iframe (like AI Studio) returning blank page
+                       if (window.self !== window.top) {
+                         window.open(data.url, '_blank');
+                       } else {
+                         window.location.href = data.url;
+                       }
                     } else {
                        alert("Error checking out: " + (data.error || 'Unknown Error'));
                     }
