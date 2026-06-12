@@ -14,7 +14,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const stripe = new Stripe(stripeSecret);
 
   try {
-    const { sessionId } = req.body;
+    const { sessionId } = req.body || {};
+    if (!sessionId) {
+      return res.status(400).json({ error: "Missing sessionId" });
+    }
     const session = await stripe.checkout.sessions.retrieve(sessionId);
     if (session.payment_status === 'paid') {
       res.json({ isPremium: true });

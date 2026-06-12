@@ -14,8 +14,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const stripe = new Stripe(stripeSecret);
 
   try {
-    const { uid, username } = req.body;
-    let appUrl = process.env.APP_URL || req.headers.origin || 'http://localhost:3000';
+    const { uid, username } = req.body || {};
+    
+    let appUrl = process.env.APP_URL 
+      || req.headers.origin 
+      || (req.headers.referer ? new URL(req.headers.referer).origin : null);
+      
+    if (!appUrl) {
+      if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+         appUrl = `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
+      } else if (process.env.VERCEL_URL) {
+         appUrl = `https://${process.env.VERCEL_URL}`;
+      } else {
+         appUrl = 'http://localhost:3000';
+      }
+    }
+    
     if (appUrl.endsWith('/')) {
       appUrl = appUrl.slice(0, -1);
     }

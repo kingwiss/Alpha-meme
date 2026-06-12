@@ -76,7 +76,14 @@ export default function App() {
     const payment = urlParams.get('payment');
 
     if (payment === 'success' && session_id && profile) {
-      if (profile.isPremium) return; // avoid duplicate
+      if (profile.isPremium) {
+         // Clean the URL if already premium but somehow still has params
+         window.history.replaceState({}, document.title, window.location.pathname);
+         return; 
+      }
+      
+      // Clean the URL IMMEDIATELY to prevent duplicate effects if re-rendered
+      window.history.replaceState({}, document.title, window.location.pathname);
       
       const verifyPayment = async () => {
         try {
@@ -92,10 +99,9 @@ export default function App() {
           } else {
              alert("Payment not yet successful. If this is a mistake, contact support.");
           }
-          // Clean the URL
-          window.history.replaceState({}, document.title, window.location.pathname);
         } catch (e) {
           console.error("Verification error", e);
+          alert("Failed to verify payment session.");
         }
       };
 
