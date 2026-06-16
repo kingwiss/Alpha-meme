@@ -48,6 +48,7 @@ export default function App() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [showComingSoonPremiumModal, setShowComingSoonPremiumModal] = useState(false);
   
   const [showAbout, setShowAbout] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
@@ -66,6 +67,21 @@ export default function App() {
         setShowPremiumModal(true);
       }
     }, 3 * 60 * 1000); // 3 minutes
+    return () => clearTimeout(timer);
+  }, [profile?.isPremium]);
+
+  // Suggest premium purchase after 60s for non-premium users
+  useEffect(() => {
+    if (profile?.isPremium) return;
+    
+    const hasShown = localStorage.getItem('hasShownComingSoonPremium');
+    if (hasShown) return;
+
+    const timer = setTimeout(() => {
+      setShowComingSoonPremiumModal(true);
+      localStorage.setItem('hasShownComingSoonPremium', 'true');
+    }, 60000); // 60 seconds
+
     return () => clearTimeout(timer);
   }, [profile?.isPremium]);
 
@@ -710,7 +726,7 @@ export default function App() {
             
             <div className="flex flex-col xl:flex-row xl:items-center gap-3 xl:gap-5 w-full">
               <div className="flex items-center gap-2">
-                <img src="/src/assets/images/3d_gold_coin_1781261394514.jpg" alt="Logo" className="w-8 h-8 rounded-full border border-emerald-500/30" />
+                <img src="/favicon.svg" alt="Alpha Pump Logo" className="w-8 h-8 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
                 <h1 className="text-base sm:text-lg font-extrabold tracking-tight font-sans text-white shrink-0">
                   Alpha Pump
                 </h1>
@@ -800,6 +816,18 @@ export default function App() {
 
         {/* Dynamic global tickers & feeds panel */}
         <div className="flex items-center gap-3 w-full lg:w-auto lg:justify-end border-t border-neutral-800/50 pt-3 lg:border-t-0 lg:pt-0">
+          <a
+            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent("Alpha Pump is the very best app for finding the best meme coins on the market! https://www.alphapump.online/")}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-1.5 sm:p-2 rounded-lg text-xs font-mono font-bold flex items-center justify-center transition-all cursor-pointer bg-neutral-900 border border-neutral-800 text-white hover:border-neutral-500 shrink-0"
+            title="Share on X"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+          </a>
+          
           {user && profile ? (
             <button
               onClick={() => setShowProfile(true)}
@@ -1342,6 +1370,39 @@ export default function App() {
               className="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold font-mono tracking-wider rounded-xl uppercase transition-colors shadow-[0_0_20px_rgba(16,185,129,0.2)]"
             >
               Get Premium Now
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showComingSoonPremiumModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-sm shadow-2xl">
+          <div className="bg-neutral-900 border border-emerald-500/30 rounded-2xl p-6 max-w-sm w-full relative overflow-hidden shadow-[0_0_40px_rgba(16,185,129,0.15)] auto-fade-in relative z-10 flex flex-col items-center">
+            <button 
+              onClick={() => setShowComingSoonPremiumModal(false)}
+              className="absolute top-4 right-4 text-neutral-500 hover:text-white bg-neutral-800 hover:bg-neutral-700 w-8 h-8 rounded-full flex items-center justify-center transition-colors shadow"
+            >
+              x
+            </button>
+            <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mb-4 border border-emerald-500/20">
+              <Zap size={32} className="text-emerald-500" />
+            </div>
+            <h2 className="text-xl font-bold font-sans text-center mb-2">Buy Coins Directly (Coming Soon!)</h2>
+            <p className="text-neutral-400 text-sm xl:text-base text-center mb-4">
+              Soon, you will be able to buy meme coins directly inside the app! 
+            </p>
+            <p className="text-neutral-400 text-sm text-center mb-6">
+              To be ready and view the very best coins on the market while they're trending, <strong className="text-white">purchase Premium today.</strong>
+            </p>
+            
+            <button 
+              onClick={() => {
+                setShowComingSoonPremiumModal(false);
+                setShowPremiumModal(true);
+              }}
+              className="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold font-mono tracking-wider rounded-xl uppercase transition-colors shadow-[0_0_20px_rgba(16,185,129,0.2)]"
+            >
+              Buy Premium
             </button>
           </div>
         </div>
