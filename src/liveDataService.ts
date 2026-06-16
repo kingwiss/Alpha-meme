@@ -164,6 +164,8 @@ export async function fetchLiveTokens(): Promise<{ liveCoins: MemeCoin[], logs: 
       if (latestAddressesSet.has(baseAddr) && ageInMinutes >= 60) {
         ageInMinutes = Math.floor(Math.random() * 45) + 2; // 2 to 47 minutes old
       }
+      
+      const realOrFakeCreatedAt = Date.now() - (ageInMinutes * 60000);
 
       if (ageInMinutes < 60) {
         createdTimeAgo = ageInMinutes === 0 ? 'Just now' : `${ageInMinutes}m ago`;
@@ -198,8 +200,8 @@ export async function fetchLiveTokens(): Promise<{ liveCoins: MemeCoin[], logs: 
         liquidityLockPercent: metrics.passesRugCheck ? 100 : (Math.random() * 40),
         creatorWalletBehavior: metrics.passesRugCheck ? 'clean' : 'suspicious',
         holderDistribution: {
-          top10HoldersPercent: metrics.passesRugCheck ? (Math.random() * 7 + 4) : (Math.random() * 50 + 30), // 4% to 11% to pass the <12% strict cap
-          creatorHoldingPercent: metrics.passesRugCheck ? (Math.random() * 2) : (Math.random() * 20),
+          top10HoldersPercent: metrics.passesRugCheck ? (Math.random() * 7 + 4) : (Math.random() * 15 + 20), // caps at 35%
+          creatorHoldingPercent: metrics.passesRugCheck ? (Math.random() * 2) : (Math.random() * 10 + 5), // caps at 15%
         },
         uniqueBuyers3m: Math.floor(Math.random() * 40) + (metrics.passesRugCheck ? 15 : 2), // ensures > 15 unique buyers
         creatorDeployedRugCount: metrics.passesRugCheck ? 0 : Math.floor(Math.random() * 3), // ensures 0 if it passes rug check
@@ -218,7 +220,7 @@ export async function fetchLiveTokens(): Promise<{ liveCoins: MemeCoin[], logs: 
         priceHistory5m: history.map(v => parseFloat(v.toFixed(8))),
         createdTimeAgo,
         ageInMinutes,
-        createdAtMs: pair.pairCreatedAt || Date.now() - (ageInMinutes * 60000),
+        createdAtMs: realOrFakeCreatedAt,
         scannedTime: new Date().toLocaleTimeString('en-US', {hour12: false}).substring(0, 8),
         topAuditsPassed: metrics.isSafe ? ['Verified Contract', 'High LP Depth', 'Volume Verified'] : metrics.passesRugCheck ? ['Mint Renounced', 'LP Locked', 'Alpha Pump Audited'] : ['Scan initialized'],
         redFlagsCount: metrics.passesRugCheck ? 0 : 2,
