@@ -12,23 +12,21 @@ const calculateMetrics = (pair: any, index: number) => {
   const priceChange1h = pair.priceChange?.h1 || 0;
   const priceChange24h = pair.priceChange?.h24 || 0;
 
-  // Pseudo-randomizing safe/scam flags based on chain & volume to simulate audit
+  // Evaluate safe/scam flags based on chain, volume, and socials
   const isHighVolume = liquidity > 5000 && volume24h > 10000;
   const hasSocials = pair.info?.socials && pair.info.socials.length > 0;
   
-  // Heavily skew towards legitimate coins per user request "no bad coins allowed!"
-  const isSafe = Math.random() < 0.35; // mostly unverified so the default tab looks full
-  
-  // ALL coins must pass rug checks to ensure the user only sees promising 100x potential coins, no scams.
-  const passesRugCheck = true; 
+  // Scams typically have very low liquidity, no volume, and no socials.
+  const passesRugCheck = liquidity >= 1000 && volume24h >= 1000 && hasSocials; 
+  const isSafe = passesRugCheck && liquidity > 5000; 
   const isYoungDegen = true;
   
   // Scoring: Make velocity extremely high to simulate traction in the past hour
   const velocityScore = Math.min(100, Math.round((volume5m / (liquidity || 1)) * 10000) || (Math.random() * 20 + 80));
   const socialScore = hasSocials ? (Math.random() * 20 + 80) : (Math.random() * 30 + 70);
   
-  // High security scores for everyone because NO BAD COINS ALLOWED.
-  const securityScore = isSafe ? (Math.random() * 10 + 90) : (Math.random() * 15 + 75);
+  // Realistic security scoring
+  const securityScore = isSafe ? (Math.random() * 10 + 90) : (passesRugCheck ? (Math.random() * 15 + 75) : (Math.random() * 40));
   
   let combinedScore = Math.round((velocityScore * 0.45) + (socialScore * 0.35) + (securityScore * 0.20));
   
@@ -137,6 +135,11 @@ export async function fetchLiveTokens(): Promise<{ liveCoins: MemeCoin[], logs: 
       processedMap.add(baseAddr);
 
       const metrics = calculateMetrics(pair, idx);
+      
+      // Explicitly reject scam or spam tokens that fail our rug checks
+      if (!metrics.passesRugCheck) {
+        return;
+      }
       
       const p = parseFloat(pair.priceUsd) || 0.000001;
       const history = [
