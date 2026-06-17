@@ -15,7 +15,7 @@ import {
   Flame, 
   Activity, 
   Globe, 
-  Compass, 
+  Search, 
   HelpCircle,
   Play,
   Pause,
@@ -42,6 +42,8 @@ import { ProfileDashboard } from './components/ProfileDashboard';
 import { viewCoin } from './lib/coinActions';
 import { FooterModals } from './components/FooterModals';
 import { ContactFloatingButton } from './components/ContactFloatingButton';
+import { TerminalModal } from './components/TerminalModal';
+import { TokenSearchModal } from './components/TokenSearchModal';
 
 export default function App() {
   const { user, profile, updateProfile } = useAuth();
@@ -50,6 +52,11 @@ export default function App() {
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [showComingSoonPremiumModal, setShowComingSoonPremiumModal] = useState(false);
   
+  const [showTerminalModal, setShowTerminalModal] = useState(false);
+  const [terminalMint, setTerminalMint] = useState<string>('');
+  
+  const [showTokenSearchModal, setShowTokenSearchModal] = useState(false);
+
   const [showAbout, setShowAbout] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
@@ -816,6 +823,14 @@ export default function App() {
 
         {/* Dynamic global tickers & feeds panel */}
         <div className="flex items-center gap-3 w-full lg:w-auto lg:justify-end border-t border-neutral-800/50 pt-3 lg:border-t-0 lg:pt-0">
+          <button
+            onClick={() => setShowTokenSearchModal(true)}
+            className="px-3 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-2 transition-all cursor-pointer bg-neutral-900 border border-neutral-800 text-sky-400 hover:text-white hover:bg-sky-500/10 hover:border-sky-400 shrink-0"
+            title="Search and Buy any coin on Solana"
+          >
+            <Search size={14} /> SEARCH MEME COINS
+          </button>
+          
           <a
             href={`https://twitter.com/intent/tweet?text=${encodeURIComponent("Alpha Pump is the very best app for finding the best meme coins on the market! https://www.alphapump.online/")}`}
             target="_blank"
@@ -1304,6 +1319,10 @@ export default function App() {
                  onMockBuy={handleMockBuy}
                  onMockSell={handleMockSell}
                  onAddAlert={handleAddAlert}
+                 onOpenTerminal={(mint) => {
+                   setTerminalMint(mint);
+                   setShowTerminalModal(true);
+                 }}
                />
             </div>
           </div>
@@ -1375,37 +1394,21 @@ export default function App() {
         </div>
       )}
 
-      {showComingSoonPremiumModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-sm shadow-2xl">
-          <div className="bg-neutral-900 border border-emerald-500/30 rounded-2xl p-6 max-w-sm w-full relative overflow-hidden shadow-[0_0_40px_rgba(16,185,129,0.15)] auto-fade-in relative z-10 flex flex-col items-center">
-            <button 
-              onClick={() => setShowComingSoonPremiumModal(false)}
-              className="absolute top-4 right-4 text-neutral-500 hover:text-white bg-neutral-800 hover:bg-neutral-700 w-8 h-8 rounded-full flex items-center justify-center transition-colors shadow"
-            >
-              x
-            </button>
-            <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mb-4 border border-emerald-500/20">
-              <Zap size={32} className="text-emerald-500" />
-            </div>
-            <h2 className="text-xl font-bold font-sans text-center mb-2">Buy Coins Directly (Coming Soon!)</h2>
-            <p className="text-neutral-400 text-sm xl:text-base text-center mb-4">
-              Soon, you will be able to buy meme coins directly inside the app! 
-            </p>
-            <p className="text-neutral-400 text-sm text-center mb-6">
-              To be ready and view the very best coins on the market while they're trending, <strong className="text-white">purchase Premium today.</strong>
-            </p>
-            
-            <button 
-              onClick={() => {
-                setShowComingSoonPremiumModal(false);
-                setShowPremiumModal(true);
-              }}
-              className="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold font-mono tracking-wider rounded-xl uppercase transition-colors shadow-[0_0_20px_rgba(16,185,129,0.2)]"
-            >
-              Buy Premium
-            </button>
-          </div>
-        </div>
+      {showTerminalModal && (
+        <TerminalModal 
+          onClose={() => setShowTerminalModal(false)} 
+          initialMint={terminalMint} 
+        />
+      )}
+
+      {showTokenSearchModal && (
+        <TokenSearchModal 
+          onClose={() => setShowTokenSearchModal(false)}
+          onSelectToken={(mint) => {
+            setTerminalMint(mint);
+            setShowTerminalModal(true);
+          }}
+        />
       )}
 
       {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}

@@ -172,10 +172,18 @@ export const ScreenerTable: React.FC<ScreenerTableProps> = ({
                       className={`hover:bg-neutral-800/40 transition-colors cursor-pointer text-xs relative ${
                         isSelected ? 'bg-emerald-500/5 border-l-4 border-l-emerald-500' : ''
                       }`}
+                      style={{ filter: isPremiumHidden ? 'blur(6px)' : 'none', opacity: isPremiumHidden ? 0.3 : 1, userSelect: isPremiumHidden ? 'none' : 'auto' }}
                     >
                     {/* Token details and copy address */}
                     <td className="py-3.5 px-4 relative">
-                      <div className={`flex items-center gap-2 ${isPremiumHidden ? 'blur-md opacity-50 select-none' : ''}`}>
+                      {isPremiumHidden && (
+                        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none whitespace-nowrap">
+                          <span className="bg-emerald-500 text-neutral-950 px-4 py-1.5 rounded text-xs font-bold font-mono tracking-wider shadow-xl border border-emerald-400">
+                             ⭐ PREMIUM COIN
+                          </span>
+                        </div>
+                      )}
+                      <div className={`flex items-center gap-2 ${isPremiumHidden ? 'blur-lg opacity-30 select-none pointer-events-none' : ''}`}>
                         <div className="flex flex-col">
                           <div className="flex items-center gap-1.5 flex-wrap">
                             <span className="font-bold text-neutral-100 font-sans">{coin.name}</span>
@@ -251,14 +259,14 @@ export const ScreenerTable: React.FC<ScreenerTableProps> = ({
 
                     {/* Price USD */}
                     <td className="py-3.5 px-4 text-right font-mono font-medium text-neutral-200 relative">
-                      <span className={isPremiumHidden ? 'blur-md opacity-40 select-none' : ''}>
+                      <span className={isPremiumHidden ? 'blur-lg opacity-30 select-none pointer-events-none' : ''}>
                         ${isPremiumHidden ? '0.0000' : coin.priceUsd.toLocaleString(undefined, { minimumFractionDigits: 4, maximumFractionDigits: 6 })}
                       </span>
                     </td>
 
                     {/* Price Change 1H */}
                     <td className="py-3.5 px-4 text-right font-mono relative">
-                      <div className={`flex flex-col items-end ${isPremiumHidden ? 'blur-md opacity-40 select-none' : ''}`}>
+                      <div className={`flex flex-col items-end ${isPremiumHidden ? 'blur-lg opacity-30 select-none pointer-events-none' : ''}`}>
                         <span className={`font-semibold ${isPositive ? 'text-emerald-400' : 'text-rose-400'}`}>
                           {isPositive ? '+' : ''}{isPremiumHidden ? '0' : coin.priceChange1h.toFixed(1)}%
                         </span>
@@ -270,7 +278,7 @@ export const ScreenerTable: React.FC<ScreenerTableProps> = ({
 
                     {/* Calculated Probabilities */}
                     <td className="py-3.5 px-4 text-center relative">
-                      <div className={`flex flex-col items-center justify-center gap-1 ${isPremiumHidden ? 'blur-md opacity-40 select-none' : ''}`}>
+                      <div className={`flex flex-col items-center justify-center gap-1 ${isPremiumHidden ? 'blur-lg opacity-30 select-none pointer-events-none' : ''}`}>
                         <div className="flex items-center gap-1">
                           <span className={`text-xs font-mono font-bold ${
                             coin.breakoutProbability >= 85 
@@ -302,14 +310,14 @@ export const ScreenerTable: React.FC<ScreenerTableProps> = ({
 
                     {/* Age */}
                     <td className="py-3.5 px-4 text-center text-neutral-400 font-mono text-xs relative">
-                       <span className={isPremiumHidden ? 'blur-md opacity-40 select-none' : ''}>
+                       <span className={isPremiumHidden ? 'blur-lg opacity-30 select-none pointer-events-none' : ''}>
                          {coin.createdTimeAgo}
                        </span>
                     </td>
 
                     {/* Price History Sparklines */}
                     <td className="py-3.5 px-4 text-center relative">
-                      <div className={`flex items-center justify-center ${isPremiumHidden ? 'blur-md opacity-40' : ''}`}>
+                      <div className={`flex items-center justify-center ${isPremiumHidden ? 'blur-lg opacity-30 pointer-events-none' : ''}`}>
                         {renderSparkline(coin.priceHistory5m)}
                       </div>
                     </td>
@@ -360,7 +368,7 @@ export const ScreenerTable: React.FC<ScreenerTableProps> = ({
                        </button>
                     </div>
                   )}
-                  <div className={`flex justify-between items-start gap-2 ${isPremiumHidden ? 'blur-md opacity-40 select-none' : ''}`}>
+                  <div className={`flex justify-between items-start gap-2 ${isPremiumHidden ? 'select-none pointer-events-none' : ''}`} style={{ filter: isPremiumHidden ? 'blur(6px)' : 'none', opacity: isPremiumHidden ? 0.3 : 1 }}>
                     <div className="flex flex-col gap-1.5 min-w-0">
                       <div className="flex flex-wrap items-center gap-1.5">
                         <span className="font-bold text-neutral-100 font-sans text-sm">{coin.name}</span>
@@ -428,7 +436,7 @@ export const ScreenerTable: React.FC<ScreenerTableProps> = ({
                   </div>
 
                   {/* Badges Row */}
-                  <div className="flex items-center flex-wrap gap-2">
+                  <div className={`flex items-center flex-wrap gap-2 ${isPremiumHidden ? 'select-none pointer-events-none' : ''}`} style={{ filter: isPremiumHidden ? 'blur(6px)' : 'none', opacity: isPremiumHidden ? 0.3 : 1 }}>
                      <span className={`flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.5 rounded border ${
                         coin.velocityScore >= 80 ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 
                         coin.velocityScore >= 50 ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : 'bg-neutral-800 text-neutral-400 border-neutral-700'
@@ -455,7 +463,7 @@ export const ScreenerTable: React.FC<ScreenerTableProps> = ({
                       </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 mt-2 p-3 bg-neutral-950/50 rounded-lg border border-neutral-800/60">
+                  <div className={`grid grid-cols-2 gap-4 mt-2 p-3 bg-neutral-950/50 rounded-lg border border-neutral-800/60 ${isPremiumHidden ? 'select-none pointer-events-none' : ''}`} style={{ filter: isPremiumHidden ? 'blur(6px)' : 'none', opacity: isPremiumHidden ? 0.3 : 1 }}>
                     <div className="flex flex-col gap-2">
                        <span className="text-[10px] text-neutral-500 font-mono uppercase tracking-wider">Liquidity & MC</span>
                        <div className="flex flex-col gap-0.5 font-mono text-[11px] font-semibold">

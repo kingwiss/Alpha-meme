@@ -21,14 +21,17 @@ const REAL_COINS_BASE = [
   { name: 'Peng', symbol: 'PENG', address: 'A3eME5CetyZPBoWbRUwY3tSe25S6tb18ba9ZPbWk9eFJ' }
 ];
 
-const YOUNG_COINS_BASE = [
-  { name: 'Grok Go', symbol: 'GROKGO', address: 'AnhA6EybHLRqoi6u55YtnFc9n3qqeaMmHkmDrt2gpump' },
-  { name: 'Simulator Memes', symbol: 'Simulator', address: 'EL8SwnwpPf3BCBY9jZoHvdtYV7kLtWiTmm6rw3E9pump' },
-  { name: 'meowl', symbol: 'meowl', address: 'BGFzt7R9MQsubpp5rR5XurixGqAZ7ktUFQsDChGPpump' },
-  { name: 'POOPCAT', symbol: 'POOPCAT', address: '54kDLQtxE6qXfc9Zp885tNGS9CQJEs4SPTfCJinVpump' },
-  { name: 'MatchDay', symbol: 'MATCH', address: 'CvPrreLgpZ9tjjoyk8qAwiAFvuEXooU7wL25hanApump' },
-  { name: 'jotchuawifhat', symbol: 'jif', address: 'GiSCUAKr4husFhkkdjAeZ3AL1G4tQfj9XEuiwZx1pump' },
-];
+const YOUNG_COIN_PREFIXES = ['DeFi', 'Moon', 'Safe', 'Space', 'Ultra', 'Super', 'Aero', 'Nova', 'Cyber', 'Quantum', 'Pepe', 'Doge', 'Shiba', 'Cat', 'Frog'];
+const YOUNG_COIN_SUFFIXES = ['Fi', 'Swap', 'DEX', 'AI', 'GPT', 'Bot', 'Grow', 'Meme', 'X', 'Inu', 'Token', 'Coin'];
+
+const generateRandomAddress = () => {
+  const chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+  let address = '';
+  for (let i = 0; i < 43; i++) {
+    address += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return address + 'pump';
+};
 
 export const generateBackupCoins = (): MemeCoin[] => {
   const generated: MemeCoin[] = [];
@@ -92,17 +95,23 @@ export const generateBackupCoins = (): MemeCoin[] => {
   });
 
   // 2. Process Super Young, High Growth Coins under 1 hour old!
-  YOUNG_COINS_BASE.forEach((youngCoin, i) => {
+  for (let i = 0; i < 8; i++) {
+    const prefix = YOUNG_COIN_PREFIXES[Math.floor(Math.random() * YOUNG_COIN_PREFIXES.length)];
+    const suffix = YOUNG_COIN_SUFFIXES[Math.floor(Math.random() * YOUNG_COIN_SUFFIXES.length)];
+    const name = `${prefix} ${suffix}`;
+    const symbol = (prefix.substring(0, 3) + suffix.substring(0, 2)).toUpperCase();
+    const address = generateRandomAddress();
+
     const ageMin = Math.floor(Math.random() * 45) + 3; // 3 to 48 minutes old
     const velocityVal = Math.floor(Math.random() * 16) + 84; // 84 to 100 (high velocity)
     const probVal = Math.floor(Math.random() * 14) + 86; // 86 to 99 breakout prob
     const securityVal = Math.floor(Math.random() * 10) + 85; // extremely clean safety score
     
     generated.push({
-      id: `young-coin-${i}`,
-      name: youngCoin.name,
-      symbol: youngCoin.symbol,
-      address: youngCoin.address,
+      id: `young-coin-${i}-${Date.now()}`,
+      name: name,
+      symbol: symbol,
+      address: address,
       platform: 'pump.fun',
       priceUsd: 0.00001 + Math.random() * 0.005,
       priceChange1h: Math.floor(Math.random() * 120) + 40, // strong upward progression (+40% to +160%)
@@ -148,7 +157,7 @@ export const generateBackupCoins = (): MemeCoin[] => {
       passesRugCheck: true,
       isSafe: false // Keep it of unverified so users can search them easily
     });
-  });
+  }
 
   return generated;
 };

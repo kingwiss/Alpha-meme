@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { X, ShieldCheck, ShieldAlert, Award, FileCode, Users, HelpCircle, Activity, ShoppingCart, BellDot, HeartHandshake, Copy, Check, Link, ExternalLink, LineChart as ChartIcon } from 'lucide-react';
+import { X, ShieldCheck, ShieldAlert, Award, FileCode, Users, HelpCircle, Activity, ShoppingCart, BellDot, HeartHandshake, Copy, Check, Link, ExternalLink, LineChart as ChartIcon, Zap } from 'lucide-react';
 import { LineChart, Line, ResponsiveContainer, YAxis, Tooltip, XAxis } from 'recharts';
 import { MemeCoin } from '../types';
 
@@ -9,6 +9,7 @@ interface InspectorDrawerProps {
   onMockBuy: (id: string, amountSol: number) => void;
   onMockSell: (id: string, amountSol: number) => void;
   onAddAlert: (symbol: string) => void;
+  onOpenTerminal?: (mint: string) => void;
 }
 
 export const InspectorDrawer: React.FC<InspectorDrawerProps> = ({
@@ -17,6 +18,7 @@ export const InspectorDrawer: React.FC<InspectorDrawerProps> = ({
   onMockBuy,
   onMockSell,
   onAddAlert,
+  onOpenTerminal
 }) => {
   const [activeTab, setActiveTab] = useState<'chart' | 'audit' | 'bonding' | 'social' | 'api'>('chart');
   const [copiedRaw, setCopiedRaw] = useState(false);
@@ -208,28 +210,19 @@ export const InspectorDrawer: React.FC<InspectorDrawerProps> = ({
 
         {/* Dynamic Pasteable Links Grid */}
         <div className="grid grid-cols-2 gap-2 text-center text-[10px] font-mono">
-          {/* Option 2: Jupiter Swap Link */}
           <button
-            id="copy-jup-link-drawer"
             onClick={() => {
-              navigator.clipboard.writeText(`https://jup.ag/swap/SOL-${coin.address}`);
-              setCopiedJupLink(true);
-              setTimeout(() => setCopiedJupLink(false), 2000);
+              if (onOpenTerminal) {
+                onOpenTerminal(coin.address);
+              } else if ((window as any).openTerminalWithMint) {
+                (window as any).openTerminalWithMint(coin.address);
+              }
             }}
-            className="border border-neutral-800 bg-neutral-950/60 hover:bg-purple-600/10 hover:border-purple-500/30 text-neutral-300 hover:text-purple-300 py-1.5 rounded transition-all flex items-center justify-center gap-1 cursor-pointer font-bold"
-            title="Copy Jupiter Swap URL"
+            className="border border-neutral-800 bg-neutral-950/60 hover:bg-emerald-600/10 hover:border-emerald-500/30 text-neutral-300 hover:text-emerald-300 py-1.5 rounded transition-all flex items-center justify-center gap-1 cursor-pointer font-bold"
+            title="Buy Securely via Jupiter inside Alpha Pump"
           >
-            {copiedJupLink ? (
-              <>
-                <Check size={11} className="text-purple-400" />
-                <span>COPIED URL!</span>
-              </>
-            ) : (
-              <>
-                <Link size={11} className="text-neutral-400" />
-                <span>COPY JUPITER LINK</span>
-              </>
-            )}
+            <Zap size={11} className="text-emerald-400" />
+            <span>EXCHANGE / TRADE (JUPITER)</span>
           </button>
 
           {/* Option 3: DexScreener Link */}

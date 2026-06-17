@@ -96,3 +96,9 @@ export interface SystemLog {
   type: 'info' | 'success' | 'warning' | 'alert';
   message: string;
 }
+
+declare global {
+  interface Window {
+    Jupiter: any;
+  }
+}

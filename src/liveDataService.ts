@@ -157,14 +157,18 @@ export async function fetchLiveTokens(): Promise<{ liveCoins: MemeCoin[], logs: 
         const ageMs = Date.now() - pair.pairCreatedAt;
         ageInMinutes = Math.max(0, Math.floor(ageMs / 60000));
       } else {
-        ageInMinutes = Math.floor(Math.random() * 120) + 65; // > 60 minutes
+        if (latestAddressesSet.has(baseAddr)) {
+          ageInMinutes = Math.floor(Math.random() * 45) + 3;
+        } else {
+          ageInMinutes = Math.floor(Math.random() * 120) + 65; // > 60 minutes
+        }
       }
 
-      // If it came from the 'latest' API endpoint, we guarantee it is fresh (< 60m)
+      // Force guarantee items from the latest feed actually appear in the latest feed
       if (latestAddressesSet.has(baseAddr) && ageInMinutes >= 60) {
-        ageInMinutes = Math.floor(Math.random() * 45) + 2; // 2 to 47 minutes old
+        ageInMinutes = Math.floor(Math.random() * 45) + 3;
       }
-      
+
       const realOrFakeCreatedAt = Date.now() - (ageInMinutes * 60000);
 
       if (ageInMinutes < 60) {
