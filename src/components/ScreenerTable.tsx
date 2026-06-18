@@ -7,6 +7,7 @@ import { saveCoin, unsaveCoin } from '../lib/coinActions';
 interface ScreenerTableProps {
   coins: MemeCoin[];
   onSelectCoin: (coin: MemeCoin) => void;
+  onBuyCoin?: (coin: MemeCoin) => void;
   onPremiumBlocked?: () => void;
   selectedCoinId?: string;
 }
@@ -14,6 +15,7 @@ interface ScreenerTableProps {
 export const ScreenerTable: React.FC<ScreenerTableProps> = ({
   coins,
   onSelectCoin,
+  onBuyCoin,
   onPremiumBlocked,
   selectedCoinId,
 }) => {
@@ -244,6 +246,18 @@ export const ScreenerTable: React.FC<ScreenerTableProps> = ({
                                 <Bookmark size={12} fill={savedCoinIds.has(coin.id) ? "currentColor" : "none"} /> {savedCoinIds.has(coin.id) ? 'SAVED' : 'SAVE'}
                               </button>
                             )}
+                            {!isPremiumHidden && (
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (onBuyCoin) onBuyCoin(coin);
+                                }}
+                                className="flex items-center justify-center gap-1 px-3 py-1 bg-sky-500/10 rounded border border-sky-500/30 hover:border-sky-500 hover:bg-sky-500/20 transition-colors text-[10px] text-sky-400 font-mono font-bold shrink-0" 
+                                title="Buy directly via Jupiter"
+                              >
+                                BUY
+                              </button>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -418,6 +432,18 @@ export const ScreenerTable: React.FC<ScreenerTableProps> = ({
                             title={savedCoinIds.has(coin.id) ? "Remove from Dashboard" : "Save to Dashboard"}
                           >
                             <Bookmark size={12} fill={savedCoinIds.has(coin.id) ? "currentColor" : "none"} />
+                          </button>
+                        )}
+                        {!isPremiumHidden && (
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (onBuyCoin) onBuyCoin(coin);
+                            }}
+                            className="flex items-center justify-center gap-1 px-3 py-1 bg-sky-500/10 rounded border border-sky-500/30 hover:border-sky-500 hover:bg-sky-500/20 transition-colors text-[10px] text-sky-400 font-mono font-bold shrink-0" 
+                            title="Buy directly via Jupiter"
+                          >
+                            BUY
                           </button>
                         )}
                       </div>

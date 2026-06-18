@@ -45,6 +45,8 @@ import { ContactFloatingButton } from './components/ContactFloatingButton';
 import { TerminalModal } from './components/TerminalModal';
 import { TokenSearchModal } from './components/TokenSearchModal';
 
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+
 export default function App() {
   const { user, profile, updateProfile } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -257,6 +259,11 @@ export default function App() {
   const handleSelectCoin = (coin: MemeCoin) => {
     setSelectedCoinId(coin.id === selectedCoinId ? '' : coin.id);
   }
+
+  const handleBuyCoin = (coin: MemeCoin) => {
+    setTerminalMint(coin.address);
+    setShowTerminalModal(true);
+  };
 
   // Auto-scroll log console
   useEffect(() => {
@@ -967,6 +974,7 @@ export default function App() {
                         .sort((a,b) => b.velocityScore - a.velocityScore)
                       } 
                       onSelectCoin={handleSelectCoin}
+                      onBuyCoin={handleBuyCoin}
                       onPremiumBlocked={() => setShowPremiumModal(true)}
                       selectedCoinId={selectedCoinId}
                     />
@@ -982,6 +990,7 @@ export default function App() {
                     <ScreenerTable 
                       coins={filteredAndSortedCoins.filter(c => !c.isSafe && c.passesRugCheck && c.ageInMinutes >= 60)} 
                       onSelectCoin={handleSelectCoin}
+                      onBuyCoin={handleBuyCoin}
                       onPremiumBlocked={() => setShowPremiumModal(true)}
                       selectedCoinId={selectedCoinId}
                     />
@@ -997,6 +1006,7 @@ export default function App() {
                     <ScreenerTable 
                       coins={filteredAndSortedCoins.filter(c => c.isSafe && c.ageInMinutes >= 60)} 
                       onSelectCoin={handleSelectCoin}
+                      onBuyCoin={handleBuyCoin}
                       onPremiumBlocked={() => setShowPremiumModal(true)}
                       selectedCoinId={selectedCoinId}
                     />
