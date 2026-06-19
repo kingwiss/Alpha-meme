@@ -54,10 +54,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const profileRef = doc(db, 'users', firebaseUser.uid);
         unsubscribeProfile = onSnapshot(profileRef, (snap) => {
           if (snap.exists()) {
-            const data = snap.data() as UserProfile;
+            let data = snap.data() as UserProfile;
             if (firebaseUser.email === 'fredwisseh@gmail.com' && !data.isPremium) {
               setDoc(profileRef, { isPremium: true }, { merge: true }).catch(console.error);
-              data.isPremium = true;
+              data = { ...data, isPremium: true };
             }
             setProfile(data);
           } else {

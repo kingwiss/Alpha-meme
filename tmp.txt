@@ -1,0 +1,1758 @@
+src/components/TokenSearchModal.tsx:19:  onClose: () => void;
+src/components/TokenSearchModal.tsx:20:  onSelectToken: (address: string) => void;
+src/components/TokenSearchModal.tsx:23:export const TokenSearchModal: React.FC<TokenSearchModalProps> = ({ onClose, onSelectToken }) => {
+src/components/TokenSearchModal.tsx:24:  const [query, setQuery] = useState('');
+src/components/TokenSearchModal.tsx:25:  const [results, setResults] = useState<SearchResult[]>([]);
+src/components/TokenSearchModal.tsx:26:  const [isLoading, setIsLoading] = useState(false);
+src/components/TokenSearchModal.tsx:28:  useEffect(() => {
+src/components/TokenSearchModal.tsx:34:    const timer = setTimeout(async () => {
+src/components/TokenSearchModal.tsx:38:        const searchTerm = query.trim();
+src/components/TokenSearchModal.tsx:39:        const res = await fetch(`https://api.dexscreener.com/latest/dex/search?q=${encodeURIComponent(searchTerm)}`);
+src/components/TokenSearchModal.tsx:40:        const data = await res.json();
+src/components/TokenSearchModal.tsx:44:          const solanaPairs = data.pairs.filter((p: any) => p.chainId === 'solana');
+src/components/TokenSearchModal.tsx:46:          const uniqueTokens = new Map<string, SearchResult>();
+src/components/TokenSearchModal.tsx:65:    return () => clearTimeout(timer);
+src/components/TokenSearchModal.tsx:69:    <div className="fixed inset-0 z-[110] flex pt-20 justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-sm shadow-2xl">
+src/components/TokenSearchModal.tsx:70:      <div className="bg-neutral-900 border border-emerald-500/30 rounded-2xl w-full max-w-2xl relative overflow-hidden shadow-[0_0_40px_rgba(16,185,129,0.15)] flex flex-col h-[500px] max-h-[80vh] auto-fade-in shadow-2xl">
+src/components/TokenSearchModal.tsx:71:        <div className="flex items-center p-4 border-b border-neutral-800 gap-3">
+src/components/TokenSearchModal.tsx:72:          <Search className="text-emerald-500" size={20} />
+src/components/TokenSearchModal.tsx:74:            type="text" 
+src/components/TokenSearchModal.tsx:76:            value={query}
+src/components/TokenSearchModal.tsx:77:            onChange={e => setQuery(e.target.value)}
+src/components/TokenSearchModal.tsx:78:            placeholder="Search coin name, symbol, or paste contract address..."
+src/components/TokenSearchModal.tsx:79:            className="flex-1 bg-transparent border-none text-white text-lg focus:outline-none placeholder-neutral-500"
+src/components/TokenSearchModal.tsx:82:            onClick={onClose}
+src/components/TokenSearchModal.tsx:83:            className="text-neutral-500 hover:text-white bg-neutral-800 hover:bg-neutral-700 w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+src/components/TokenSearchModal.tsx:85:            <X size={16} />
+src/components/TokenSearchModal.tsx:89:        <div className="flex-1 overflow-y-auto p-2">
+src/components/TokenSearchModal.tsx:91:            <div className="text-center text-neutral-500 pt-10">Searching the Solana blockchain...</div>
+src/components/TokenSearchModal.tsx:93:            <div className="flex flex-col gap-1">
+src/components/TokenSearchModal.tsx:94:              {results.map((r, idx) => (
+src/components/TokenSearchModal.tsx:96:                  key={`${r.baseToken.address}-${idx}`}
+src/components/TokenSearchModal.tsx:97:                  onClick={() => {
+src/components/TokenSearchModal.tsx:101:                  className="flex items-center justify-between p-4 hover:bg-neutral-800 rounded-xl transition-colors text-left"
+src/components/TokenSearchModal.tsx:103:                  <div className="flex flex-col">
+src/components/TokenSearchModal.tsx:104:                    <div className="flex items-center gap-2">
+src/components/TokenSearchModal.tsx:105:                      <span className="font-bold text-white text-lg">{r.baseToken.name}</span>
+src/components/TokenSearchModal.tsx:106:                      <span className="text-sky-400 font-mono text-sm bg-sky-400/10 px-2 py-0.5 rounded">${r.baseToken.symbol}</span>
+src/components/TokenSearchModal.tsx:108:                    <span className="text-neutral-500 font-mono text-xs mt-1 truncate max-w-[200px] sm:max-w-[300px]">
+src/components/TokenSearchModal.tsx:113:                  <div className="flex flex-col items-end">
+src/components/TokenSearchModal.tsx:114:                    <span className="font-mono text-white text-sm">
+src/components/TokenSearchModal.tsx:117:                    <span className="text-neutral-400 text-xs">
+src/components/TokenSearchModal.tsx:125:            <div className="text-center text-neutral-500 pt-10 flex flex-col items-center">
+src/components/TokenSearchModal.tsx:126:              <AlertCircle size={32} className="text-neutral-600 mb-3" />
+src/components/TokenSearchModal.tsx:128:              <p className="text-sm mt-1">Try pasting an exact Solana contract address, or token link.</p>
+src/components/TokenSearchModal.tsx:131:            <div className="text-center text-neutral-600 pt-10 flex flex-col items-center">
+src/components/TokenSearchModal.tsx:132:              <TrendingUp size={32} className="mb-3 opacity-20" />
+src/components/ContactFloatingButton.tsx:4:export const ContactFloatingButton: React.FC = () => {
+src/components/ContactFloatingButton.tsx:5:  const [showModal, setShowModal] = useState(false);
+src/components/ContactFloatingButton.tsx:6:  const [status, setStatus] = useState<'idle'|'submitting'|'success'|'error'>('idle');
+src/components/ContactFloatingButton.tsx:8:  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+src/components/ContactFloatingButton.tsx:11:    const form = e.currentTarget;
+src/components/ContactFloatingButton.tsx:15:      const formData = new FormData(form);
+src/components/ContactFloatingButton.tsx:16:      const res = await fetch('https://formsubmit.co/ajax/fredwisseh@gmail.com', {
+src/components/ContactFloatingButton.tsx:25:        setTimeout(() => {
+src/components/ContactFloatingButton.tsx:42:        onClick={() => setShowModal(true)}
+src/components/ContactFloatingButton.tsx:43:        className="fixed bottom-6 right-6 z-50 bg-emerald-500 hover:bg-emerald-400 text-neutral-950 p-4 rounded-full shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-transform hover:scale-110 active:scale-95"
+src/components/ContactFloatingButton.tsx:44:        title="Contact Us"
+src/components/ContactFloatingButton.tsx:46:        <Mail size={24} />
+src/components/ContactFloatingButton.tsx:50:        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+src/components/ContactFloatingButton.tsx:51:          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 max-w-sm w-full text-sm text-neutral-300 relative">
+src/components/ContactFloatingButton.tsx:52:            <button onClick={() => setShowModal(false)} className="absolute top-4 right-4 text-neutral-500 hover:text-white pb-1 w-6 h-6 flex items-center justify-center rounded-full hover:bg-neutral-800">x</button>
+src/components/ContactFloatingButton.tsx:53:            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><Mail size={18} className="text-emerald-400" /> Contact Us</h2>
+src/components/ContactFloatingButton.tsx:55:            {status === 'success' ? (
+src/components/ContactFloatingButton.tsx:56:              <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-4 rounded-xl flex flex-col items-center gap-2 animate-in fade-in zoom-in">
+src/components/ContactFloatingButton.tsx:57:                <Check size={32} />
+src/components/ContactFloatingButton.tsx:58:                <p className="font-bold text-center">Message Sent!</p>
+src/components/ContactFloatingButton.tsx:59:                <p className="text-xs text-center opacity-80">We'll get back to you shortly.</p>
+src/components/ContactFloatingButton.tsx:62:              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+src/components/ContactFloatingButton.tsx:63:                <input type="hidden" name="_captcha" value="false" />
+src/components/ContactFloatingButton.tsx:64:                <input type="hidden" name="_subject" value="New Contact Message from Alpha Pump!" />
+src/components/ContactFloatingButton.tsx:65:                <input type="hidden" name="_template" value="table" />
+src/components/ContactFloatingButton.tsx:68:                  <label htmlFor="name" className="block text-xs font-mono mb-1 text-neutral-400">Name</label>
+src/components/ContactFloatingButton.tsx:70:                    type="text" 
+src/components/ContactFloatingButton.tsx:71:                    name="name" 
+src/components/ContactFloatingButton.tsx:72:                    id="name" 
+src/components/ContactFloatingButton.tsx:74:                    className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-emerald-500/50"
+src/components/ContactFloatingButton.tsx:78:                  <label htmlFor="email" className="block text-xs font-mono mb-1 text-neutral-400">Email Address</label>
+src/components/ContactFloatingButton.tsx:80:                    type="email" 
+src/components/ContactFloatingButton.tsx:81:                    name="email" 
+src/components/ContactFloatingButton.tsx:82:                    id="email" 
+src/components/ContactFloatingButton.tsx:84:                    className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-emerald-500/50"
+src/components/ContactFloatingButton.tsx:88:                  <label htmlFor="message" className="block text-xs font-mono mb-1 text-neutral-400">Message</label>
+src/components/ContactFloatingButton.tsx:90:                    name="message" 
+src/components/ContactFloatingButton.tsx:91:                    id="message" 
+src/components/ContactFloatingButton.tsx:93:                    rows={4}
+src/components/ContactFloatingButton.tsx:94:                    className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-emerald-500/50 resize-none"
+src/components/ContactFloatingButton.tsx:98:                {status === 'error' && (
+src/components/ContactFloatingButton.tsx:99:                  <div className="text-rose-400 text-xs flex items-center gap-1"><AlertCircle size={12}/> Failed to send. Try again.</div>
+src/components/ContactFloatingButton.tsx:103:                  type="submit" 
+src/components/ContactFloatingButton.tsx:104:                  disabled={status === 'submitting'}
+src/components/ContactFloatingButton.tsx:105:                  className="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold font-mono tracking-wide rounded-lg uppercase transition-colors disabled:opacity-50"
+src/components/ContactFloatingButton.tsx:107:                  {status === 'submitting' ? 'Sending...' : 'Send Message'}
+src/components/ScreenerTable.tsx:9:  onSelectCoin: (coin: MemeCoin) => void;
+src/components/ScreenerTable.tsx:10:  onBuyCoin?: (coin: MemeCoin) => void;
+src/components/ScreenerTable.tsx:11:  onPremiumBlocked?: () => void;
+src/components/ScreenerTable.tsx:15:export const ScreenerTable: React.FC<ScreenerTableProps> = ({
+src/components/ScreenerTable.tsx:21:}) => {
+src/components/ScreenerTable.tsx:22:  const { user, profile, savedCoinIds } = useAuth();
+src/components/ScreenerTable.tsx:23:  const [copiedId, setCopiedId] = useState<string | null>(null);
+src/components/ScreenerTable.tsx:24:  const [copiedLinkId, setCopiedLinkId] = useState<string | null>(null);
+src/components/ScreenerTable.tsx:25:  const [copiedPhantomId, setCopiedPhantomId] = useState<string | null>(null);
+src/components/ScreenerTable.tsx:27:  const blurredIds = React.useMemo(() => {
+src/components/ScreenerTable.tsx:28:    const sortedByBest = [...coins].sort((a, b) => b.breakoutProbability - a.breakoutProbability);
+src/components/ScreenerTable.tsx:29:    const numToBlur = Math.ceil(coins.length * 0.25);
+src/components/ScreenerTable.tsx:30:    return new Set(sortedByBest.slice(0, numToBlur).map(c => c.id));
+src/components/ScreenerTable.tsx:33:  const displayCoins = React.useMemo(() => {
+src/components/ScreenerTable.tsx:35:    return [...coins].sort((a, b) => {
+src/components/ScreenerTable.tsx:36:      const aVal = (a.address.charCodeAt(a.address.length - 1) || 0) + a.name.charCodeAt(0);
+src/components/ScreenerTable.tsx:37:      const bVal = (b.address.charCodeAt(b.address.length - 1) || 0) + b.name.charCodeAt(0);
+src/components/ScreenerTable.tsx:38:      if (aVal !== bVal) return bVal - aVal;
+src/components/ScreenerTable.tsx:43:  const truncateAddress = (addr: string) => {
+src/components/ScreenerTable.tsx:45:    if (addr.length <= 12) return addr;
+src/components/ScreenerTable.tsx:49:  const copyAddress = (e: React.MouseEvent, id: string, address: string) => {
+src/components/ScreenerTable.tsx:53:    setTimeout(() => setCopiedId(null), 2000);
+src/components/ScreenerTable.tsx:56:  const copyLink = (e: React.MouseEvent, id: string, address: string, platform: string) => {
+src/components/ScreenerTable.tsx:58:    const url = platform === 'pump.fun' 
+src/components/ScreenerTable.tsx:63:    setTimeout(() => setCopiedLinkId(null), 2000);
+src/components/ScreenerTable.tsx:67:  const renderSparkline = (prices: number[]) => {
+src/components/ScreenerTable.tsx:69:    const min = Math.min(...prices);
+src/components/ScreenerTable.tsx:70:    const max = Math.max(...prices);
+src/components/ScreenerTable.tsx:71:    const range = max - min || 1;
+src/components/ScreenerTable.tsx:74:    const width = 80;
+src/components/ScreenerTable.tsx:75:    const height = 24;
+src/components/ScreenerTable.tsx:76:    const padding = 2;
+src/components/ScreenerTable.tsx:79:    const points = prices.map((price, i) => {
+src/components/ScreenerTable.tsx:80:      const x = (i / (prices.length - 1)) * (width - 2 * padding) + padding;
+src/components/ScreenerTable.tsx:81:      const y = height - ((price - min) / range) * (height - 2 * padding) - padding;
+src/components/ScreenerTable.tsx:85:    const isUp = prices[prices.length - 1] >= prices[0];
+src/components/ScreenerTable.tsx:86:    const strokeColor = isUp ? '#34d399' : '#f87171'; // emerald-400 vs rose-400
+src/components/ScreenerTable.tsx:89:      <svg width={width} height={height} className="overflow-visible">
+src/components/ScreenerTable.tsx:91:          fill="none"
+src/components/ScreenerTable.tsx:92:          stroke={strokeColor}
+src/components/ScreenerTable.tsx:93:          strokeWidth="1.5"
+src/components/ScreenerTable.tsx:94:          points={points}
+src/components/ScreenerTable.tsx:99:            cx={(prices.length - 1) / (prices.length - 1) * (width - 2 * padding) + padding}
+src/components/ScreenerTable.tsx:100:            cy={height - ((prices[prices.length - 1] - min) / range) * (height - 2 * padding) - padding}
+src/components/ScreenerTable.tsx:101:            r="2"
+src/components/ScreenerTable.tsx:102:            fill={strokeColor}
+src/components/ScreenerTable.tsx:103:            className="animate-pulse"
+src/components/ScreenerTable.tsx:111:    <div id="screener-table-wrapper" className="glass-panel rounded-xl overflow-hidden w-full">
+src/components/ScreenerTable.tsx:112:      <div className="p-4 border-b border-neutral-800 flex justify-between items-center bg-neutral-900/60">
+src/components/ScreenerTable.tsx:114:          <h3 className="text-sm font-bold font-mono tracking-wider uppercase text-emerald-400 flex items-center gap-2">
+src/components/ScreenerTable.tsx:115:            <span className="relative flex h-2 w-2">
+src/components/ScreenerTable.tsx:116:              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+src/components/ScreenerTable.tsx:117:              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+src/components/ScreenerTable.tsx:121:          <p className="text-xs text-neutral-400 mt-1">
+src/components/ScreenerTable.tsx:125:        <div className="text-[10px] text-neutral-500 font-mono">
+src/components/ScreenerTable.tsx:130:      <div className="hidden lg:block overflow-x-auto">
+src/components/ScreenerTable.tsx:131:        <table id="alpha-screener-table" className="w-full text-left border-collapse min-w-[900px]">
+src/components/ScreenerTable.tsx:133:            <tr className="border-b border-neutral-800/80 text-[11px] font-mono uppercase tracking-wider text-neutral-400 bg-neutral-950/40">
+src/components/ScreenerTable.tsx:134:              <th className="py-3 px-4">Token & Platform</th>
+src/components/ScreenerTable.tsx:135:              <th className="py-3 px-4 text-right">Price (USD)</th>
+src/components/ScreenerTable.tsx:136:              <th className="py-3 px-4 text-right">1H Change</th>
+src/components/ScreenerTable.tsx:137:              <th className="py-3 px-4 text-center">Breakout Probability</th>
+src/components/ScreenerTable.tsx:138:              <th className="py-3 px-4 text-center">Age</th>
+src/components/ScreenerTable.tsx:139:              <th className="py-3 px-4 text-center">Trend (30m)</th>
+src/components/ScreenerTable.tsx:142:          <tbody className="divide-y divide-neutral-800/60">
+src/components/ScreenerTable.tsx:143:            {coins.length === 0 ? (
+src/components/ScreenerTable.tsx:145:                <td colSpan={6} className="py-12 text-center text-xs font-mono text-neutral-500 bg-neutral-950/20">
+src/components/ScreenerTable.tsx:148:                  <span className="text-[10px] text-neutral-600 mt-1 block">Try lowering the Minimum Security Score slider or choosing AGGRESSIVE/DEGEN.</span>
+src/components/ScreenerTable.tsx:152:              displayCoins.map((coin) => {
+src/components/ScreenerTable.tsx:153:                const isSelected = selectedCoinId === coin.id;
+src/components/ScreenerTable.tsx:154:                const isPositive = coin.priceChange1h >= 0;
+src/components/ScreenerTable.tsx:157:                const isSecure = coin.securityScore >= 75;
+src/components/ScreenerTable.tsx:158:                const isHighlyCompromised = coin.securityScore < 30;
+src/components/ScreenerTable.tsx:161:                const isGoldenTarget = coin.securityScore >= 85 && coin.combinedScore >= 80 && coin.breakoutProbability >= 85;
+src/components/ScreenerTable.tsx:164:                const isPremiumHidden = profile?.isPremium !== true && blurredIds.has(coin.id);
+src/components/ScreenerTable.tsx:167:                  <React.Fragment key={coin.id}>
+src/components/ScreenerTable.tsx:169:                      id={`token-row-${coin.symbol}`}
+src/components/ScreenerTable.tsx:170:                      onClick={() => {
+src/components/ScreenerTable.tsx:177:                      className={`hover:bg-neutral-800/40 transition-colors cursor-pointer text-xs relative ${
+src/components/ScreenerTable.tsx:180:                      style={{ filter: isPremiumHidden ? 'blur(6px)' : 'none', opacity: isPremiumHidden ? 0.3 : 1, userSelect: isPremiumHidden ? 'none' : 'auto' }}
+src/components/ScreenerTable.tsx:183:                    <td className="py-3.5 px-4 relative">
+src/components/ScreenerTable.tsx:185:                        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none whitespace-nowrap">
+src/components/ScreenerTable.tsx:186:                          <span className="bg-emerald-500 text-neutral-950 px-4 py-1.5 rounded text-xs font-bold font-mono tracking-wider shadow-xl border border-emerald-400">
+src/components/ScreenerTable.tsx:191:                      <div className={`flex items-center gap-2 ${isPremiumHidden ? 'blur-lg opacity-30 select-none pointer-events-none' : ''}`}>
+src/components/ScreenerTable.tsx:192:                        <div className="flex flex-col">
+src/components/ScreenerTable.tsx:193:                          <div className="flex items-center gap-1.5 flex-wrap">
+src/components/ScreenerTable.tsx:194:                            <span className="font-bold text-neutral-100 font-sans">{coin.name}</span>
+src/components/ScreenerTable.tsx:195:                            <span className="text-[10px] font-mono bg-neutral-800 text-neutral-300 px-1 py-0.2 rounded font-semibold">
+src/components/ScreenerTable.tsx:199:                              <span className="text-[9px] bg-amber-500/15 border border-amber-500/30 text-amber-400 px-1 py-0.2 rounded flex items-center gap-0.5" title="King of the Hill">
+src/components/ScreenerTable.tsx:200:                                <Flame size={10} /> KOTH
+src/components/ScreenerTable.tsx:204:                              <span className="text-[9px] bg-amber-500/20 border border-amber-500/50 text-amber-300 font-mono font-bold px-1 py-0.2 rounded flex items-center gap-0.5" title="Expert Golden Ticket Target: Low rug risk & extreme volume velocity!">
+src/components/ScreenerTable.tsx:209:                          <div className="flex flex-wrap items-center gap-1.5 mt-1">
+src/components/ScreenerTable.tsx:210:                            <span className={`text-[9px] px-1.5 py-0.2 rounded font-mono ${
+src/components/ScreenerTable.tsx:211:                              coin.platform === 'pump.fun' 
+src/components/ScreenerTable.tsx:217:                            <div className="flex items-center gap-1 bg-neutral-950 px-2 py-1 rounded border border-neutral-800 hover:border-emerald-500/50 hover:bg-neutral-900 transition-colors max-w-[120px] md:max-w-[180px] xl:max-w-[250px] overflow-hidden" onClick={(e) => { if (!isPremiumHidden) copyAddress(e, coin.id, coin.address); }} title="Click to copy full contract address">
+src/components/ScreenerTable.tsx:218:                              <span className="text-[10px] text-neutral-400 font-mono tracking-tight truncate shrink">
+src/components/ScreenerTable.tsx:221:                              <div className="text-neutral-500 p-0.5 shrink-0">
+src/components/ScreenerTable.tsx:222:                                {copiedId === coin.id ? (
+src/components/ScreenerTable.tsx:223:                                  <Check size={10} className="text-emerald-400" />
+src/components/ScreenerTable.tsx:225:                                  <Copy size={10} />
+src/components/ScreenerTable.tsx:229:                            <div className="flex items-center justify-center p-1 bg-neutral-950 rounded border border-neutral-800 hover:border-sky-500/50 hover:bg-neutral-900 transition-colors" onClick={(e) => { if (!isPremiumHidden) copyLink(e, coin.id, coin.address, coin.platform); }} title="Click to copy Link for Phantom">
+src/components/ScreenerTable.tsx:230:                              {copiedLinkId === coin.id ? (
+src/components/ScreenerTable.tsx:231:                                <Check size={12} className="text-sky-400" />
+src/components/ScreenerTable.tsx:233:                                <ExternalLink size={12} className="text-sky-500" />
+src/components/ScreenerTable.tsx:238:                                onClick={(e) => {
+src/components/ScreenerTable.tsx:246:                                className="flex items-center justify-center gap-1 px-2 py-1 bg-neutral-950 rounded border border-neutral-800 hover:border-emerald-500/50 hover:bg-neutral-900 transition-colors text-[10px] text-emerald-400 font-mono font-bold" 
+src/components/ScreenerTable.tsx:247:                                title={savedCoinIds.has(coin.id) ? "Remove from Dashboard" : "Save to Dashboard"}
+src/components/ScreenerTable.tsx:249:                                <Bookmark size={12} fill={savedCoinIds.has(coin.id) ? "currentColor" : "none"} /> {savedCoinIds.has(coin.id) ? 'SAVED' : 'SAVE'}
+src/components/ScreenerTable.tsx:254:                                onClick={(e) => {
+src/components/ScreenerTable.tsx:258:                                className="flex items-center justify-center gap-1 px-3 py-1 bg-sky-500/10 rounded border border-sky-500/30 hover:border-sky-500 hover:bg-sky-500/20 transition-colors text-[10px] text-sky-400 font-mono font-bold shrink-0" 
+src/components/ScreenerTable.tsx:259:                                title="Buy directly via Jupiter"
+src/components/ScreenerTable.tsx:269:                        <div className="absolute inset-0 flex items-center justify-center bg-neutral-950/20 backdrop-blur-sm z-10">
+src/components/ScreenerTable.tsx:270:                           <button className="bg-emerald-500 hover:bg-emerald-400 text-neutral-950 px-3 py-1.5 rounded text-xs font-bold font-mono tracking-wider shadow">
+src/components/ScreenerTable.tsx:278:                    <td className="py-3.5 px-4 text-right font-mono font-medium text-neutral-200 relative">
+src/components/ScreenerTable.tsx:279:                      <span className={isPremiumHidden ? 'blur-lg opacity-30 select-none pointer-events-none' : ''}>
+src/components/ScreenerTable.tsx:285:                    <td className="py-3.5 px-4 text-right font-mono relative">
+src/components/ScreenerTable.tsx:286:                      <div className={`flex flex-col items-end ${isPremiumHidden ? 'blur-lg opacity-30 select-none pointer-events-none' : ''}`}>
+src/components/ScreenerTable.tsx:287:                        <span className={`font-semibold ${isPositive ? 'text-emerald-400' : 'text-rose-400'}`}>
+src/components/ScreenerTable.tsx:290:                        <span className="text-[8px] text-neutral-500 tracking-wider font-sans uppercase mt-0.5">
+src/components/ScreenerTable.tsx:297:                    <td className="py-3.5 px-4 text-center relative">
+src/components/ScreenerTable.tsx:298:                      <div className={`flex flex-col items-center justify-center gap-1 ${isPremiumHidden ? 'blur-lg opacity-30 select-none pointer-events-none' : ''}`}>
+src/components/ScreenerTable.tsx:299:                        <div className="flex items-center gap-1">
+src/components/ScreenerTable.tsx:300:                          <span className={`text-xs font-mono font-bold ${
+src/components/ScreenerTable.tsx:301:                            coin.breakoutProbability >= 85 
+src/components/ScreenerTable.tsx:303:                              : coin.breakoutProbability >= 50
+src/components/ScreenerTable.tsx:309:                          {coin.breakoutProbability >= 85 && (
+src/components/ScreenerTable.tsx:310:                            <Zap size={10} className="text-emerald-400 fill-emerald-400 animate-pulse" />
+src/components/ScreenerTable.tsx:313:                        <div className="w-20 bg-neutral-950 border border-neutral-800 rounded-full h-1 overflow-hidden">
+src/components/ScreenerTable.tsx:315:                            className={`h-full rounded-full ${
+src/components/ScreenerTable.tsx:316:                              coin.breakoutProbability >= 85
+src/components/ScreenerTable.tsx:318:                                : coin.breakoutProbability >= 50
+src/components/ScreenerTable.tsx:322:                            style={{ width: `${isPremiumHidden ? 99 : coin.breakoutProbability}%` }}
+src/components/ScreenerTable.tsx:329:                    <td className="py-3.5 px-4 text-center text-neutral-400 font-mono text-xs relative">
+src/components/ScreenerTable.tsx:330:                       <span className={isPremiumHidden ? 'blur-lg opacity-30 select-none pointer-events-none' : ''}>
+src/components/ScreenerTable.tsx:336:                    <td className="py-3.5 px-4 text-center relative">
+src/components/ScreenerTable.tsx:337:                      <div className={`flex items-center justify-center ${isPremiumHidden ? 'blur-lg opacity-30 pointer-events-none' : ''}`}>
+src/components/ScreenerTable.tsx:351:      <div className="flex flex-col gap-3 p-3 lg:hidden">
+src/components/ScreenerTable.tsx:352:        {coins.length === 0 ? (
+src/components/ScreenerTable.tsx:353:          <div className="py-10 text-center text-xs font-mono text-neutral-500 bg-neutral-950/20 rounded-lg">
+src/components/ScreenerTable.tsx:357:          displayCoins.map((coin) => {
+src/components/ScreenerTable.tsx:358:            const isSelected = selectedCoinId === coin.id;
+src/components/ScreenerTable.tsx:359:            const isPositive = coin.priceChange1h >= 0;
+src/components/ScreenerTable.tsx:360:            const isSecure = coin.securityScore >= 75;
+src/components/ScreenerTable.tsx:361:            const isHighlyCompromised = coin.securityScore < 30;
+src/components/ScreenerTable.tsx:362:            const isGoldenTarget = coin.securityScore >= 85 && coin.combinedScore >= 80 && coin.breakoutProbability >= 85;
+src/components/ScreenerTable.tsx:365:            const isPremiumHidden = profile?.isPremium !== true && blurredIds.has(coin.id);
+src/components/ScreenerTable.tsx:368:              <div key={coin.id} className={`flex flex-col relative`}>
+src/components/ScreenerTable.tsx:370:                  onClick={() => {
+src/components/ScreenerTable.tsx:377:                  className={`flex flex-col gap-3 p-4 glass-panel rounded-xl overflow-hidden cursor-pointer transition-colors ${
+src/components/ScreenerTable.tsx:382:                    <div className="absolute inset-0 flex items-center justify-center bg-neutral-950/20 backdrop-blur-md z-10 rounded-xl">
+src/components/ScreenerTable.tsx:383:                       <button className="bg-emerald-500 hover:bg-emerald-400 text-neutral-950 px-4 py-2 rounded text-sm font-bold font-mono tracking-wider shadow">
+src/components/ScreenerTable.tsx:388:                  <div className={`flex justify-between items-start gap-2 ${isPremiumHidden ? 'select-none pointer-events-none' : ''}`} style={{ filter: isPremiumHidden ? 'blur(6px)' : 'none', opacity: isPremiumHidden ? 0.3 : 1 }}>
+src/components/ScreenerTable.tsx:389:                    <div className="flex flex-col gap-1.5 min-w-0">
+src/components/ScreenerTable.tsx:390:                      <div className="flex flex-wrap items-center gap-1.5">
+src/components/ScreenerTable.tsx:391:                        <span className="font-bold text-neutral-100 font-sans text-sm">{coin.name}</span>
+src/components/ScreenerTable.tsx:392:                        <span className="text-[10px] font-mono bg-neutral-800 text-neutral-300 px-1 py-0.2 rounded font-semibold truncate">
+src/components/ScreenerTable.tsx:396:                          <span className="text-[9px] bg-amber-500/20 border border-amber-500/50 text-amber-300 font-mono font-bold px-1 py-0.2 rounded flex items-center gap-0.5 flex-shrink-0">
+src/components/ScreenerTable.tsx:401:                      <div className="flex items-center gap-1.5">
+src/components/ScreenerTable.tsx:402:                        <span className={`text-[9px] px-1.5 py-0.2 rounded font-mono flex-shrink-0 ${
+src/components/ScreenerTable.tsx:403:                          coin.platform === 'pump.fun' 
+src/components/ScreenerTable.tsx:409:                        <div className="flex items-center gap-1 bg-neutral-900 px-2 py-1 rounded border border-neutral-800 hover:border-emerald-500/50 hover:bg-neutral-800 transition-colors cursor-pointer min-w-0 max-w-[110px] sm:max-w-[200px] overflow-hidden" onClick={(e) => copyAddress(e, coin.id, coin.address)} title="Click to copy full contract address">
+src/components/ScreenerTable.tsx:410:                          <span className="text-[10px] font-mono text-neutral-400 truncate shrink">
+src/components/ScreenerTable.tsx:413:                          <div className="text-neutral-500 shrink-0">
+src/components/ScreenerTable.tsx:414:                             {copiedId === coin.id ? <Check size={10} className="text-emerald-400" /> : <Copy size={10} />}
+src/components/ScreenerTable.tsx:417:                        <div className="flex items-center justify-center p-1 bg-neutral-900 rounded border border-neutral-800 hover:border-sky-500/50 hover:bg-neutral-800 transition-colors cursor-pointer" onClick={(e) => copyLink(e, coin.id, coin.address, coin.platform)} title="Click to copy Link for Phantom">
+src/components/ScreenerTable.tsx:418:                          {copiedLinkId === coin.id ? (
+src/components/ScreenerTable.tsx:419:                            <Check size={12} className="text-sky-400" />
+src/components/ScreenerTable.tsx:421:                            <ExternalLink size={12} className="text-sky-500" />
+src/components/ScreenerTable.tsx:426:                            onClick={(e) => {
+src/components/ScreenerTable.tsx:434:                            className="flex items-center justify-center gap-1 px-2 py-1 bg-neutral-900 rounded border border-neutral-800 hover:border-emerald-500/50 hover:bg-neutral-800 transition-colors cursor-pointer text-[10px] text-emerald-400 font-mono font-bold" 
+src/components/ScreenerTable.tsx:435:                            title={savedCoinIds.has(coin.id) ? "Remove from Dashboard" : "Save to Dashboard"}
+src/components/ScreenerTable.tsx:437:                            <Bookmark size={12} fill={savedCoinIds.has(coin.id) ? "currentColor" : "none"} />
+src/components/ScreenerTable.tsx:442:                            onClick={(e) => {
+src/components/ScreenerTable.tsx:446:                            className="flex items-center justify-center gap-1 px-3 py-1 bg-sky-500/10 rounded border border-sky-500/30 hover:border-sky-500 hover:bg-sky-500/20 transition-colors text-[10px] text-sky-400 font-mono font-bold shrink-0" 
+src/components/ScreenerTable.tsx:447:                            title="Buy directly via Jupiter"
+src/components/ScreenerTable.tsx:454:                    <div className="flex flex-col items-end flex-shrink-0">
+src/components/ScreenerTable.tsx:455:                      <span className="font-mono text-sm font-semibold text-neutral-200">
+src/components/ScreenerTable.tsx:458:                      <div className="flex flex-col items-end mt-0.5">
+src/components/ScreenerTable.tsx:459:                        <span className={`text-xs font-mono font-semibold ${isPositive ? 'text-emerald-400' : 'text-rose-400'}`}>
+src/components/ScreenerTable.tsx:462:                        <span className="text-[8px] text-neutral-500 font-mono tracking-wider font-normal uppercase">PAST HOUR</span>
+src/components/ScreenerTable.tsx:468:                  <div className={`flex items-center flex-wrap gap-2 ${isPremiumHidden ? 'select-none pointer-events-none' : ''}`} style={{ filter: isPremiumHidden ? 'blur(6px)' : 'none', opacity: isPremiumHidden ? 0.3 : 1 }}>
+src/components/ScreenerTable.tsx:469:                     <span className={`flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.5 rounded border ${
+src/components/ScreenerTable.tsx:470:                        coin.velocityScore >= 80 ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 
+src/components/ScreenerTable.tsx:471:                        coin.velocityScore >= 50 ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : 'bg-neutral-800 text-neutral-400 border-neutral-700'
+src/components/ScreenerTable.tsx:477:                        <div className="flex items-center gap-1 max-w-fit text-rose-400 font-mono text-[10px] bg-rose-500/10 border border-rose-500/20 px-1.5 py-0.5 rounded">
+src/components/ScreenerTable.tsx:478:                          <ShieldAlert size={10} /> Risk {coin.securityScore}
+src/components/ScreenerTable.tsx:481:                        <div className="flex items-center gap-1 max-w-fit text-emerald-400 font-mono text-[10px] bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded">
+src/components/ScreenerTable.tsx:482:                          <ShieldCheck size={10} /> Safe {coin.securityScore}
+src/components/ScreenerTable.tsx:485:                        <div className="flex items-center gap-1 max-w-fit text-amber-400 font-mono text-[10px] bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded">
+src/components/ScreenerTable.tsx:486:                          <ShieldAlert size={10} /> Warn {coin.securityScore}
+src/components/ScreenerTable.tsx:490:                      <div className="flex items-center gap-1 max-w-fit text-indigo-400 font-mono text-[10px] bg-indigo-500/10 border border-indigo-500/20 px-1.5 py-0.5 rounded">
+src/components/ScreenerTable.tsx:491:                         <Award size={10} /> {coin.breakoutProbability}% Breakout
+src/components/ScreenerTable.tsx:495:                  <div className={`grid grid-cols-2 gap-4 mt-2 p-3 bg-neutral-950/50 rounded-lg border border-neutral-800/60 ${isPremiumHidden ? 'select-none pointer-events-none' : ''}`} style={{ filter: isPremiumHidden ? 'blur(6px)' : 'none', opacity: isPremiumHidden ? 0.3 : 1 }}>
+src/components/ScreenerTable.tsx:496:                    <div className="flex flex-col gap-2">
+src/components/ScreenerTable.tsx:497:                       <span className="text-[10px] text-neutral-500 font-mono uppercase tracking-wider">Liquidity & MC</span>
+src/components/ScreenerTable.tsx:498:                       <div className="flex flex-col gap-0.5 font-mono text-[11px] font-semibold">
+src/components/ScreenerTable.tsx:499:                         <span className="text-neutral-300">Liq: ${coin.liquidityUsd.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+src/components/ScreenerTable.tsx:500:                         <span className="text-neutral-400">MCap: ${coin.marketCapUsd.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+src/components/ScreenerTable.tsx:503:                    <div className="flex flex-col gap-2">
+src/components/ScreenerTable.tsx:505:                        <div className="flex flex-col justify-center gap-1 w-full">
+src/components/ScreenerTable.tsx:506:                          <div className="flex justify-between text-[10px] font-mono text-neutral-500 uppercase tracking-wider">
+src/components/ScreenerTable.tsx:508:                            <span className="text-purple-400 font-bold">{coin.bondingCurveProgress}%</span>
+src/components/ScreenerTable.tsx:510:                          <div className="w-full bg-neutral-900 rounded-full h-1.5 overflow-hidden">
+src/components/ScreenerTable.tsx:512:                              className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full"
+src/components/ScreenerTable.tsx:513:                              style={{ width: `${coin.bondingCurveProgress}%` }}
+src/components/ScreenerTable.tsx:518:                         <div className="flex flex-col gap-1">
+src/components/ScreenerTable.tsx:519:                           <span className="text-[10px] text-neutral-500 font-mono uppercase tracking-wider">Status</span>
+src/components/ScreenerTable.tsx:520:                           <span className="text-[10px] font-mono text-blue-400 uppercase font-semibold">
+src/components/ScreenerTable.tsx:533:      <div className="p-3 border-t border-neutral-800 bg-neutral-950/40 text-[10px] font-mono text-neutral-500 flex justify-between items-center">
+src/components/RiskFilters.tsx:7:  onFilterChange: (filters: ScreenerFilters) => void;
+src/components/RiskFilters.tsx:10:export const RiskFilters: React.FC<RiskFiltersProps> = ({ filters, onFilterChange }) => {
+src/components/RiskFilters.tsx:11:  const [showExpertRadar, setShowExpertRadar] = React.useState(true);
+src/components/RiskFilters.tsx:12:  const [activeResourceTab, setActiveResourceTab] = React.useState<'scamShield' | 'resources'>('scamShield');
+src/components/RiskFilters.tsx:14:  const setRiskTolerance = (tolerance: 'all' | 'conservative' | 'aggressive' | 'degen') => {
+src/components/RiskFilters.tsx:16:    let minSecScore = 0;
+src/components/RiskFilters.tsx:17:    if (tolerance === 'conservative') minSecScore = 80;
+src/components/RiskFilters.tsx:18:    else if (tolerance === 'aggressive') minSecScore = 50;
+src/components/RiskFilters.tsx:19:    else if (tolerance === 'degen') minSecScore = 0;
+src/components/RiskFilters.tsx:30:      id="filters-root-panel"
+src/components/RiskFilters.tsx:31:      className="glass-panel rounded-xl p-5 w-full flex flex-col gap-4 text-white"
+src/components/RiskFilters.tsx:34:      <div className="flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center">
+src/components/RiskFilters.tsx:36:          <h2 className="text-lg font-bold font-sans flex items-center gap-2">
+src/components/RiskFilters.tsx:39:          <p className="text-xs text-neutral-400 font-mono mt-0.5">
+src/components/RiskFilters.tsx:43:        <div id="search-input-frame" className="relative w-full lg:w-72">
+src/components/RiskFilters.tsx:44:          <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-neutral-500">
+src/components/RiskFilters.tsx:45:            <Search size={16} />
+src/components/RiskFilters.tsx:48:            id="search-input-box"
+src/components/RiskFilters.tsx:49:            type="text"
+src/components/RiskFilters.tsx:50:            className="w-full bg-neutral-950 border border-neutral-800 focus:border-emerald-500 rounded-lg py-2 pl-9 pr-4 text-xs font-mono text-white placeholder-neutral-500 outline-none transition-colors"
+src/components/RiskFilters.tsx:51:            placeholder="Search address, ticker, name..."
+src/components/RiskFilters.tsx:52:            value={filters.searchQuery}
+src/components/RiskFilters.tsx:53:            onChange={(e) => onFilterChange({ ...filters, searchQuery: e.target.value })}
+src/components/RiskFilters.tsx:58:      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-2 border-t border-neutral-800/60">
+src/components/RiskFilters.tsx:60:        <div className="flex flex-col gap-1.5">
+src/components/RiskFilters.tsx:61:          <label className="text-xs font-mono text-neutral-400 uppercase tracking-wide flex items-center gap-1">
+src/components/RiskFilters.tsx:62:            <ShieldAlert size={12} className="text-amber-400" />
+src/components/RiskFilters.tsx:65:          <div className="grid grid-cols-4 bg-neutral-950 p-1 border border-neutral-800 rounded-lg text-center gap-0.5">
+src/components/RiskFilters.tsx:66:            {(['all', 'conservative', 'aggressive', 'degen'] as const).map((level) => (
+src/components/RiskFilters.tsx:68:                key={level}
+src/components/RiskFilters.tsx:69:                onClick={() => setRiskTolerance(level)}
+src/components/RiskFilters.tsx:70:                className={`text-[8px] sm:text-[9px] uppercase tracking-wider font-mono py-1.5 rounded capitalize transition-all cursor-pointer ${
+src/components/RiskFilters.tsx:71:                  filters.riskTolerance === level
+src/components/RiskFilters.tsx:83:        <div className="flex flex-col gap-1.5">
+src/components/RiskFilters.tsx:84:          <label className="text-xs font-mono text-neutral-400 uppercase tracking-wide flex items-center gap-1">
+src/components/RiskFilters.tsx:85:            <Layers size={12} className="text-blue-400" />
+src/components/RiskFilters.tsx:88:          <div className="grid grid-cols-3 bg-neutral-950 p-1 border border-neutral-800 rounded-lg text-center gap-0.5">
+src/components/RiskFilters.tsx:93:            ].map((plat) => (
+src/components/RiskFilters.tsx:95:                key={plat.id}
+src/components/RiskFilters.tsx:96:                onClick={() =>
+src/components/RiskFilters.tsx:102:                className={`text-[8px] sm:text-[9px] uppercase tracking-wider font-mono py-1.5 rounded transition-all cursor-pointer ${
+src/components/RiskFilters.tsx:103:                  filters.platform === plat.id
+src/components/RiskFilters.tsx:115:        <div className="flex flex-col gap-1.5">
+src/components/RiskFilters.tsx:116:          <div className="flex justify-between text-xs font-mono text-neutral-400">
+src/components/RiskFilters.tsx:117:            <span className="uppercase tracking-wide flex items-center gap-1">
+src/components/RiskFilters.tsx:118:              <BadgePercent size={12} className="text-emerald-400 animate-pulse" />
+src/components/RiskFilters.tsx:121:            <span className="text-emerald-400 font-semibold">{filters.minBondingProgress}%</span>
+src/components/RiskFilters.tsx:123:          <div className="flex items-center gap-2 mt-1">
+src/components/RiskFilters.tsx:125:              id="bonding-progress-slider"
+src/components/RiskFilters.tsx:126:              type="range"
+src/components/RiskFilters.tsx:127:              min="0"
+src/components/RiskFilters.tsx:128:              max="95"
+src/components/RiskFilters.tsx:129:              step="5"
+src/components/RiskFilters.tsx:130:              className="w-full accent-emerald-500 bg-neutral-950 rounded-lg appearance-none h-1 cursor-pointer"
+src/components/RiskFilters.tsx:131:              value={filters.minBondingProgress}
+src/components/RiskFilters.tsx:132:              onChange={(e) =>
+src/components/RiskFilters.tsx:140:        <div className="flex flex-col gap-1.5">
+src/components/RiskFilters.tsx:141:          <div className="flex justify-between text-xs font-mono text-neutral-400">
+src/components/RiskFilters.tsx:142:            <span className="uppercase tracking-wide">Min Security Index</span>
+src/components/RiskFilters.tsx:144:              className={`font-semibold font-mono ${
+src/components/RiskFilters.tsx:145:                filters.minSecurityScore >= 75
+src/components/RiskFilters.tsx:147:                  : filters.minSecurityScore >= 40
+src/components/RiskFilters.tsx:152:              {filters.minSecurityScore >= 1 ? `${filters.minSecurityScore} Pts` : 'Disabled'}
+src/components/RiskFilters.tsx:155:          <div className="flex items-center gap-2 mt-1">
+src/components/RiskFilters.tsx:157:              id="security-score-slider"
+src/components/RiskFilters.tsx:158:              type="range"
+src/components/RiskFilters.tsx:159:              min="0"
+src/components/RiskFilters.tsx:160:              max="90"
+src/components/RiskFilters.tsx:161:              step="10"
+src/components/RiskFilters.tsx:162:              className="w-full accent-emerald-500 bg-neutral-950 rounded-lg appearance-none h-1 cursor-pointer"
+src/components/RiskFilters.tsx:163:              value={filters.minSecurityScore}
+src/components/RiskFilters.tsx:164:              onChange={(e) =>
+src/components/RiskFilters.tsx:173:      <div className="border-t border-neutral-800/80 pt-4 mt-1 flex flex-col gap-3">
+src/components/RiskFilters.tsx:174:        <div className="flex justify-between items-center">
+src/components/RiskFilters.tsx:175:          <div className="flex items-center gap-2">
+src/components/RiskFilters.tsx:176:            <Sparkles size={14} className="text-amber-400 animate-pulse" />
+src/components/RiskFilters.tsx:177:            <span className="text-xs font-mono font-bold uppercase tracking-wider text-amber-300">
+src/components/RiskFilters.tsx:182:            type="button"
+src/components/RiskFilters.tsx:183:            id="toggle-expert-radar-panel"
+src/components/RiskFilters.tsx:184:            onClick={() => setShowExpertRadar(!showExpertRadar)}
+src/components/RiskFilters.tsx:185:            className="text-[10px] font-mono text-neutral-400 hover:text-emerald-400 cursor-pointer underline decoration-dotted capitalize select-none"
+src/components/RiskFilters.tsx:192:          <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 bg-neutral-950 p-4 rounded-xl border border-neutral-800/60 transition-all">
+src/components/RiskFilters.tsx:194:            <div className="xl:col-span-7 flex flex-col gap-3">
+src/components/RiskFilters.tsx:195:              <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-neutral-400 block mb-1">
+src/components/RiskFilters.tsx:199:              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+src/components/RiskFilters.tsx:202:                  type="button"
+src/components/RiskFilters.tsx:203:                  id="btn-expert-anti-rug"
+src/components/RiskFilters.tsx:204:                  onClick={() => onFilterChange({
+src/components/RiskFilters.tsx:209:                  className={`flex flex-col gap-1 p-3 rounded-lg border text-left transition-all relative overflow-hidden group cursor-pointer ${
+src/components/RiskFilters.tsx:215:                  <div className="flex items-center gap-2 justify-between w-full">
+src/components/RiskFilters.tsx:216:                    <span className="flex items-center gap-1.5 font-bold uppercase tracking-wider text-[11px] text-emerald-400">
+src/components/RiskFilters.tsx:217:                      <ShieldCheck size={13} /> Strict Anti-Rug Guard
+src/components/RiskFilters.tsx:219:                    <span className={`h-2 w-2 rounded-full ${filters.expertAntiRugOnly ? 'bg-emerald-400 animate-pulse' : 'bg-neutral-700'}`}></span>
+src/components/RiskFilters.tsx:221:                  <p className="text-[10px] text-neutral-400 font-mono leading-snug mt-1">
+src/components/RiskFilters.tsx:228:                  type="button"
+src/components/RiskFilters.tsx:229:                  id="btn-expert-high-velocity"
+src/components/RiskFilters.tsx:230:                  onClick={() => onFilterChange({
+src/components/RiskFilters.tsx:235:                  className={`flex flex-col gap-1 p-3 rounded-lg border text-left transition-all relative overflow-hidden group cursor-pointer ${
+src/components/RiskFilters.tsx:241:                  <div className="flex items-center gap-2 justify-between w-full">
+src/components/RiskFilters.tsx:242:                    <span className="flex items-center gap-1.5 font-bold uppercase tracking-wider text-[11px] text-sky-400">
+src/components/RiskFilters.tsx:243:                      <TrendingUp size={13} /> Whale Velocity Booster
+src/components/RiskFilters.tsx:245:                    <span className={`h-2 w-2 rounded-full ${filters.expertHighVelocityOnly ? 'bg-sky-400 animate-pulse' : 'bg-neutral-700'}`}></span>
+src/components/RiskFilters.tsx:247:                  <p className="text-[10px] text-neutral-400 font-mono leading-snug mt-1">
+src/components/RiskFilters.tsx:254:                  type="button"
+src/components/RiskFilters.tsx:255:                  id="btn-expert-social"
+src/components/RiskFilters.tsx:256:                  onClick={() => onFilterChange({
+src/components/RiskFilters.tsx:260:                  className={`flex flex-col gap-1 p-3 rounded-lg border text-left transition-all relative overflow-hidden group cursor-pointer ${
+src/components/RiskFilters.tsx:266:                  <div className="flex items-center gap-2 justify-between w-full">
+src/components/RiskFilters.tsx:267:                    <span className="flex items-center gap-1.5 font-bold uppercase tracking-wider text-[11px] text-purple-400">
+src/components/RiskFilters.tsx:268:                      <Award size={13} /> Social Hub Alpha Seal
+src/components/RiskFilters.tsx:270:                    <span className={`h-2 w-2 rounded-full ${filters.expertSocialHypeOnly ? 'bg-purple-400 animate-pulse' : 'bg-neutral-700'}`}></span>
+src/components/RiskFilters.tsx:272:                  <p className="text-[10px] text-neutral-400 font-mono leading-snug mt-1">
+src/components/RiskFilters.tsx:279:                  type="button"
+src/components/RiskFilters.tsx:280:                  id="btn-expert-golden-ticket"
+src/components/RiskFilters.tsx:281:                  onClick={() => {
+src/components/RiskFilters.tsx:282:                    const nextVal = !filters.expertGoldenTicketOnly;
+src/components/RiskFilters.tsx:294:                  className={`flex flex-col gap-1 p-3 rounded-lg border text-left transition-all relative overflow-hidden group cursor-pointer ${
+src/components/RiskFilters.tsx:300:                  <div className="flex items-center gap-2 justify-between w-full">
+src/components/RiskFilters.tsx:301:                    <span className="flex items-center gap-1.5 font-bold uppercase tracking-wider text-[11px] text-amber-400">
+src/components/RiskFilters.tsx:302:                      <Sparkles size={13} className="animate-spin text-amber-400" /> Golden Ticket Target (Best Buy)
+src/components/RiskFilters.tsx:304:                    <span className={`h-2 w-2 rounded-full ${filters.expertGoldenTicketOnly ? 'bg-amber-400 animate-ping' : 'bg-neutral-700'}`}></span>
+src/components/RiskFilters.tsx:306:                  <p className="text-[10px] text-neutral-400 font-mono leading-snug mt-1">
+src/components/RiskFilters.tsx:314:            <div className="xl:col-span-5 border-t xl:border-t-0 xl:border-l border-neutral-800/80 pt-3 xl:pt-0 xl:pl-4 flex flex-col gap-2">
+src/components/RiskFilters.tsx:315:              <div className="flex border-b border-neutral-800 pb-1 w-full justify-between items-center">
+src/components/RiskFilters.tsx:316:                <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-amber-400 flex items-center gap-1">
+src/components/RiskFilters.tsx:317:                  <BookOpen size={11} /> Expert Guidelines & APIs
+src/components/RiskFilters.tsx:319:                <div className="flex gap-1">
+src/components/RiskFilters.tsx:321:                    type="button"
+src/components/RiskFilters.tsx:322:                    onClick={() => setActiveResourceTab('scamShield')}
+src/components/RiskFilters.tsx:323:                    className={`text-[9px] font-mono px-2 py-0.5 rounded transition-all cursor-pointer ${
+src/components/RiskFilters.tsx:324:                      activeResourceTab === 'scamShield' 
+src/components/RiskFilters.tsx:332:                    type="button"
+src/components/RiskFilters.tsx:333:                    onClick={() => setActiveResourceTab('resources')}
+src/components/RiskFilters.tsx:334:                    className={`text-[9px] font-mono px-2 py-0.5 rounded transition-all cursor-pointer ${
+src/components/RiskFilters.tsx:335:                      activeResourceTab === 'resources' 
+src/components/RiskFilters.tsx:345:              {activeResourceTab === 'scamShield' ? (
+src/components/RiskFilters.tsx:346:                <div className="text-[10px] font-mono text-neutral-300 space-y-1.5 leading-snug">
+src/components/RiskFilters.tsx:347:                  <div className="p-1 px-1.5 rounded bg-rose-950/20 border border-rose-900/40 text-rose-300">
+src/components/RiskFilters.tsx:350:                  <div className="p-1 px-1.5 rounded bg-emerald-950/10 border border-emerald-950/40 text-neutral-300">
+src/components/RiskFilters.tsx:353:                  <div className="p-1 px-1.5 rounded bg-emerald-950/10 border border-emerald-950/40 text-neutral-300">
+src/components/RiskFilters.tsx:358:                <div className="text-[10px] font-mono text-neutral-300 space-y-1.5 leading-snug">
+src/components/RiskFilters.tsx:359:                  <p className="text-neutral-400 text-[9px] mb-1">Cross-verifying signals with real-time Solana indexing services:</p>
+src/components/RiskFilters.tsx:360:                  <div className="space-y-1">
+src/components/RiskFilters.tsx:361:                    <div className="flex justify-between items-center bg-neutral-900 p-1 px-1.5 rounded border border-neutral-800/40">
+src/components/RiskFilters.tsx:362:                      <span className="text-blue-400 font-bold">DexScreener Websocket API</span>
+src/components/RiskFilters.tsx:363:                      <span className="text-neutral-500 text-[8px]">Live Pool Indexes</span>
+src/components/RiskFilters.tsx:365:                    <div className="flex justify-between items-center bg-neutral-900 p-1 px-1.5 rounded border border-neutral-800/40">
+src/components/RiskFilters.tsx:366:                      <span className="text-purple-400 font-bold">Jup.ag Routing SDK</span>
+src/components/RiskFilters.tsx:367:                      <span className="text-neutral-500 text-[8px]">Auto Swap Pre-sets</span>
+src/components/RiskFilters.tsx:369:                    <div className="flex justify-between items-center bg-neutral-900 p-1 px-1.5 rounded border border-neutral-800/40">
+src/components/RiskFilters.tsx:370:                      <span className="text-yellow-400 font-bold">Helius Solana RPC Streams</span>
+src/components/RiskFilters.tsx:371:                      <span className="text-neutral-500 text-[8px]">Mempool Anti-Rug</span>
+src/components/RiskFilters.tsx:373:                    <div className="flex justify-between items-center bg-neutral-900 p-1 px-1.5 rounded border border-neutral-800/40">
+src/components/RiskFilters.tsx:374:                      <span className="text-emerald-400 font-bold">Pump.fun Bonding API</span>
+src/components/RiskFilters.tsx:375:                      <span className="text-neutral-500 text-[8px]">Curve Graduations</span>
+src/components/RiskFilters.tsx:386:      <div className="flex flex-wrap items-center justify-between pt-3 border-t border-neutral-800/40 text-xs text-neutral-400 font-mono gap-2">
+src/components/RiskFilters.tsx:387:        <span className="flex items-center gap-1">
+src/components/RiskFilters.tsx:388:          <Info size={13} className="text-emerald-500" />
+src/components/RiskFilters.tsx:389:          {filters.riskTolerance === 'conservative' && 'Scam Shield active: Hiding coins with unrenounced mints and high-holder supply.'}
+src/components/RiskFilters.tsx:390:          {filters.riskTolerance === 'degen' && 'Scam Shield bypassed: Warning! Visualizing contracts with high risk of immediate rug pull.'}
+src/components/RiskFilters.tsx:391:          {filters.riskTolerance === 'aggressive' && 'Scam Shield moderate: Visualizing young assets with solid velocity and minor red flags.'}
+src/components/RiskFilters.tsx:392:          {filters.riskTolerance === 'all' && 'Scam Shield normal: Displaying complete list matching minimum score parameters.'}
+src/components/RiskFilters.tsx:394:        <div className="flex items-center gap-2">
+src/components/RiskFilters.tsx:397:            id="sorting-dropdown"
+src/components/RiskFilters.tsx:398:            className="bg-neutral-950 border border-neutral-800 rounded px-2.5 py-1 text-xs text-emerald-400 outline-none focus:border-emerald-500 cursor-pointer font-mono"
+src/components/RiskFilters.tsx:399:            value={filters.sortBy}
+src/components/RiskFilters.tsx:400:            onChange={(e) => onFilterChange({ ...filters, sortBy: e.target.value as any })}
+src/components/RiskFilters.tsx:402:            <option value="combinedScore">⚡ Alpha Velocity Score</option>
+src/components/RiskFilters.tsx:403:            <option value="breakoutProbability">🔥 Breakout Probability</option>
+src/components/RiskFilters.tsx:404:            <option value="velocityScore">🚀 Transaction Speed (tx/m)</option>
+src/components/RiskFilters.tsx:405:            <option value="marketCapUsd">💼 Market Cap (USD)</option>
+src/components/RiskFilters.tsx:406:            <option value="priceChange1h">📊 1H Price Gain %</option>
+src/components/FooterModals.tsx:3:type FooterModalsProps = {
+src/components/FooterModals.tsx:5:  setShowAbout: (b: boolean) => void;
+src/components/FooterModals.tsx:7:  setShowPrivacy: (b: boolean) => void;
+src/components/FooterModals.tsx:9:  setShowTerms: (b: boolean) => void;
+src/components/FooterModals.tsx:12:export const FooterModals: React.FC<FooterModalsProps> = ({
+src/components/FooterModals.tsx:16:}) => {
+src/components/FooterModals.tsx:20:        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+src/components/FooterModals.tsx:21:          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 max-w-lg w-full text-sm text-neutral-300 relative">
+src/components/FooterModals.tsx:22:            <button onClick={() => setShowAbout(false)} className="absolute top-4 right-4 text-neutral-500 hover:text-white">x</button>
+src/components/FooterModals.tsx:23:            <h2 className="text-xl font-bold text-white mb-4">About Us</h2>
+src/components/FooterModals.tsx:24:            <div className="space-y-4">
+src/components/FooterModals.tsx:34:        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+src/components/FooterModals.tsx:35:          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 max-w-lg w-full text-sm text-neutral-300 relative max-h-[80vh] overflow-y-auto">
+src/components/FooterModals.tsx:36:            <button onClick={() => setShowPrivacy(false)} className="absolute top-4 right-4 text-neutral-500 hover:text-white">x</button>
+src/components/FooterModals.tsx:37:            <h2 className="text-xl font-bold text-white mb-4">Privacy Policy</h2>
+src/components/FooterModals.tsx:38:            <div className="space-y-4">
+src/components/FooterModals.tsx:41:              <h3 className="font-bold text-white mt-4">1. Information We Collect</h3>
+src/components/FooterModals.tsx:43:              <h3 className="font-bold text-white mt-4">2. How We Use Your Information</h3>
+src/components/FooterModals.tsx:45:              <h3 className="font-bold text-white mt-4">3. Data Security</h3>
+src/components/FooterModals.tsx:53:        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+src/components/FooterModals.tsx:54:          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 max-w-lg w-full text-sm text-neutral-300 relative max-h-[80vh] overflow-y-auto">
+src/components/FooterModals.tsx:55:            <button onClick={() => setShowTerms(false)} className="absolute top-4 right-4 text-neutral-500 hover:text-white">x</button>
+src/components/FooterModals.tsx:56:            <h2 className="text-xl font-bold text-white mb-4">Terms of Service</h2>
+src/components/FooterModals.tsx:57:            <div className="space-y-4">
+src/components/FooterModals.tsx:59:              <h3 className="font-bold text-white mt-4">1. Acceptance of Terms</h3>
+src/components/FooterModals.tsx:61:              <h3 className="font-bold text-white mt-4">2. Premium Subscription</h3>
+src/components/FooterModals.tsx:63:              <h3 className="font-bold text-white mt-4">3. Disclaimers</h3>
+src/components/FooterModals.tsx:65:              <h3 className="font-bold text-white mt-4">4. Limitation of Liability</h3>
+src/components/InspectorDrawer.tsx:8:  onClose: () => void;
+src/components/InspectorDrawer.tsx:9:  onMockBuy: (id: string, amountSol: number) => void;
+src/components/InspectorDrawer.tsx:10:  onMockSell: (id: string, amountSol: number) => void;
+src/components/InspectorDrawer.tsx:11:  onAddAlert: (symbol: string) => void;
+src/components/InspectorDrawer.tsx:12:  onOpenTerminal?: (mint: string) => void;
+src/components/InspectorDrawer.tsx:15:export const InspectorDrawer: React.FC<InspectorDrawerProps> = ({
+src/components/InspectorDrawer.tsx:22:}) => {
+src/components/InspectorDrawer.tsx:23:  const [activeTab, setActiveTab] = useState<'chart' | 'audit' | 'bonding' | 'social' | 'api'>('chart');
+src/components/InspectorDrawer.tsx:24:  const [copiedRaw, setCopiedRaw] = useState(false);
+src/components/InspectorDrawer.tsx:25:  const [alertConfigured, setAlertConfigured] = useState(false);
+src/components/InspectorDrawer.tsx:26:  const [copiedAddress, setCopiedAddress] = useState(false);
+src/components/InspectorDrawer.tsx:27:  const [copiedDexLink, setCopiedDexLink] = useState(false);
+src/components/InspectorDrawer.tsx:28:  const [copiedJupLink, setCopiedJupLink] = useState(false);
+src/components/InspectorDrawer.tsx:29:  const [copiedPhantomLink, setCopiedPhantomLink] = useState(false);
+src/components/InspectorDrawer.tsx:33:      <div id="inspector-empty-state" className="glass-panel rounded-xl p-8 flex flex-col items-center justify-center text-center h-full text-neutral-400">
+src/components/InspectorDrawer.tsx:34:        <Activity size={36} className="text-neutral-500 animate-pulse mb-3" />
+src/components/InspectorDrawer.tsx:35:        <h4 className="text-sm font-semibold font-mono uppercase text-neutral-300">Diagnostic Unit Idle</h4>
+src/components/InspectorDrawer.tsx:36:        <p className="text-xs text-neutral-500 mt-2 max-w-xs">
+src/components/InspectorDrawer.tsx:43:  const triggerAlertAdd = () => {
+src/components/InspectorDrawer.tsx:46:    setTimeout(() => setAlertConfigured(false), 3000);
+src/components/InspectorDrawer.tsx:50:  const getRawPayload = () => {
+src/components/InspectorDrawer.tsx:53:      api_source: coin.platform === 'pump.fun' ? 'pump_fun_bindings' : 'dex_screener_pools',
+src/components/InspectorDrawer.tsx:60:        price_sol: (coin.priceUsd / 135).toFixed(8), // Assuming SOL = $135
+src/components/InspectorDrawer.tsx:94:  const chartData = useMemo(() => {
+src/components/InspectorDrawer.tsx:96:    return coin.priceHistory5m.map((price, idx) => {
+src/components/InspectorDrawer.tsx:98:      const stepsBack = coin.priceHistory5m.length - 1 - idx;
+src/components/InspectorDrawer.tsx:107:    <div id="inspector-panel-root" className="glass-panel rounded-xl flex flex-col h-full text-white overflow-hidden">
+src/components/InspectorDrawer.tsx:109:      <div className="p-4 border-b border-neutral-800 flex justify-between items-center bg-neutral-950/20">
+src/components/InspectorDrawer.tsx:110:        <div className="flex items-center gap-2">
+src/components/InspectorDrawer.tsx:111:          <span className={`p-1.5 rounded-lg text-xs font-mono font-bold ${
+src/components/InspectorDrawer.tsx:112:            coin.combinedScore >= 80 
+src/components/InspectorDrawer.tsx:114:              : coin.combinedScore >= 50
+src/components/InspectorDrawer.tsx:121:            <h3 className="text-sm font-bold flex items-center gap-1">
+src/components/InspectorDrawer.tsx:123:              <span className="text-neutral-500 font-mono text-[10px]">(${coin.symbol})</span>
+src/components/InspectorDrawer.tsx:125:            <p className="text-[10px] text-neutral-500 font-mono">
+src/components/InspectorDrawer.tsx:131:          onClick={onClose}
+src/components/InspectorDrawer.tsx:132:          className="text-neutral-400 hover:text-white p-1 rounded-lg transition-colors cursor-pointer"
+src/components/InspectorDrawer.tsx:134:          <X size={16} />
+src/components/InspectorDrawer.tsx:139:      <div className="p-4 bg-neutral-950/40 border-b border-neutral-800/60 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+src/components/InspectorDrawer.tsx:141:          <span className="text-[10px] font-mono text-neutral-400 block uppercase">Price</span>
+src/components/InspectorDrawer.tsx:142:          <span className="text-sm font-bold font-mono text-white">
+src/components/InspectorDrawer.tsx:147:          <span className="text-[10px] font-mono text-neutral-400 block uppercase">Breakout Risk</span>
+src/components/InspectorDrawer.tsx:148:          <span className={`text-sm font-mono font-bold ${coin.securityScore >= 75 ? 'text-emerald-400' : coin.securityScore >= 45 ? 'text-amber-400' : 'text-rose-400'}`}>
+src/components/InspectorDrawer.tsx:149:            {coin.securityScore >= 75 ? 'Low' : coin.securityScore >= 45 ? 'Medium' : 'CRITICAL'}
+src/components/InspectorDrawer.tsx:153:          <span className="text-[10px] font-mono text-neutral-400 block uppercase">Alpha Target</span>
+src/components/InspectorDrawer.tsx:154:          <span className="text-sm font-bold text-amber-300 font-sans">
+src/components/InspectorDrawer.tsx:159:          <span className="text-[10px] font-mono text-neutral-400 block uppercase">5m Volume</span>
+src/components/InspectorDrawer.tsx:160:          <span className="text-sm font-mono font-semibold text-emerald-400">
+src/components/InspectorDrawer.tsx:167:      <div className="p-4 bg-gradient-to-r from-emerald-950/20 via-indigo-950/20 to-neutral-900/40 border-b border-neutral-800 flex flex-col gap-3">
+src/components/InspectorDrawer.tsx:168:        <div className="flex justify-between items-center">
+src/components/InspectorDrawer.tsx:169:          <span className="text-[10px] font-mono font-bold tracking-wider uppercase text-emerald-400 flex items-center gap-1.5">
+src/components/InspectorDrawer.tsx:170:            <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+src/components/InspectorDrawer.tsx:173:          <span className="text-[9px] text-neutral-500 font-mono">
+src/components/InspectorDrawer.tsx:179:        <div className="flex items-center gap-1.5 bg-neutral-950 p-2.5 rounded-lg border border-neutral-800/80">
+src/components/InspectorDrawer.tsx:180:          <div className="flex-1 min-w-0">
+src/components/InspectorDrawer.tsx:181:            <span className="text-[9px] text-neutral-400 block font-mono uppercase tracking-wider mb-0.5">Mint Contract Address</span>
+src/components/InspectorDrawer.tsx:182:            <span className="text-xs font-mono text-emerald-400 block truncate font-bold uppercase select-all leading-tight font-semibold">
+src/components/InspectorDrawer.tsx:188:            id="copy-address-drawer"
+src/components/InspectorDrawer.tsx:189:            onClick={() => {
+src/components/InspectorDrawer.tsx:192:              setTimeout(() => setCopiedAddress(false), 2000);
+src/components/InspectorDrawer.tsx:194:            className="glass-panel border-neutral-800 hover:border-emerald-500/40 hover:bg-neutral-800 text-neutral-400 hover:text-emerald-400 px-2.5 py-1.5 rounded text-[10px] font-mono font-bold transition-all flex items-center gap-1 shrink-0 cursor-pointer"
+src/components/InspectorDrawer.tsx:195:            title="Copy Solana contract address to clipboard"
+src/components/InspectorDrawer.tsx:199:                <Check size={11} className="text-emerald-400 animate-bounce" />
+src/components/InspectorDrawer.tsx:200:                <span className="text-emerald-400">COPIED MINT!</span>
+src/components/InspectorDrawer.tsx:204:                <Copy size={11} />
+src/components/InspectorDrawer.tsx:212:        <div className="grid grid-cols-3 gap-2 text-center text-[10px] font-mono">
+src/components/InspectorDrawer.tsx:214:            onClick={() => {
+src/components/InspectorDrawer.tsx:221:            className="border border-neutral-800 bg-neutral-950/60 hover:bg-emerald-600/10 hover:border-emerald-500/30 text-neutral-300 hover:text-emerald-300 py-1.5 rounded transition-all flex items-center justify-center gap-1 cursor-pointer font-bold"
+src/components/InspectorDrawer.tsx:222:            title="Buy Securely via Jupiter inside Alpha Pump"
+src/components/InspectorDrawer.tsx:224:            <Zap size={11} className="text-emerald-400" />
+src/components/InspectorDrawer.tsx:229:            id="copy-jupiter-link-drawer"
+src/components/InspectorDrawer.tsx:230:            onClick={() => {
+src/components/InspectorDrawer.tsx:234:              setTimeout(() => setCopiedDexLink(false), 2000);
+src/components/InspectorDrawer.tsx:236:            className="border border-neutral-800 bg-neutral-950/60 hover:bg-purple-600/10 hover:border-purple-500/30 text-neutral-300 hover:text-purple-300 py-1.5 rounded transition-all flex items-center justify-center gap-1 cursor-pointer font-bold"
+src/components/InspectorDrawer.tsx:237:            title="Copy Jupiter Swap URL for Phantom"
+src/components/InspectorDrawer.tsx:239:            <Link size={11} className="text-purple-400" />
+src/components/InspectorDrawer.tsx:245:            id="copy-dexscreener-link-drawer"
+src/components/InspectorDrawer.tsx:246:            onClick={() => {
+src/components/InspectorDrawer.tsx:249:              setTimeout(() => setCopiedDexLink(false), 2000);
+src/components/InspectorDrawer.tsx:251:            className="border border-neutral-800 bg-neutral-950/60 hover:bg-sky-600/10 hover:border-sky-500/30 text-neutral-300 hover:text-sky-300 py-1.5 rounded transition-all flex items-center justify-center gap-1 cursor-pointer font-bold"
+src/components/InspectorDrawer.tsx:252:            title="Copy DexScreener URL"
+src/components/InspectorDrawer.tsx:256:                <Check size={11} className="text-sky-400" />
+src/components/InspectorDrawer.tsx:261:                <Link size={11} className="text-neutral-400" />
+src/components/InspectorDrawer.tsx:269:        <div className="grid grid-cols-1 text-center text-[10px] font-mono">
+src/components/InspectorDrawer.tsx:271:            href={`https://solscan.io/token/${coin.address}`}
+src/components/InspectorDrawer.tsx:272:            target="_blank"
+src/components/InspectorDrawer.tsx:273:            rel="noopener noreferrer"
+src/components/InspectorDrawer.tsx:274:            className="border border-neutral-800 bg-neutral-950/60 hover:bg-neutral-800 text-neutral-400 hover:text-neutral-200 py-1 rounded transition-all flex items-center justify-center gap-1 cursor-pointer font-semibold"
+src/components/InspectorDrawer.tsx:275:            title="Inspect on Solscan Explorer"
+src/components/InspectorDrawer.tsx:277:            <ExternalLink size={10} className="text-neutral-400" />
+src/components/InspectorDrawer.tsx:283:        <div className="text-[10px] text-neutral-400 leading-snug font-mono mt-0.5 bg-neutral-900/50 p-2.5 rounded border border-neutral-800/40">
+src/components/InspectorDrawer.tsx:284:          🚀 <strong className="text-neutral-200">How to Open & Trade inside Phantom Wallet:</strong>
+src/components/InspectorDrawer.tsx:285:          <ul className="list-disc pl-4 mt-1 space-y-1">
+src/components/InspectorDrawer.tsx:286:            <li><strong>Import Address Directly:</strong> Click <span className="text-emerald-400 font-bold">COPY MINT CODE</span> and paste the exact line of characters into Phantom's native wallet swap search or trade inputs.</li>
+src/components/InspectorDrawer.tsx:287:            <li><strong>For Phantom dApp Browser page:</strong> Click <span className="text-purple-400 font-bold">COPY JUPITER LINK</span> and paste this exact URL directly into Phantom's in-wallet browser search bar to instantly load the trading pair with SOL.</li>
+src/components/InspectorDrawer.tsx:293:      <div className="flex border-b border-neutral-800 bg-neutral-950/20 text-[11px] font-mono">
+src/components/InspectorDrawer.tsx:295:          id="tab-chart"
+src/components/InspectorDrawer.tsx:296:          onClick={() => setActiveTab('chart')}
+src/components/InspectorDrawer.tsx:297:          className={`flex-1 py-2 flex items-center justify-center gap-1 border-b-2 capitalize font-semibold cursor-pointer transition-all ${
+src/components/InspectorDrawer.tsx:298:            activeTab === 'chart'
+src/components/InspectorDrawer.tsx:303:          <ChartIcon size={12} /> Chart
+src/components/InspectorDrawer.tsx:306:          id="tab-security-audit"
+src/components/InspectorDrawer.tsx:307:          onClick={() => setActiveTab('audit')}
+src/components/InspectorDrawer.tsx:308:          className={`flex-1 py-2 text-center border-b-2 capitalize font-semibold cursor-pointer transition-all ${
+src/components/InspectorDrawer.tsx:309:            activeTab === 'audit'
+src/components/InspectorDrawer.tsx:317:          id="tab-bonding-curve"
+src/components/InspectorDrawer.tsx:318:          onClick={() => setActiveTab('bonding')}
+src/components/InspectorDrawer.tsx:319:          className={`flex-1 py-2 text-center border-b-2 capitalize font-semibold cursor-pointer transition-all ${
+src/components/InspectorDrawer.tsx:320:            activeTab === 'bonding'
+src/components/InspectorDrawer.tsx:328:          id="tab-social-mentions"
+src/components/InspectorDrawer.tsx:329:          onClick={() => setActiveTab('social')}
+src/components/InspectorDrawer.tsx:330:          className={`flex-1 py-2 text-center border-b-2 capitalize font-semibold cursor-pointer transition-all ${
+src/components/InspectorDrawer.tsx:331:            activeTab === 'social'
+src/components/InspectorDrawer.tsx:339:          id="tab-raw-api"
+src/components/InspectorDrawer.tsx:340:          onClick={() => setActiveTab('api')}
+src/components/InspectorDrawer.tsx:341:          className={`flex-1 py-2 text-center border-b-2 capitalize font-semibold cursor-pointer transition-all ${
+src/components/InspectorDrawer.tsx:342:            activeTab === 'api'
+src/components/InspectorDrawer.tsx:352:      <div className="flex-1 overflow-y-auto p-4 flex flex-col justify-between">
+src/components/InspectorDrawer.tsx:355:        {activeTab === 'chart' && (
+src/components/InspectorDrawer.tsx:356:          <div className="flex flex-col gap-4">
+src/components/InspectorDrawer.tsx:357:            <div className="bg-neutral-950 p-4 rounded-lg border border-neutral-800/80">
+src/components/InspectorDrawer.tsx:358:              <h4 className="text-xs font-mono font-bold text-neutral-300 uppercase tracking-widest mb-3">
+src/components/InspectorDrawer.tsx:361:              <div className="h-48 w-full mt-2">
+src/components/InspectorDrawer.tsx:362:                <ResponsiveContainer width="100%" height="100%">
+src/components/InspectorDrawer.tsx:363:                  <LineChart data={chartData}>
+src/components/InspectorDrawer.tsx:364:                    <XAxis dataKey="time" stroke="#525252" fontSize={10} tickLine={false} axisLine={false} />
+src/components/InspectorDrawer.tsx:366:                      domain={['auto', 'auto']} 
+src/components/InspectorDrawer.tsx:367:                      stroke="#525252" 
+src/components/InspectorDrawer.tsx:368:                      fontSize={10} 
+src/components/InspectorDrawer.tsx:369:                      tickFormatter={(val) => '$' + val.toFixed(6)}
+src/components/InspectorDrawer.tsx:370:                      tickLine={false}
+src/components/InspectorDrawer.tsx:371:                      axisLine={false}
+src/components/InspectorDrawer.tsx:372:                      width={65}
+src/components/InspectorDrawer.tsx:375:                      contentStyle={{ backgroundColor: '#171717', borderColor: '#262626', fontSize: '12px', fontFamily: 'monospace' }}
+src/components/InspectorDrawer.tsx:376:                      itemStyle={{ color: '#34d399' }}
+src/components/InspectorDrawer.tsx:377:                      formatter={(value: number) => ['$' + value.toFixed(8), 'Price']}
+src/components/InspectorDrawer.tsx:380:                      type="monotone" 
+src/components/InspectorDrawer.tsx:381:                      dataKey="price" 
+src/components/InspectorDrawer.tsx:382:                      stroke={coin.priceChange1h >= 0 ? "#34d399" : "#fb7185"} 
+src/components/InspectorDrawer.tsx:383:                      strokeWidth={2} 
+src/components/InspectorDrawer.tsx:384:                      dot={{ r: 3, fill: '#171717', strokeWidth: 2 }} 
+src/components/InspectorDrawer.tsx:385:                      activeDot={{ r: 5, strokeWidth: 0 }}
+src/components/InspectorDrawer.tsx:386:                      isAnimationActive={true}
+src/components/InspectorDrawer.tsx:393:            <div className="grid grid-cols-2 gap-3 text-center">
+src/components/InspectorDrawer.tsx:394:              <div className="bg-neutral-900 border border-neutral-800 rounded p-3">
+src/components/InspectorDrawer.tsx:395:                <span className="text-[10px] text-neutral-400 font-mono block">1H Change</span>
+src/components/InspectorDrawer.tsx:396:                <span className={`text-sm font-bold font-mono ${coin.priceChange1h >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
+src/components/InspectorDrawer.tsx:397:                  {coin.priceChange1h >= 0 ? '+' : ''}{coin.priceChange1h.toFixed(2)}%
+src/components/InspectorDrawer.tsx:400:              <div className="bg-neutral-900 border border-neutral-800 rounded p-3">
+src/components/InspectorDrawer.tsx:401:                <span className="text-[10px] text-neutral-400 font-mono block">24H Change</span>
+src/components/InspectorDrawer.tsx:402:                <span className={`text-sm font-bold font-mono ${coin.priceChange24h >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
+src/components/InspectorDrawer.tsx:403:                  {coin.priceChange24h >= 0 ? '+' : ''}{coin.priceChange24h.toFixed(2)}%
+src/components/InspectorDrawer.tsx:411:        {activeTab === 'audit' && (
+src/components/InspectorDrawer.tsx:412:          <div className="flex flex-col gap-4">
+src/components/InspectorDrawer.tsx:413:            <div className="bg-neutral-950 p-3 rounded-lg border border-neutral-800/80">
+src/components/InspectorDrawer.tsx:414:              <h4 className="text-xs font-mono font-bold text-neutral-300 uppercase tracking-widest mb-3 flex items-center justify-between">
+src/components/InspectorDrawer.tsx:416:                <span className="text-[10px] text-neutral-500 font-normal">Passed: {coin.topAuditsPassed.length} / 4</span>
+src/components/InspectorDrawer.tsx:419:              <div className="flex flex-col gap-2.5">
+src/components/InspectorDrawer.tsx:421:                <div className="flex justify-between items-center text-xs">
+src/components/InspectorDrawer.tsx:422:                  <span className="text-neutral-400 font-mono">Mint Authority Disabled</span>
+src/components/InspectorDrawer.tsx:424:                    <span className="text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded flex items-center gap-1">
+src/components/InspectorDrawer.tsx:425:                      <ShieldCheck size={11} /> YES (Renounced)
+src/components/InspectorDrawer.tsx:428:                    <span className="text-rose-400 font-bold bg-rose-500/10 px-2 py-0.5 rounded flex items-center gap-1 animate-pulse">
+src/components/InspectorDrawer.tsx:429:                      <ShieldAlert size={11} /> ACTIVE THREAT
+src/components/InspectorDrawer.tsx:435:                <div className="flex justify-between items-center text-xs">
+src/components/InspectorDrawer.tsx:436:                  <span className="text-neutral-400 font-mono">Freeze Authority Renounced</span>
+src/components/InspectorDrawer.tsx:438:                    <span className="text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded flex items-center gap-1">
+src/components/InspectorDrawer.tsx:439:                      <ShieldCheck size={11} /> YES (Disabled)
+src/components/InspectorDrawer.tsx:442:                    <span className="text-rose-400 font-bold bg-rose-500/10 px-2 py-0.5 rounded flex items-center gap-1 animate-pulse">
+src/components/InspectorDrawer.tsx:443:                      <ShieldAlert size={11} /> ACTIVE RISK
+src/components/InspectorDrawer.tsx:449:                <div className="flex justify-between items-center text-xs">
+src/components/InspectorDrawer.tsx:450:                  <span className="text-neutral-400 font-mono">LP Token Burnt / Locked</span>
+src/components/InspectorDrawer.tsx:452:                    <span className="text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded flex items-center gap-1">
+src/components/InspectorDrawer.tsx:453:                      <ShieldCheck size={11} /> {coin.liquidityLockPercent}% Burnt
+src/components/InspectorDrawer.tsx:456:                    <span className="text-amber-400 font-bold bg-amber-500/10 px-2 py-0.5 rounded flex items-center gap-1">
+src/components/InspectorDrawer.tsx:457:                      <ShieldAlert size={11} /> 0% (Dev LP Risk)
+src/components/InspectorDrawer.tsx:463:                <div className="flex justify-between items-center text-xs">
+src/components/InspectorDrawer.tsx:464:                  <span className="text-neutral-400 font-mono">Dev Wallet Activity Profile</span>
+src/components/InspectorDrawer.tsx:465:                  <span className={`font-mono text-[11px] font-bold ${
+src/components/InspectorDrawer.tsx:466:                    coin.creatorWalletBehavior === 'clean' 
+src/components/InspectorDrawer.tsx:468:                      : coin.creatorWalletBehavior === 'first_timer'
+src/components/InspectorDrawer.tsx:472:                    {coin.creatorWalletBehavior === 'clean' && 'Clean History (No Rug)'}
+src/components/InspectorDrawer.tsx:473:                    {coin.creatorWalletBehavior === 'first_timer' && 'First-Time Wallet'}
+src/components/InspectorDrawer.tsx:474:                    {coin.creatorWalletBehavior === 'neutral' && 'Neutral History'}
+src/components/InspectorDrawer.tsx:475:                    {coin.creatorWalletBehavior === 'suspicious' && 'Suspicious / Rug History'}
+src/components/InspectorDrawer.tsx:482:            <div className="bg-neutral-950 p-3 rounded-lg border border-neutral-800/80">
+src/components/InspectorDrawer.tsx:483:              <h4 className="text-xs font-mono font-bold text-neutral-300 uppercase tracking-widest mb-3">
+src/components/InspectorDrawer.tsx:486:              <div className="grid grid-cols-2 gap-4 text-center">
+src/components/InspectorDrawer.tsx:487:                <div className="border border-neutral-800 bg-neutral-900/60 p-2 rounded">
+src/components/InspectorDrawer.tsx:488:                  <span className="text-[10px] text-neutral-400 block font-mono">Top 10 Wallets</span>
+src/components/InspectorDrawer.tsx:489:                  <span className={`text-base font-mono font-bold ${coin.holderDistribution.top10HoldersPercent > 40 ? 'text-amber-400' : 'text-emerald-400'}`}>
+src/components/InspectorDrawer.tsx:492:                  <span className="text-[9px] text-neutral-500 block mt-0.5">Supply Concentration</span>
+src/components/InspectorDrawer.tsx:494:                <div className="border border-neutral-800 bg-neutral-900/60 p-2 rounded">
+src/components/InspectorDrawer.tsx:495:                  <span className="text-[10px] text-neutral-400 block font-mono">Creator Holding</span>
+src/components/InspectorDrawer.tsx:496:                  <span className={`text-base font-mono font-bold ${coin.holderDistribution.creatorHoldingPercent > 5 ? 'text-rose-400' : 'text-emerald-400'}`}>
+src/components/InspectorDrawer.tsx:499:                  <span className="text-[9px] text-neutral-500 block mt-0.5">Creator Pre-mine</span>
+src/components/InspectorDrawer.tsx:506:              <div className="bg-rose-950/20 border border-rose-500/20 p-3 rounded-lg flex flex-col gap-1.5">
+src/components/InspectorDrawer.tsx:507:                <span className="text-xs text-rose-400 font-bold font-mono flex items-center gap-1 uppercase tracking-wider">
+src/components/InspectorDrawer.tsx:508:                  <ShieldAlert size={12} /> Red Flag Diagnostics ({coin.redFlagsCount})
+src/components/InspectorDrawer.tsx:510:                <ul className="list-disc list-inside text-[11px] text-neutral-300 flex flex-col gap-1 mt-1 font-mono">
+src/components/InspectorDrawer.tsx:511:                  {coin.redFlagsList.map((rf, idx) => (
+src/components/InspectorDrawer.tsx:512:                    <li key={idx} className="leading-tight text-neutral-300">{rf}</li>
+src/components/InspectorDrawer.tsx:517:              <div className="bg-emerald-950/20 border border-emerald-500/20 p-3 rounded-lg flex items-center gap-2">
+src/components/InspectorDrawer.tsx:518:                <Award size={16} className="text-emerald-400 shrink-0" />
+src/components/InspectorDrawer.tsx:519:                <span className="text-[11px] text-emerald-300 font-semibold font-mono">
+src/components/InspectorDrawer.tsx:528:        {activeTab === 'bonding' && (
+src/components/InspectorDrawer.tsx:529:          <div className="flex flex-col gap-4">
+src/components/InspectorDrawer.tsx:530:            <div className="bg-neutral-950 p-3 rounded-lg border border-neutral-800/80">
+src/components/InspectorDrawer.tsx:531:              <h4 className="text-xs font-mono font-bold text-neutral-300 uppercase tracking-widest mb-2">
+src/components/InspectorDrawer.tsx:534:              <p className="text-[11px] text-neutral-400 mb-3 leading-snug">
+src/components/InspectorDrawer.tsx:538:              <div className="flex flex-col gap-3">
+src/components/InspectorDrawer.tsx:540:                  <div className="flex justify-between text-xs font-mono text-neutral-300 mb-1">
+src/components/InspectorDrawer.tsx:542:                    <span className="text-purple-400 font-bold">{coin.bondingCurveProgress}%</span>
+src/components/InspectorDrawer.tsx:544:                  <div className="w-full bg-neutral-900 rounded-full h-3 p-0.5 overflow-hidden border border-neutral-800">
+src/components/InspectorDrawer.tsx:546:                      className="h-full bg-gradient-to-r from-purple-500 via-pink-500 to-indigo-500 rounded-full transition-all duration-500"
+src/components/InspectorDrawer.tsx:547:                      style={{ width: `${coin.bondingCurveProgress}%` }}
+src/components/InspectorDrawer.tsx:552:                <div className="grid grid-cols-2 gap-2 mt-2">
+src/components/InspectorDrawer.tsx:553:                  <div className="bg-neutral-900 p-2 rounded text-center">
+src/components/InspectorDrawer.tsx:554:                    <span className="text-[10px] text-neutral-400 block font-mono">Platform State</span>
+src/components/InspectorDrawer.tsx:555:                    <span className="text-xs font-bold text-neutral-200 capitalize">{coin.platform}</span>
+src/components/InspectorDrawer.tsx:557:                  <div className="bg-neutral-900 p-2 rounded text-center">
+src/components/InspectorDrawer.tsx:558:                    <span className="text-[10px] text-neutral-400 block font-mono">Curve Status</span>
+src/components/InspectorDrawer.tsx:559:                    <span className="text-xs font-bold text-neutral-200">
+src/components/InspectorDrawer.tsx:560:                      {coin.bondingCurveProgress >= 100 ? 'Fully Seeded' : 'Seeding Curve'}
+src/components/InspectorDrawer.tsx:568:            <div className="bg-neutral-950 p-4 rounded-lg border border-neutral-800/80">
+src/components/InspectorDrawer.tsx:569:              <h4 className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest mb-1.5 flex items-center gap-1">
+src/components/InspectorDrawer.tsx:570:                <ShoppingCart size={13} /> Simulation Play Sandbox
+src/components/InspectorDrawer.tsx:572:              <p className="text-[10px] text-neutral-400 font-mono mb-3">
+src/components/InspectorDrawer.tsx:576:              <div className="flex flex-col gap-2">
+src/components/InspectorDrawer.tsx:577:                <div className="flex gap-2">
+src/components/InspectorDrawer.tsx:579:                    id="mock-buy-10sol"
+src/components/InspectorDrawer.tsx:580:                    onClick={() => onMockBuy(coin.id, 10)}
+src/components/InspectorDrawer.tsx:581:                    className="flex-1 bg-emerald-500 text-neutral-950 py-1.5 rounded text-xs font-mono font-bold cursor-pointer hover:bg-emerald-400 transition-colors"
+src/components/InspectorDrawer.tsx:586:                    id="mock-buy-30sol"
+src/components/InspectorDrawer.tsx:587:                    onClick={() => onMockBuy(coin.id, 30)}
+src/components/InspectorDrawer.tsx:588:                    className="flex-1 bg-purple-600 text-white py-1.5 rounded text-xs font-mono font-bold cursor-pointer hover:bg-purple-500 transition-colors"
+src/components/InspectorDrawer.tsx:593:                <div className="flex gap-2 mt-1">
+src/components/InspectorDrawer.tsx:595:                    id="mock-sell-10sol"
+src/components/InspectorDrawer.tsx:596:                    onClick={() => onMockSell(coin.id, 10)}
+src/components/InspectorDrawer.tsx:597:                    className="flex-1 border border-rose-500/30 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 py-1.5 rounded text-[11px] font-mono cursor-pointer transition-all"
+src/components/InspectorDrawer.tsx:608:        {activeTab === 'social' && (
+src/components/InspectorDrawer.tsx:609:          <div className="flex flex-col gap-4">
+src/components/InspectorDrawer.tsx:610:            <div className="bg-neutral-950 p-3 rounded-lg border border-neutral-800/80">
+src/components/InspectorDrawer.tsx:611:              <h4 className="text-xs font-mono font-bold text-neutral-300 uppercase tracking-widest mb-3">
+src/components/InspectorDrawer.tsx:615:              <div className="flex flex-col gap-3">
+src/components/InspectorDrawer.tsx:617:                <div className="flex justify-between items-center text-xs">
+src/components/InspectorDrawer.tsx:618:                  <span className="text-neutral-400 font-mono">Twitter/X Followers</span>
+src/components/InspectorDrawer.tsx:619:                  <span className="text-white font-mono font-bold">
+src/components/InspectorDrawer.tsx:625:                <div className="flex justify-between items-center text-xs">
+src/components/InspectorDrawer.tsx:626:                  <span className="text-neutral-400 font-mono">Scan volume (24H mentions)</span>
+src/components/InspectorDrawer.tsx:627:                  <span className="text-blue-400 font-mono font-bold">
+src/components/InspectorDrawer.tsx:633:                <div className="flex justify-between items-center text-xs">
+src/components/InspectorDrawer.tsx:634:                  <span className="text-neutral-400 font-mono">Twitter Activity Ratio</span>
+src/components/InspectorDrawer.tsx:635:                  <span className="text-emerald-400 font-mono font-bold">
+src/components/InspectorDrawer.tsx:642:                  <div className="flex justify-between text-[11px] font-mono text-neutral-400 mb-1">
+src/components/InspectorDrawer.tsx:644:                    <span className="text-emerald-400 font-bold">{coin.socials.sentimentScore}% Positive</span>
+src/components/InspectorDrawer.tsx:646:                  <div className="w-full bg-neutral-900 rounded-full h-2 overflow-hidden border border-neutral-800">
+src/components/InspectorDrawer.tsx:648:                      className={`h-full rounded-full ${
+src/components/InspectorDrawer.tsx:649:                        coin.socials.sentimentScore >= 75
+src/components/InspectorDrawer.tsx:651:                          : coin.socials.sentimentScore >= 45
+src/components/InspectorDrawer.tsx:655:                      style={{ width: `${coin.socials.sentimentScore}%` }}
+src/components/InspectorDrawer.tsx:663:            <div className="bg-neutral-950 p-3 rounded-lg border border-neutral-800/80 flex items-center gap-3">
+src/components/InspectorDrawer.tsx:664:              <Users size={20} className="text-blue-400 shrink-0" />
+src/components/InspectorDrawer.tsx:666:                <span className="text-[10px] text-neutral-400 block font-mono">Influencer Scans</span>
+src/components/InspectorDrawer.tsx:667:                <span className="text-xs text-neutral-200 font-bold font-mono">
+src/components/InspectorDrawer.tsx:676:        {activeTab === 'api' && (
+src/components/InspectorDrawer.tsx:677:          <div className="flex flex-col gap-2 flex-grow h-0">
+src/components/InspectorDrawer.tsx:678:            <div className="flex justify-between items-center text-xs font-mono text-neutral-400">
+src/components/InspectorDrawer.tsx:681:                id="copy-raw-api"
+src/components/InspectorDrawer.tsx:682:                onClick={() => {
+src/components/InspectorDrawer.tsx:685:                  setTimeout(() => setCopiedRaw(false), 2000);
+src/components/InspectorDrawer.tsx:687:                className="text-emerald-400 hover:text-emerald-300 text-[10px]"
+src/components/InspectorDrawer.tsx:693:            <div className="flex-grow bg-neutral-950 p-2.5 rounded border border-neutral-800/80 font-mono text-[10px] text-emerald-400/80 overflow-auto whitespace-pre h-48 scrollbar-thin">
+src/components/InspectorDrawer.tsx:700:        <div className="pt-4 border-t border-neutral-800 flex flex-col gap-2 mt-4 bg-neutral-900">
+src/components/InspectorDrawer.tsx:702:            id={`configure-alert-${coin.symbol}`}
+src/components/InspectorDrawer.tsx:703:            onClick={triggerAlertAdd}
+src/components/InspectorDrawer.tsx:704:            className={`w-full py-2 rounded text-xs font-mono font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+src/components/InspectorDrawer.tsx:710:            <BellDot size={13} className={alertConfigured ? 'text-emerald-400' : 'text-neutral-400'} />
+src/components/InspectorDrawer.tsx:714:          <div className="flex items-center gap-1.5 justify-center text-[10px] text-neutral-500 font-mono">
+src/components/InspectorDrawer.tsx:715:            <HeartHandshake size={11} /> 
+src/components/TerminalModal.tsx:7:export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, initialMint: string }) => {
+src/components/TerminalModal.tsx:8:  const { connection } = useConnection();
+src/components/TerminalModal.tsx:9:  const { publicKey, sendTransaction } = useWallet();
+src/components/TerminalModal.tsx:11:  const [solAmount, setSolAmount] = useState('0.1');
+src/components/TerminalModal.tsx:12:  const [isSwapping, setIsSwapping] = useState(false);
+src/components/TerminalModal.tsx:13:  const [status, setStatus] = useState('');
+src/components/TerminalModal.tsx:15:  const handleSwap = async () => {
+src/components/TerminalModal.tsx:25:      const lamports = Math.floor(parseFloat(solAmount) * 1e9);
+src/components/TerminalModal.tsx:28:      const quoteRes = await fetch(`https://transaction-v1.raydium.io/compute/swap-base-in?inputMint=So11111111111111111111111111111111111111112&outputMint=${initialMint}&amount=${lamports}&slippageBps=50&txVersion=LEGACY`);
+src/components/TerminalModal.tsx:29:      const quoteData = await quoteRes.json();
+src/components/TerminalModal.tsx:37:      const txRes = await fetch(`https://transaction-v1.raydium.io/transaction/swap-base-in`, {
+src/components/TerminalModal.tsx:50:      const txData = await txRes.json();
+src/components/TerminalModal.tsx:51:      if (!txData.success || !txData.data || txData.data.length === 0) {
+src/components/TerminalModal.tsx:57:      const transactions = txData.data.map((txObj: any) => {
+src/components/TerminalModal.tsx:58:        const txBuffer = Buffer.from(txObj.transaction, 'base64');
+src/components/TerminalModal.tsx:63:      const signature = await sendTransaction(transactions[0], connection);
+src/components/TerminalModal.tsx:67:      const latestBlockhash = await connection.getLatestBlockhash();
+src/components/TerminalModal.tsx:79:      setTimeout(() => setStatus(''), 5000);
+src/components/TerminalModal.tsx:84:    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+src/components/TerminalModal.tsx:85:      <div className="w-full max-w-md bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden shadow-2xl flex flex-col">
+src/components/TerminalModal.tsx:86:        <div className="flex justify-between items-center p-4 border-b border-neutral-800 bg-neutral-950">
+src/components/TerminalModal.tsx:87:          <h2 className="text-xl font-bold text-white tracking-widest font-mono">DEX SWAP (Raydium)</h2>
+src/components/TerminalModal.tsx:88:          <div className="flex gap-2">
+src/components/TerminalModal.tsx:90:              onClick={() => {
+src/components/TerminalModal.tsx:91:                const url = window.location.href;
+src/components/TerminalModal.tsx:94:              className="text-[10px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 font-mono px-2 py-1.5 rounded hover:bg-indigo-500/20 md:hidden flex items-center justify-center shrink-0 tracking-wider"
+src/components/TerminalModal.tsx:98:            <button onClick={onClose} className="text-neutral-500 hover:text-white">✕</button>
+src/components/TerminalModal.tsx:102:        <div className="p-6 flex flex-col gap-6">
+src/components/TerminalModal.tsx:103:          <div className="flex flex-col gap-2">
+src/components/TerminalModal.tsx:104:            <label className="text-xs font-bold text-neutral-400 uppercase tracking-wider font-mono">Wallet Connection</label>
+src/components/TerminalModal.tsx:105:            <WalletMultiButton className="!bg-emerald-600 hover:!bg-emerald-500 !transition-colors !w-full !justify-center !rounded-xl font-mono !h-12" />
+src/components/TerminalModal.tsx:108:          <div className="flex flex-col gap-2">
+src/components/TerminalModal.tsx:109:            <label className="text-xs font-bold text-neutral-400 uppercase tracking-wider font-mono">Token Mint</label>
+src/components/TerminalModal.tsx:112:              value={initialMint} 
+src/components/TerminalModal.tsx:113:              className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-3 text-sm text-neutral-300 font-mono outline-none"
+src/components/TerminalModal.tsx:117:          <div className="flex flex-col gap-2 relative">
+src/components/TerminalModal.tsx:118:            <label className="text-xs font-bold text-neutral-400 uppercase tracking-wider font-mono">Amount (SOL)</label>
+src/components/TerminalModal.tsx:120:              type="number" 
+src/components/TerminalModal.tsx:121:              value={solAmount}
+src/components/TerminalModal.tsx:122:              onChange={(e) => setSolAmount(e.target.value)}
+src/components/TerminalModal.tsx:123:              step="0.1"
+src/components/TerminalModal.tsx:124:              min="0.01"
+src/components/TerminalModal.tsx:125:              className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-3 text-lg font-bold text-white font-mono outline-none focus:border-emerald-500"
+src/components/TerminalModal.tsx:130:            onClick={handleSwap}
+src/components/TerminalModal.tsx:131:            disabled={!publicKey || isSwapping}
+src/components/TerminalModal.tsx:132:            className={`w-full py-4 rounded-xl font-black font-mono tracking-widest uppercase transition-all ${
+src/components/TerminalModal.tsx:142:            <div className={`p-3 rounded-lg text-xs font-mono text-center border ${status.includes('Error') ? 'bg-red-500/10 border-red-500/20 text-red-400' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'}`}>
+src/components/ProfileDashboard.tsx:9:  onClose: () => void;
+src/components/ProfileDashboard.tsx:10:  onSelectCoin?: (coinId: string, coinData?: MemeCoin) => void;
+src/components/ProfileDashboard.tsx:13:export const ProfileDashboard: React.FC<ProfileDashboardProps> = ({ onClose, onSelectCoin }) => {
+src/components/ProfileDashboard.tsx:14:  const { user, profile, updateProfile, signOut } = useAuth();
+src/components/ProfileDashboard.tsx:15:  const [activeTab, setActiveTab] = useState<'saved' | 'history' | 'settings'>('saved');
+src/components/ProfileDashboard.tsx:16:  const [savedCoins, setSavedCoins] = useState<any[]>([]);
+src/components/ProfileDashboard.tsx:17:  const [viewedCoins, setViewedCoins] = useState<any[]>([]);
+src/components/ProfileDashboard.tsx:18:  const [isEditing, setIsEditing] = useState(false);
+src/components/ProfileDashboard.tsx:19:  const [editUsername, setEditUsername] = useState(profile?.username || '');
+src/components/ProfileDashboard.tsx:21:  useEffect(() => {
+src/components/ProfileDashboard.tsx:27:  useEffect(() => {
+src/components/ProfileDashboard.tsx:28:    const fetchCoinData = async () => {
+src/components/ProfileDashboard.tsx:31:        const savedQ = query(collection(db, 'users', user.uid, 'savedCoins'), orderBy('actionAt', 'desc'), limit(50));
+src/components/ProfileDashboard.tsx:32:        const savedSnap = await getDocs(savedQ);
+src/components/ProfileDashboard.tsx:33:        setSavedCoins(savedSnap.docs.map(d => d.data()));
+src/components/ProfileDashboard.tsx:35:        const viewedQ = query(collection(db, 'users', user.uid, 'viewedCoins'), orderBy('actionAt', 'desc'), limit(50));
+src/components/ProfileDashboard.tsx:36:        const viewedSnap = await getDocs(viewedQ);
+src/components/ProfileDashboard.tsx:37:        setViewedCoins(viewedSnap.docs.map(d => d.data()));
+src/components/ProfileDashboard.tsx:45:  const handleUpdateProfile = async () => {
+src/components/ProfileDashboard.tsx:52:  const handleTogglePrivacy = async () => {
+src/components/ProfileDashboard.tsx:61:    <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm sm:items-stretch sm:p-10">
+src/components/ProfileDashboard.tsx:62:      <div className="glass-panel w-full max-w-4xl rounded-xl overflow-hidden relative flex flex-col max-h-full">
+src/components/ProfileDashboard.tsx:63:        <div className="flex items-center justify-between p-5 border-b border-neutral-800 bg-neutral-900/60">
+src/components/ProfileDashboard.tsx:64:          <div className="flex items-center gap-4">
+src/components/ProfileDashboard.tsx:65:            <div className="w-12 h-12 rounded-full overflow-hidden bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center text-emerald-400 font-bold text-lg">
+src/components/ProfileDashboard.tsx:67:                <img src={profile.profileImage} alt={profile.username} className="w-full h-full object-cover" />
+src/components/ProfileDashboard.tsx:73:              <div className="flex items-center gap-2">
+src/components/ProfileDashboard.tsx:74:                <h2 className="text-lg font-bold font-sans text-white">{profile.username}</h2>
+src/components/ProfileDashboard.tsx:76:                  <span className="text-[9px] uppercase tracking-wider font-mono text-emerald-400 bg-emerald-400/10 px-1.5 py-0.5 rounded border border-emerald-500/30">Public</span>
+src/components/ProfileDashboard.tsx:78:                  <span className="text-[9px] uppercase tracking-wider font-mono text-amber-400 bg-amber-400/10 px-1.5 py-0.5 rounded border border-amber-500/30">Private</span>
+src/components/ProfileDashboard.tsx:81:              <p className="text-xs text-neutral-500 font-mono mt-0.5">{user.email}</p>
+src/components/ProfileDashboard.tsx:84:          <button onClick={onClose} className="text-neutral-400 hover:text-white p-2">
+src/components/ProfileDashboard.tsx:85:            <X size={20} />
+src/components/ProfileDashboard.tsx:89:        <div className="flex flex-1 overflow-hidden flex-col sm:flex-row">
+src/components/ProfileDashboard.tsx:91:          <div className="w-full sm:w-64 border-b sm:border-b-0 sm:border-r border-neutral-800 bg-neutral-900/30 p-4 flex flex-row sm:flex-col gap-2 overflow-x-auto sm:overflow-visible shrink-0">
+src/components/ProfileDashboard.tsx:93:              onClick={() => setActiveTab('saved')}
+src/components/ProfileDashboard.tsx:94:              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-mono transition-colors ${activeTab === 'saved' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'text-neutral-400 hover:bg-neutral-800 hover:text-white'}`}
+src/components/ProfileDashboard.tsx:96:              <Save size={16} /> <span className="hidden sm:inline">Saved Coins</span>
+src/components/ProfileDashboard.tsx:99:              onClick={() => setActiveTab('history')}
+src/components/ProfileDashboard.tsx:100:              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-mono transition-colors ${activeTab === 'history' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'text-neutral-400 hover:bg-neutral-800 hover:text-white'}`}
+src/components/ProfileDashboard.tsx:102:              <History size={16} /> <span className="hidden sm:inline">View History</span>
+src/components/ProfileDashboard.tsx:105:              onClick={() => setActiveTab('settings')}
+src/components/ProfileDashboard.tsx:106:              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-mono transition-colors ${activeTab === 'settings' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'text-neutral-400 hover:bg-neutral-800 hover:text-white'}`}
+src/components/ProfileDashboard.tsx:108:              <Settings2 size={16} /> <span className="hidden sm:inline">Settings</span>
+src/components/ProfileDashboard.tsx:111:            <div className="mt-auto pt-4 border-t border-neutral-800">
+src/components/ProfileDashboard.tsx:113:                onClick={() => { signOut(); onClose(); }} 
+src/components/ProfileDashboard.tsx:114:                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-mono text-rose-400 hover:bg-rose-500/10 w-full transition-colors justify-center sm:justify-start"
+src/components/ProfileDashboard.tsx:116:                <LogOut size={16} /> <span className="hidden sm:inline">Sign Out</span>
+src/components/ProfileDashboard.tsx:122:          <div className="flex-1 p-6 overflow-y-auto bg-neutral-950/50">
+src/components/ProfileDashboard.tsx:123:            {activeTab === 'settings' && (
+src/components/ProfileDashboard.tsx:124:              <div className="max-w-md flex flex-col gap-6">
+src/components/ProfileDashboard.tsx:125:                <div className="glass-panel p-5 rounded-xl border border-neutral-800">
+src/components/ProfileDashboard.tsx:126:                  <h3 className="text-sm font-bold font-mono text-emerald-400 mb-4 flex items-center gap-2"><User size={16}/> Profile Details</h3>
+src/components/ProfileDashboard.tsx:127:                  <div className="flex flex-col gap-3">
+src/components/ProfileDashboard.tsx:128:                    <label className="text-xs text-neutral-400 font-mono">Username</label>
+src/components/ProfileDashboard.tsx:129:                    <div className="flex gap-2">
+src/components/ProfileDashboard.tsx:131:                        type="text" 
+src/components/ProfileDashboard.tsx:132:                        value={editUsername}
+src/components/ProfileDashboard.tsx:133:                        onChange={e => setEditUsername(e.target.value)}
+src/components/ProfileDashboard.tsx:134:                        disabled={!isEditing}
+src/components/ProfileDashboard.tsx:135:                        className="flex-1 bg-neutral-900 border border-neutral-700 disabled:border-transparent rounded px-3 py-1.5 text-sm font-mono text-white outline-none"
+src/components/ProfileDashboard.tsx:138:                        <button onClick={handleUpdateProfile} className="bg-emerald-500 text-neutral-950 px-3 py-1.5 rounded font-bold text-xs uppercase">Save</button>
+src/components/ProfileDashboard.tsx:140:                        <button onClick={() => setIsEditing(true)} className="bg-neutral-800 text-neutral-300 px-3 py-1.5 rounded font-bold text-xs uppercase">Edit</button>
+src/components/ProfileDashboard.tsx:146:                <div className="glass-panel p-5 rounded-xl border border-neutral-800">
+src/components/ProfileDashboard.tsx:147:                  <h3 className="text-sm font-bold font-mono text-emerald-400 mb-4 flex items-center gap-2"><Shield size={16}/> Privacy Settings</h3>
+src/components/ProfileDashboard.tsx:148:                  <div className="flex items-center justify-between p-3 bg-neutral-900/50 border border-neutral-800 rounded-lg cursor-pointer hover:bg-neutral-800 transition-colors" onClick={handleTogglePrivacy}>
+src/components/ProfileDashboard.tsx:150:                      <h4 className="text-white text-sm font-sans font-semibold">Public Profile</h4>
+src/components/ProfileDashboard.tsx:151:                      <p className="text-xs text-neutral-500 font-mono">Allow others to see your profile & history</p>
+src/components/ProfileDashboard.tsx:153:                    <div className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors ${profile.isPublic ? 'bg-emerald-500' : 'bg-neutral-700'}`}>
+src/components/ProfileDashboard.tsx:154:                      <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${profile.isPublic ? 'translate-x-4' : 'translate-x-0'}`} />
+src/components/ProfileDashboard.tsx:161:            {activeTab === 'saved' && (
+src/components/ProfileDashboard.tsx:163:                <h3 className="text-sm font-bold font-mono text-emerald-400 mb-4 flex items-center gap-2"><Save size={16}/> Bookmarked Alpha</h3>
+src/components/ProfileDashboard.tsx:164:                {savedCoins.length === 0 ? (
+src/components/ProfileDashboard.tsx:165:                  <div className="text-neutral-500 text-sm font-mono">No saved coins yet. Start saving coins from the screener!</div>
+src/components/ProfileDashboard.tsx:167:                  <div className="flex flex-col gap-2">
+src/components/ProfileDashboard.tsx:168:                    {savedCoins.map(coin => (
+src/components/ProfileDashboard.tsx:170:                        key={coin.coinId} 
+src/components/ProfileDashboard.tsx:171:                        className="flex justify-between items-center p-3 glass-panel border border-neutral-800 rounded-lg cursor-pointer hover:border-emerald-500/50 hover:bg-neutral-900 transition-colors"
+src/components/ProfileDashboard.tsx:172:                        onClick={() => onSelectCoin?.(coin.coinId, coin.coinData)}
+src/components/ProfileDashboard.tsx:174:                        <div className="flex flex-col">
+src/components/ProfileDashboard.tsx:175:                          <span className="font-bold text-white tracking-wider">${coin.symbol}</span>
+src/components/ProfileDashboard.tsx:176:                          <span className="text-[10px] text-neutral-500 font-mono break-all font-mono max-w-[200px] sm:max-w-xs overflow-hidden text-ellipsis">{coin.address}</span>
+src/components/ProfileDashboard.tsx:178:                        <div className="flex items-center gap-2">
+src/components/ProfileDashboard.tsx:179:                          <span className="text-[10px] text-neutral-500 font-mono">Saved {coin.actionAt?.seconds ? new Date(coin.actionAt.seconds * 1000).toLocaleDateString() : 'Just now'}</span>
+src/components/ProfileDashboard.tsx:188:            {activeTab === 'history' && (
+src/components/ProfileDashboard.tsx:190:                <h3 className="text-sm font-bold font-mono text-emerald-400 mb-4 flex items-center gap-2"><History size={16}/> Surveillance Log</h3>
+src/components/ProfileDashboard.tsx:191:                {viewedCoins.length === 0 ? (
+src/components/ProfileDashboard.tsx:192:                  <div className="text-neutral-500 text-sm font-mono">You haven't inspected any coins yet.</div>
+src/components/ProfileDashboard.tsx:194:                  <div className="flex flex-col gap-2">
+src/components/ProfileDashboard.tsx:195:                    {viewedCoins.map(coin => (
+src/components/ProfileDashboard.tsx:197:                        key={coin.coinId} 
+src/components/ProfileDashboard.tsx:198:                        className="flex justify-between items-center p-3 glass-panel border border-neutral-800 rounded-lg cursor-pointer hover:border-emerald-500/50 hover:bg-neutral-900 transition-colors"
+src/components/ProfileDashboard.tsx:199:                        onClick={() => onSelectCoin?.(coin.coinId, coin.coinData)}
+src/components/ProfileDashboard.tsx:201:                        <div className="flex flex-col">
+src/components/ProfileDashboard.tsx:202:                          <span className="font-bold text-white tracking-wider">${coin.symbol}</span>
+src/components/ProfileDashboard.tsx:203:                          <span className="text-[10px] text-neutral-500 font-mono break-all max-w-[200px] sm:max-w-xs overflow-hidden text-ellipsis">{coin.address}</span>
+src/components/ProfileDashboard.tsx:205:                        <div className="flex items-center gap-2">
+src/components/ProfileDashboard.tsx:206:                          <span className="text-[10px] text-neutral-500 font-mono">Viewed {coin.actionAt?.seconds ? new Date(coin.actionAt.seconds * 1000).toLocaleDateString() : 'Just now'}</span>
+src/components/MetricHeader.tsx:8:  onForceRefresh: () => void;
+src/components/MetricHeader.tsx:12:export const MetricHeader: React.FC<MetricHeaderProps> = ({
+src/components/MetricHeader.tsx:17:}) => {
+src/components/MetricHeader.tsx:18:  const cards = [
+src/components/MetricHeader.tsx:20:      key="heuristics"
+src/components/MetricHeader.tsx:21:      className="w-[280px] shrink-0 rounded-xl p-4 flex flex-col justify-between transition-all glow-emerald"
+src/components/MetricHeader.tsx:23:      <div className="flex justify-between items-start">
+src/components/MetricHeader.tsx:25:          <p className="text-xs font-mono uppercase tracking-wider text-neutral-400">Heuristics Scope</p>
+src/components/MetricHeader.tsx:26:          <h3 className="text-2xl font-bold font-sans tracking-tight text-white mt-1">
+src/components/MetricHeader.tsx:27:            {(stats.totalScanned24h + (isSimulating ? 12 : 0)).toLocaleString()} <span className="text-xs text-neutral-500 font-normal">/24h</span>
+src/components/MetricHeader.tsx:30:        <div className="p-2.5 bg-emerald-500/10 rounded-lg text-emerald-400 border border-emerald-500/20">
+src/components/MetricHeader.tsx:31:          <Eye size={18} />
+src/components/MetricHeader.tsx:34:      <div className="mt-4 flex items-center justify-between text-xs font-mono text-neutral-400">
+src/components/MetricHeader.tsx:35:        <span className="flex items-center gap-1.5">
+src/components/MetricHeader.tsx:36:          <span className="relative flex h-2 w-2">
+src/components/MetricHeader.tsx:37:            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+src/components/MetricHeader.tsx:38:            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+src/components/MetricHeader.tsx:42:        <span className="text-emerald-400 font-semibold">{coinsCount} tracked</span>
+src/components/MetricHeader.tsx:47:      key="audits"
+src/components/MetricHeader.tsx:48:      className="w-[280px] shrink-0 rounded-xl p-4 flex flex-col justify-between transition-all glow-rose"
+src/components/MetricHeader.tsx:50:      <div className="flex justify-between items-start">
+src/components/MetricHeader.tsx:52:          <p className="text-xs font-mono uppercase tracking-wider text-neutral-400">Threat Auditing</p>
+src/components/MetricHeader.tsx:53:          <h3 className="text-2xl font-bold font-sans tracking-tight text-white mt-1">
+src/components/MetricHeader.tsx:54:            {stats.averageBreakoutRiskScore}% <span className="text-xs text-neutral-500 font-normal">Avg Safety</span>
+src/components/MetricHeader.tsx:57:        <div className="p-2.5 bg-rose-500/10 rounded-lg text-rose-400 border border-rose-500/20">
+src/components/MetricHeader.tsx:58:          <ShieldCheck size={18} />
+src/components/MetricHeader.tsx:61:      <div className="mt-4 text-xs font-mono text-neutral-400 flex justify-between items-center">
+src/components/MetricHeader.tsx:63:        <span className="bg-rose-500/15 text-rose-400 px-1.5 py-0.5 rounded text-[10px] font-bold">
+src/components/MetricHeader.tsx:70:      key="alpha"
+src/components/MetricHeader.tsx:71:      className="w-[280px] shrink-0 rounded-xl p-4 flex flex-col justify-between transition-all glow-amber"
+src/components/MetricHeader.tsx:73:      <div className="flex justify-between items-start">
+src/components/MetricHeader.tsx:75:          <p className="text-xs font-mono uppercase tracking-wider text-neutral-400">High Alpha Signals</p>
+src/components/MetricHeader.tsx:76:          <h3 className="text-2xl font-bold font-sans tracking-tight text-emerald-400 mt-1">
+src/components/MetricHeader.tsx:77:            {stats.activeHighAlphaCount} <span className="text-xs text-neutral-500 font-normal">Passed Filter</span>
+src/components/MetricHeader.tsx:80:        <div className="p-2.5 bg-amber-500/10 rounded-lg text-amber-400 border border-amber-500/20">
+src/components/MetricHeader.tsx:81:          <TrendingUp size={18} />
+src/components/MetricHeader.tsx:84:      <div className="mt-4 text-xs font-mono text-neutral-400 flex justify-between items-center">
+src/components/MetricHeader.tsx:86:        <span className="text-amber-400 font-semibold">{stats.pumpMigrationsCount} Migrations</span>
+src/components/MetricHeader.tsx:91:      key="telemetry"
+src/components/MetricHeader.tsx:92:      className="w-[280px] shrink-0 rounded-xl p-4 flex flex-col justify-between transition-all glow-emerald"
+src/components/MetricHeader.tsx:94:      <div className="flex justify-between items-start">
+src/components/MetricHeader.tsx:96:          <p className="text-xs font-mono uppercase tracking-wider text-neutral-400">Engine Telemetry</p>
+src/components/MetricHeader.tsx:97:          <div className="flex items-center gap-2 mt-1">
+src/components/MetricHeader.tsx:98:            <span className="text-lg font-bold font-mono tracking-tight text-neutral-200">
+src/components/MetricHeader.tsx:104:          onClick={onForceRefresh}
+src/components/MetricHeader.tsx:105:          className="p-2.5 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 text-emerald-400 rounded-lg transition-colors cursor-pointer self-center"
+src/components/MetricHeader.tsx:106:          title="Force immediate API diagnostic sweep"
+src/components/MetricHeader.tsx:108:          <Cpu size={18} className={isSimulating ? 'animate-spin' : ''} />
+src/components/MetricHeader.tsx:111:      <div className="mt-4 flex items-center justify-between text-xs font-mono text-neutral-500">
+src/components/MetricHeader.tsx:112:        <div className="flex items-center gap-1.5 w-full">
+src/components/MetricHeader.tsx:113:          <span className="text-neutral-400">Polling cycle:</span>
+src/components/MetricHeader.tsx:114:          <div className="h-1.5 bg-neutral-800 rounded-full flex-grow overflow-hidden max-w-[100px]">
+src/components/MetricHeader.tsx:116:              className={`h-full bg-emerald-500 ${isSimulating ? 'animate-[pulse_1.5s_infinite]' : 'w-1/4'}`}
+src/components/MetricHeader.tsx:117:              style={{ width: isSimulating ? '100%' : '25%' }}
+src/components/MetricHeader.tsx:120:          <span className="text-emerald-400 ml-auto text-[10px]">60s Feed</span>
+src/components/MetricHeader.tsx:126:  const scrollContainerRef = useRef<HTMLDivElement>(null);
+src/components/MetricHeader.tsx:127:  const [isInteracting, setIsInteracting] = useState(false);
+src/components/MetricHeader.tsx:128:  const [isHovered, setIsHovered] = useState(false);
+src/components/MetricHeader.tsx:130:  const isDragging = useRef(false);
+src/components/MetricHeader.tsx:131:  const startX = useRef(0);
+src/components/MetricHeader.tsx:132:  const scrollLeftStart = useRef(0);
+src/components/MetricHeader.tsx:133:  const exactScrollLeft = useRef(0);
+src/components/MetricHeader.tsx:135:  useEffect(() => {
+src/components/MetricHeader.tsx:137:    let lastTime: number | null = null;
+src/components/MetricHeader.tsx:138:    const speed = 0.03; // pixels per ms
+src/components/MetricHeader.tsx:140:    const autoScroll = (timestamp: number) => {
+src/components/MetricHeader.tsx:141:      if (!lastTime) lastTime = timestamp;
+src/components/MetricHeader.tsx:142:      const deltaTime = timestamp - lastTime;
+src/components/MetricHeader.tsx:143:      lastTime = timestamp;
+src/components/MetricHeader.tsx:147:        exactScrollLeft.current += speed * deltaTime;
+src/components/MetricHeader.tsx:149:        const scrollWidth = scrollContainerRef.current.scrollWidth;
+src/components/MetricHeader.tsx:150:        const halfWidth = scrollWidth / 2;
+src/components/MetricHeader.tsx:153:        if (exactScrollLeft.current >= halfWidth) {
+src/components/MetricHeader.tsx:154:          exactScrollLeft.current -= halfWidth;
+src/components/MetricHeader.tsx:155:        } else if (exactScrollLeft.current <= 0 && speed < 0) {
+src/components/MetricHeader.tsx:156:          exactScrollLeft.current += halfWidth;
+src/components/MetricHeader.tsx:159:        scrollContainerRef.current.scrollLeft = exactScrollLeft.current;
+src/components/MetricHeader.tsx:162:        exactScrollLeft.current = scrollContainerRef.current.scrollLeft;
+src/components/MetricHeader.tsx:165:      animationFrameId = requestAnimationFrame(autoScroll);
+src/components/MetricHeader.tsx:168:    animationFrameId = requestAnimationFrame(autoScroll);
+src/components/MetricHeader.tsx:169:    return () => cancelAnimationFrame(animationFrameId);
+src/components/MetricHeader.tsx:172:  const handlePointerDown = (e: PointerEvent<HTMLDivElement>) => {
+src/components/MetricHeader.tsx:173:    isDragging.current = true;
+src/components/MetricHeader.tsx:175:    startX.current = e.pageX - (scrollContainerRef.current?.offsetLeft || 0);
+src/components/MetricHeader.tsx:176:    scrollLeftStart.current = scrollContainerRef.current?.scrollLeft || 0;
+src/components/MetricHeader.tsx:179:  const handlePointerMove = (e: PointerEvent<HTMLDivElement>) => {
+src/components/MetricHeader.tsx:182:    const x = e.pageX - (scrollContainerRef.current.offsetLeft || 0);
+src/components/MetricHeader.tsx:183:    const walk = (x - startX.current) * 1.5; // scroll-fast multiplier
+src/components/MetricHeader.tsx:184:    scrollContainerRef.current.scrollLeft = scrollLeftStart.current - walk;
+src/components/MetricHeader.tsx:187:  const handlePointerUpOrLeave = () => {
+src/components/MetricHeader.tsx:188:    isDragging.current = false;
+src/components/MetricHeader.tsx:194:      id="stat-header-container" 
+src/components/MetricHeader.tsx:195:      className="w-full text-neutral-300 overflow-x-auto hide-scrollbar pb-4 flex cursor-grab active:cursor-grabbing touch-pan-x"
+src/components/MetricHeader.tsx:196:      ref={scrollContainerRef}
+src/components/MetricHeader.tsx:197:      onMouseEnter={() => setIsHovered(true)}
+src/components/MetricHeader.tsx:198:      onMouseLeave={() => setIsHovered(false)}
+src/components/MetricHeader.tsx:199:      onTouchStart={() => setIsInteracting(true)}
+src/components/MetricHeader.tsx:200:      onTouchEnd={() => setIsInteracting(false)}
+src/components/MetricHeader.tsx:201:      onPointerDown={handlePointerDown}
+src/components/MetricHeader.tsx:202:      onPointerMove={handlePointerMove}
+src/components/MetricHeader.tsx:203:      onPointerUp={handlePointerUpOrLeave}
+src/components/MetricHeader.tsx:204:      onPointerLeave={handlePointerUpOrLeave}
+src/components/MetricHeader.tsx:206:      <div className="flex shrink-0 gap-4 pr-4 select-none">
+src/components/MetricHeader.tsx:209:      <div aria-hidden="true" className="flex shrink-0 gap-4 pr-4 select-none">
+src/components/AuthModal.tsx:6:  onClose: () => void;
+src/components/AuthModal.tsx:9:export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
+src/components/AuthModal.tsx:10:  const { signInWithGoogle } = useAuth();
+src/components/AuthModal.tsx:11:  const [error, setError] = useState('');
+src/components/AuthModal.tsx:13:  const handleGoogleSignIn = async () => {
+src/components/AuthModal.tsx:23:    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+src/components/AuthModal.tsx:24:      <div className="glass-panel w-full max-w-sm max-h-[90vh] overflow-y-auto rounded-xl relative shadow-[0_0_50px_rgba(0,0,0,0.8)] border border-neutral-800">
+src/components/AuthModal.tsx:26:          type="button"
+src/components/AuthModal.tsx:27:          onClick={onClose}
+src/components/AuthModal.tsx:28:          className="absolute top-3 right-3 p-2 bg-neutral-900/80 border border-neutral-700 text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-full z-10 transition-colors"
+src/components/AuthModal.tsx:29:          title="Close Modal"
+src/components/AuthModal.tsx:31:          <X size={18} strokeWidth={2.5} />
+src/components/AuthModal.tsx:34:        <div className="p-6">
+src/components/AuthModal.tsx:35:          <h2 className="text-xl font-bold font-sans text-white mb-6 text-center">
+src/components/AuthModal.tsx:40:            <div className="mb-4 p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs rounded font-mono">
+src/components/AuthModal.tsx:46:            type="button"
+src/components/AuthModal.tsx:47:            onClick={handleGoogleSignIn}
+src/components/AuthModal.tsx:48:            className="w-full bg-neutral-200 hover:bg-white text-neutral-950 font-bold font-sans text-sm px-5 py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2"
+src/components/AuthModal.tsx:50:            <svg viewBox="0 0 24 24" className="w-5 h-5">
+src/components/AuthModal.tsx:51:              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+src/components/AuthModal.tsx:52:              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+src/components/AuthModal.tsx:53:              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+src/components/AuthModal.tsx:54:              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+src/components/ScoringDocs.tsx:4:export const ScoringDocs: React.FC = () => {
+src/components/ScoringDocs.tsx:5:  const [isOpen, setIsOpen] = useState(false);
+src/components/ScoringDocs.tsx:8:    <div id="scoring-docs-panel" className="glass-panel rounded-xl overflow-hidden flex flex-col">
+src/components/ScoringDocs.tsx:10:        onClick={() => setIsOpen(!isOpen)}
+src/components/ScoringDocs.tsx:11:        className="w-full p-4 flex justify-between items-center text-white hover:bg-neutral-800 transition-colors"
+src/components/ScoringDocs.tsx:13:        <div className="flex items-center gap-2">
+src/components/ScoringDocs.tsx:14:          <Info className="text-emerald-400 shrink-0" size={16} />
+src/components/ScoringDocs.tsx:15:          <h4 className="text-sm font-bold font-mono text-neutral-200">Scoring Index Legend</h4>
+src/components/ScoringDocs.tsx:17:        <span className="text-xs text-neutral-500 uppercase tracking-wider font-mono border border-neutral-800 px-2 py-0.5 rounded bg-neutral-950">
+src/components/ScoringDocs.tsx:23:        <div className="p-5 pt-0 text-white flex flex-col gap-3 border-t border-neutral-800 mt-0">
+src/components/ScoringDocs.tsx:24:          <p className="text-xs text-neutral-400 font-mono mt-3">How the automated 0-100 breakout velocity coefficient is scored</p>
+src/components/ScoringDocs.tsx:25:          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
+src/components/ScoringDocs.tsx:27:            <div className="bg-neutral-950 p-3 rounded-lg border border-neutral-800/80 flex flex-col gap-1">
+src/components/ScoringDocs.tsx:28:              <span className="text-[10px] uppercase font-mono tracking-wider font-bold text-emerald-400 flex items-center gap-1">
+src/components/ScoringDocs.tsx:29:                <Zap size={11} /> Transaction Velocity (45%)
+src/components/ScoringDocs.tsx:31:              <p className="text-xs text-neutral-300 font-mono leading-relaxed mt-1">
+src/components/ScoringDocs.tsx:37:            <div className="bg-neutral-950 p-3 rounded-lg border border-neutral-800/80 flex flex-col gap-1">
+src/components/ScoringDocs.tsx:38:              <span className="text-[10px] uppercase font-mono tracking-wider font-bold text-blue-400 flex items-center gap-1">
+src/components/ScoringDocs.tsx:39:                <ShieldCheck size={11} /> Contract Threat Shield (25%)
+src/components/ScoringDocs.tsx:41:              <p className="text-xs text-neutral-300 font-mono leading-relaxed mt-1">
+src/components/ScoringDocs.tsx:47:            <div className="bg-neutral-950 p-3 rounded-lg border border-neutral-800/80 flex flex-col gap-1">
+src/components/ScoringDocs.tsx:48:              <span className="text-[10px] uppercase font-mono tracking-wider font-bold text-amber-400 flex items-center gap-1">
+src/components/ScoringDocs.tsx:49:                <HelpCircle size={11} /> Social Media Sentiment (30%)
+src/components/ScoringDocs.tsx:51:              <p className="text-[10px] leading-relaxed text-neutral-300 font-mono mt-1">
+src/components/ScoringDocs.tsx:58:          <div className="mt-2 bg-gradient-to-r from-rose-950/20 to-neutral-950 border border-rose-500/20 p-3.5 rounded-lg flex items-start gap-2.5">
+src/components/ScoringDocs.tsx:59:            <HeartCrack size={16} className="text-rose-400 shrink-0 mt-0.5 animate-pulse" />
+src/components/ScoringDocs.tsx:61:              <span className="text-xs font-bold text-rose-300 uppercase font-mono tracking-wider block">
+src/components/ScoringDocs.tsx:64:              <p className="text-[11px] text-neutral-300 font-mono leading-snug mt-1">
+src/mockData.ts:3:const REAL_COINS_BASE = [
+src/mockData.ts:24:const YOUNG_COIN_PREFIXES = ['DeFi', 'Moon', 'Safe', 'Space', 'Ultra', 'Super', 'Aero', 'Nova', 'Cyber', 'Quantum', 'Pepe', 'Doge', 'Shiba', 'Cat', 'Frog'];
+src/mockData.ts:25:const YOUNG_COIN_SUFFIXES = ['Fi', 'Swap', 'DEX', 'AI', 'GPT', 'Bot', 'Grow', 'Meme', 'X', 'Inu', 'Token', 'Coin'];
+src/mockData.ts:27:const generateRandomAddress = () => {
+src/mockData.ts:28:  const chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+src/mockData.ts:29:  let address = '';
+src/mockData.ts:30:  for (let i = 0; i < 43; i++) {
+src/mockData.ts:31:    address += chars.charAt(Math.floor(Math.random() * chars.length));
+src/mockData.ts:36:export const generateBackupCoins = (): MemeCoin[] => {
+src/mockData.ts:37:  const generated: MemeCoin[] = [];
+src/mockData.ts:40:  REAL_COINS_BASE.forEach((baseCoin, i) => {
+src/mockData.ts:41:    const isVerified = Math.random() < 0.5; // 50/50 split so both tabs look full
+src/mockData.ts:42:    const ageDays = Math.floor(Math.random() * 200) + 30; // 30 to 230 days old
+src/mockData.ts:49:      platform: i % 3 === 0 ? 'pump.fun' : 'raydium',
+src/mockData.ts:57:      isBondingCurve: i % 3 === 0,
+src/mockData.ts:98:  for (let i = 0; i < 8; i++) {
+src/mockData.ts:99:    const prefix = YOUNG_COIN_PREFIXES[Math.floor(Math.random() * YOUNG_COIN_PREFIXES.length)];
+src/mockData.ts:100:    const suffix = YOUNG_COIN_SUFFIXES[Math.floor(Math.random() * YOUNG_COIN_SUFFIXES.length)];
+src/mockData.ts:101:    const name = `${prefix} ${suffix}`;
+src/mockData.ts:102:    const symbol = (prefix.substring(0, 3) + suffix.substring(0, 2)).toUpperCase();
+src/mockData.ts:103:    const address = generateRandomAddress();
+src/mockData.ts:105:    const ageMin = Math.floor(Math.random() * 45) + 3; // 3 to 48 minutes old
+src/mockData.ts:106:    const velocityVal = Math.floor(Math.random() * 16) + 84; // 84 to 100 (high velocity)
+src/mockData.ts:107:    const probVal = Math.floor(Math.random() * 14) + 86; // 86 to 99 breakout prob
+src/mockData.ts:108:    const securityVal = Math.floor(Math.random() * 10) + 85; // extremely clean safety score
+src/mockData.ts:165:export const INITIAL_MEME_COINS: MemeCoin[] = generateBackupCoins();
+src/mockData.ts:167:export const MOCK_SYSTEM_LOGS: SystemLog[] = [
+src/mockData.ts:177:  const scanned = 542; // Simulated scanned in 24 hours
+src/mockData.ts:178:  const activeHighAlpha = coins.filter(c => c.combinedScore >= 75 && c.securityScore >= 70).length;
+src/mockData.ts:179:  const migrated = coins.filter(c => !c.isBondingCurve).length;
+src/mockData.ts:180:  const sumLiquidity = coins.reduce((acc, c) => acc + c.liquidityUsd, 0);
+src/mockData.ts:181:  const sumMCap = coins.reduce((acc, c) => acc + c.marketCapUsd, 0);
+src/mockData.ts:182:  const avgSecurity = Math.round(coins.reduce((acc, c) => acc + c.securityScore, 0) / coins.length) || 0;
+src/mockData.ts:196:  if (coins.length === 0) return { updatedCoins: coins, log: null };
+src/mockData.ts:199:  const updatedAgedCoins = coins.map(c => {
+src/mockData.ts:200:    let newAge = c.ageInMinutes;
+src/mockData.ts:202:      newAge = Math.max(0, Math.floor((Date.now() - c.createdAtMs) / 60000));
+src/mockData.ts:205:    let timeAgo = c.createdTimeAgo;
+src/mockData.ts:207:      timeAgo = newAge === 0 ? 'Just now' : `${newAge}m ago`;
+src/mockData.ts:209:      const ageHours = Math.floor(newAge / 60);
+src/mockData.ts:211:        timeAgo = `${ageHours}h ago`;
+src/mockData.ts:213:        timeAgo = `${Math.floor(ageHours / 24)}d ago`;
+src/mockData.ts:219:  const indexToUpdate = Math.floor(Math.random() * updatedAgedCoins.length);
+src/mockData.ts:222:  const updatedCoins = [...updatedAgedCoins];
+src/mockData.ts:223:  const coin = { ...updatedCoins[indexToUpdate] };
+src/mockData.ts:225:  coin.priceUsd = coin.priceUsd * (1 + (Math.random() * 0.04 - 0.02)); // +/- 2%
+src/mockData.ts:227:    coin.priceHistory5m = [...coin.priceHistory5m.slice(1), coin.priceUsd];
+src/mockData.ts:230:  updatedCoins[indexToUpdate] = coin;
+src/firebase.ts:7:const app = initializeApp(firebaseConfig);
+src/firebase.ts:8:export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+src/firebase.ts:9:export const auth = getAuth(app);
+src/firebase.ts:12:export const messaging = async () => {
+src/firebase.ts:13:  const supported = await isSupported();
+src/contexts/AuthContext.tsx:20:  signInWithGoogle: () => Promise<void>;
+src/contexts/AuthContext.tsx:21:  signOut: () => Promise<void>;
+src/contexts/AuthContext.tsx:22:  updateProfile: (data: Partial<UserProfile>) => Promise<void>;
+src/contexts/AuthContext.tsx:25:const AuthContext = createContext<AuthContextType | null>(null);
+src/contexts/AuthContext.tsx:28:  const [user, setUser] = useState<User | null>(null);
+src/contexts/AuthContext.tsx:29:  const [profile, setProfile] = useState<UserProfile | null>(null);
+src/contexts/AuthContext.tsx:30:  const [savedCoinIds, setSavedCoinIds] = useState<Set<string>>(new Set());
+src/contexts/AuthContext.tsx:31:  const [loading, setLoading] = useState(true);
+src/contexts/AuthContext.tsx:33:  useEffect(() => {
+src/contexts/AuthContext.tsx:34:    let unsubscribeProfile: (() => void) | undefined;
+src/contexts/AuthContext.tsx:35:    let unsubscribeSavedCoins: (() => void) | undefined;
+src/contexts/AuthContext.tsx:40:    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+src/contexts/AuthContext.tsx:45:        unsubscribeProfile = undefined;
+src/contexts/AuthContext.tsx:49:        unsubscribeSavedCoins = undefined;
+src/contexts/AuthContext.tsx:54:        const profileRef = doc(db, 'users', firebaseUser.uid);
+src/contexts/AuthContext.tsx:55:        unsubscribeProfile = onSnapshot(profileRef, (snap) => {
+src/contexts/AuthContext.tsx:57:            let data = snap.data() as UserProfile;
+src/contexts/AuthContext.tsx:58:            if (firebaseUser.email === 'fredwisseh@gmail.com' && !data.isPremium) {
+src/contexts/AuthContext.tsx:60:              data = { ...data, isPremium: true };
+src/contexts/AuthContext.tsx:65:            let baseUsername = firebaseUser.displayName || 'User';
+src/contexts/AuthContext.tsx:66:            if (baseUsername.length > 64) baseUsername = baseUsername.substring(0, 64);
+src/contexts/AuthContext.tsx:67:            const newProfile: any = {
+src/contexts/AuthContext.tsx:71:              isPremium: firebaseUser.email === 'fredwisseh@gmail.com',
+src/contexts/AuthContext.tsx:80:        }, (error) => {
+src/contexts/AuthContext.tsx:86:        const savedCoinsRef = collection(db, 'users', firebaseUser.uid, 'savedCoins');
+src/contexts/AuthContext.tsx:87:        unsubscribeSavedCoins = onSnapshot(savedCoinsRef, (snap) => {
+src/contexts/AuthContext.tsx:88:          const ids = new Set<string>();
+src/contexts/AuthContext.tsx:89:          snap.forEach(doc => {
+src/contexts/AuthContext.tsx:93:        }, (error) => {
+src/contexts/AuthContext.tsx:103:    return () => {
+src/contexts/AuthContext.tsx:110:  const signInWithGoogle = async () => {
+src/contexts/AuthContext.tsx:111:    const provider = new GoogleAuthProvider();
+src/contexts/AuthContext.tsx:118:  const signOut = async () => {
+src/contexts/AuthContext.tsx:122:  const updateProfile = async (data: Partial<UserProfile>) => {
+src/contexts/AuthContext.tsx:124:    const profileRef = doc(db, 'users', user.uid);
+src/contexts/AuthContext.tsx:129:    <AuthContext.Provider value={{ user, profile, savedCoinIds, loading, signInWithGoogle, signOut, updateProfile }}>
+src/contexts/AuthContext.tsx:136:  const context = useContext(AuthContext);
+src/testPump.js:1:const fetch = require('node-fetch');
+src/testPump.js:4:  const res = await fetch('https://frontend-api.pump.fun/coins/latest');
+src/testPump.js:5:  const data = await res.text();
+src/main.tsx:14:const WrappedApp = () => {
+src/main.tsx:15:  const endpoint = "https://solana-rpc.publicnode.com";
+src/main.tsx:16:  const wallets = useMemo(
+src/main.tsx:17:    () => [
+src/main.tsx:26:      <ConnectionProvider endpoint={endpoint}>
+src/main.tsx:27:        <WalletProvider wallets={wallets} autoConnect>
+src/main.tsx:40:  window.addEventListener('load', () => {
+src/main.tsx:41:    navigator.serviceWorker.register('/firebase-messaging-sw.js').then((registration) => {
+src/main.tsx:44:      if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+src/main.tsx:45:        Notification.requestPermission().then((permission) => {
+src/main.tsx:46:          if (permission === 'granted') {
+src/main.tsx:47:             messaging().then(m => {
+src/main.tsx:52:                 getToken(m, { serviceWorkerRegistration: registration }).then((currentToken) => {
+src/main.tsx:61:      } else if (Notification.permission === 'granted') {
+src/main.tsx:62:         messaging().then(m => {
+src/main.tsx:64:             getToken(m, { serviceWorkerRegistration: registration }).then((currentToken) => {
+src/main.tsx:72:    }, (err) => {
+src/lib/coinActions.ts:5:export const saveCoin = async (userId: string, coin: MemeCoin) => {
+src/lib/coinActions.ts:6:  const docRef = doc(db, 'users', userId, 'savedCoins', coin.id);
+src/lib/coinActions.ts:16:export const unsaveCoin = async (userId: string, coinId: string) => {
+src/lib/coinActions.ts:17:  const docRef = doc(db, 'users', userId, 'savedCoins', coinId);
+src/lib/coinActions.ts:21:export const viewCoin = async (userId: string, coin: MemeCoin) => {
+src/lib/coinActions.ts:22:  const docRef = doc(db, 'users', userId, 'viewedCoins', coin.id);
+src/ErrorBoundary.tsx:14:  public state: State = {
+src/ErrorBoundary.tsx:31:        <div style={{ padding: 20, color: "red", background: "#f8d7da", border: "1px solid red", minHeight: '100vh', zIndex: 99999, position: 'relative' }}>
+src/ErrorBoundary.tsx:34:          <pre style={{ whiteSpace: 'pre-wrap', fontSize: '12px' }}>{this.state.errorStack}</pre>
+src/App.tsx:51:const safeLocalStorage = {
+src/App.tsx:52:  getItem: (key: string): string | null => {
+src/App.tsx:60:  setItem: (key: string, value: string): void => {
+src/App.tsx:70:const safeSessionStorage = {
+src/App.tsx:71:  getItem: (key: string): string | null => {
+src/App.tsx:79:  setItem: (key: string, value: string): void => {
+src/App.tsx:88:const safeReplaceState = (state: any, title: string, url: string) => {
+src/App.tsx:97:  const { user, profile, updateProfile } = useAuth();
+src/App.tsx:98:  const [showAuthModal, setShowAuthModal] = useState(false);
+src/App.tsx:99:  const [showProfile, setShowProfile] = useState(false);
+src/App.tsx:100:  const [showPremiumModal, setShowPremiumModal] = useState(false);
+src/App.tsx:101:  const [showComingSoonPremiumModal, setShowComingSoonPremiumModal] = useState(false);
+src/App.tsx:103:  const [showTerminalModal, setShowTerminalModal] = useState(false);
+src/App.tsx:104:  const [terminalMint, setTerminalMint] = useState<string>('');
+src/App.tsx:106:  const [showTokenSearchModal, setShowTokenSearchModal] = useState(false);
+src/App.tsx:108:  const [showAbout, setShowAbout] = useState(false);
+src/App.tsx:109:  const [showPrivacy, setShowPrivacy] = useState(false);
+src/App.tsx:110:  const [showTerms, setShowTerms] = useState(false);
+src/App.tsx:113:  const [coins, setCoins] = useState<MemeCoin[]>(INITIAL_MEME_COINS);
+src/App.tsx:114:  const [selectedCoinId, setSelectedCoinId] = useState<string>('');
+src/App.tsx:116:  const [selectedExternalCoin, setSelectedExternalCoin] = useState<MemeCoin | null>(null);
+src/App.tsx:119:  useEffect(() => {
+src/App.tsx:120:    const timer = setTimeout(() => {
+src/App.tsx:125:    return () => clearTimeout(timer);
+src/App.tsx:129:  useEffect(() => {
+src/App.tsx:132:    const hasShown = safeLocalStorage.getItem('hasShownComingSoonPremium');
+src/App.tsx:135:    const timer = setTimeout(() => {
+src/App.tsx:140:    return () => clearTimeout(timer);
+src/App.tsx:144:  useEffect(() => {
+src/App.tsx:145:    const urlParams = new URLSearchParams(window.location.search);
+src/App.tsx:146:    const session_id = urlParams.get('session_id');
+src/App.tsx:147:    const payment = urlParams.get('payment');
+src/App.tsx:149:    if (payment === 'success' && session_id && profile) {
+src/App.tsx:159:      const verifyPayment = async () => {
+src/App.tsx:161:          const res = await fetch('/api/verify-session', {
+src/App.tsx:166:          const data = await res.json();
+src/App.tsx:183:  useEffect(() => {
+src/App.tsx:185:      const coin = coins.find(c => c.id === selectedCoinId) || (selectedExternalCoin?.id === selectedCoinId ? selectedExternalCoin : null);
+src/App.tsx:192:  const [logs, setLogs] = useState<SystemLog[]>(MOCK_SYSTEM_LOGS);
+src/App.tsx:193:  const [alerts, setAlerts] = useState<string[]>(['AURA', 'CHAD']);
+src/App.tsx:194:  const [isSimulating, setIsSimulating] = useState<boolean>(true);
+src/App.tsx:195:  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+src/App.tsx:199:  const [isInitialLoad, setIsInitialLoad] = useState<boolean>(true);
+src/App.tsx:200:  const [showFilters, setShowFilters] = useState<boolean>(false);
+src/App.tsx:201:  const [showLogs, setShowLogs] = useState<boolean>(false);
+src/App.tsx:204:  const [audioEnabled, setAudioEnabled] = useState<boolean>(true);
+src/App.tsx:205:  const [notifiedSymbols, setNotifiedSymbols] = useState<string[]>(() => {
+src/App.tsx:207:      c => c.combinedScore >= 90 && c.securityScore >= 75 && c.breakoutProbability >= 90
+src/App.tsx:208:    ).map(c => c.symbol);
+src/App.tsx:212:  const playHotBreakoutChime = (symbol: string) => {
+src/App.tsx:214:      const AudioCtxConstructor = window.AudioContext || (window as any).webkitAudioContext;
+src/App.tsx:216:      const ctx = new AudioCtxConstructor();
+src/App.tsx:218:      if (ctx.state === 'suspended') {
+src/App.tsx:222:      const now = ctx.currentTime;
+src/App.tsx:224:      const playTone = (freq: number, startTime: number, duration: number, type: 'sine' | 'triangle' = 'sine') => {
+src/App.tsx:225:        const osc = ctx.createOscillator();
+src/App.tsx:226:        const gainNode = ctx.createGain();
+src/App.tsx:231:        osc.type = type;
+src/App.tsx:256:  const [showCreatorForm, setShowCreatorForm] = useState<boolean>(false);
+src/App.tsx:257:  const [customName, setCustomName] = useState<string>('');
+src/App.tsx:258:  const [customSymbol, setCustomSymbol] = useState<string>('');
+src/App.tsx:259:  const [customAddress, setCustomAddress] = useState<string>('');
+src/App.tsx:260:  const [customPlatform, setCustomPlatform] = useState<'pump.fun' | 'raydium'>('pump.fun');
+src/App.tsx:261:  const [customSecurityProfile, setCustomSecurityProfile] = useState<'safe' | 'scam'>('safe');
+src/App.tsx:262:  const [creationStatus, setCreationStatus] = useState<string | null>(null);
+src/App.tsx:265:  const [filters, setFilters] = useState<ScreenerFilters>({
+src/App.tsx:275:  const stats = useMemo(() => calculateExecutiveStats(coins), [coins]);
+src/App.tsx:278:  const prevSelectedCoinRef = useRef<MemeCoin | null>(null);
+src/App.tsx:280:  const selectedCoin = useMemo(() => {
+src/App.tsx:282:      prevSelectedCoinRef.current = null;
+src/App.tsx:285:    const found = coins.find(coin => coin.id === selectedCoinId) || (selectedExternalCoin?.id === selectedCoinId ? selectedExternalCoin : null);
+src/App.tsx:287:      prevSelectedCoinRef.current = found;
+src/App.tsx:294:  const scamRatioPercent = useMemo(() => {
+src/App.tsx:295:    if (coins.length === 0) return 0;
+src/App.tsx:296:    const countScams = coins.filter(c => c.securityScore < 40).length;
+src/App.tsx:300:  const [activeFeedTab, setActiveFeedTab] = useState<'unverified' | 'verified' | 'fresh'>('fresh');
+src/App.tsx:303:  const terminalLogsRef = useRef<HTMLDivElement>(null);
+src/App.tsx:305:  const handleSelectCoin = (coin: MemeCoin) => {
+src/App.tsx:306:    setSelectedCoinId(coin.id === selectedCoinId ? '' : coin.id);
+src/App.tsx:309:  const handleBuyCoin = (coin: MemeCoin) => {
+src/App.tsx:315:  useEffect(() => {
+src/App.tsx:317:      terminalLogsRef.current.scrollTop = terminalLogsRef.current.scrollHeight;
+src/App.tsx:322:  useEffect(() => {
+src/App.tsx:325:    const interval = setInterval(() => {
+src/App.tsx:326:      setCoins(currentCoins => {
+src/App.tsx:327:        const { updatedCoins, log } = simulateCoinTick(currentCoins);
+src/App.tsx:331:          setLogs(prev => [log, ...prev].slice(0, 30));
+src/App.tsx:338:    return () => clearInterval(interval);
+src/App.tsx:342:  useEffect(() => {
+src/App.tsx:346:    const currentHotCoins = coins.filter(
+src/App.tsx:347:      c => c.combinedScore >= 90 && c.securityScore >= 75 && c.breakoutProbability >= 90
+src/App.tsx:351:    const newHotCoinObj = currentHotCoins.find(c => !notifiedSymbols.includes(c.symbol));
+src/App.tsx:358:      setNotifiedSymbols(prev => [...prev, newHotCoinObj.symbol]);
+src/App.tsx:361:      setAlerts(prev => {
+src/App.tsx:369:      const alertTime = new Date().toLocaleTimeString();
+src/App.tsx:370:      const audioLog: SystemLog = {
+src/App.tsx:376:      setLogs(prev => [audioLog, ...prev]);
+src/App.tsx:380:    const cleanedNotified = notifiedSymbols.filter(symbol => 
+src/App.tsx:381:      coins.some(c => c.symbol === symbol && c.combinedScore >= 90 && c.securityScore >= 75 && c.breakoutProbability >= 90)
+src/App.tsx:384:    if (cleanedNotified.length !== notifiedSymbols.length) {
+src/App.tsx:390:  const filteredAndSortedCoins = useMemo(() => {
+src/App.tsx:392:      .filter(coin => {
+src/App.tsx:394:        const query = filters.searchQuery.toLowerCase().trim();
+src/App.tsx:396:          const matchAddress = coin.address.toLowerCase().includes(query);
+src/App.tsx:397:          const matchSymbol = coin.symbol.toLowerCase().includes(query);
+src/App.tsx:398:          const matchName = coin.name.toLowerCase().includes(query);
+src/App.tsx:403:        if (filters.platform === 'pump.fun' && coin.platform !== 'pump.fun') return false;
+src/App.tsx:404:        if (filters.platform === 'dexes' && coin.platform === 'pump.fun') return false;
+src/App.tsx:412:        if (filters.riskTolerance === 'conservative') {
+src/App.tsx:416:        } else if (filters.riskTolerance === 'aggressive') {
+src/App.tsx:419:        } else if (filters.riskTolerance === 'all') {
+src/App.tsx:422:          const absoluteGarbage = coin.securityScore < 20 && coin.velocityScore < 20 && coin.socialScore < 20;
+src/App.tsx:455:      .sort((a, b) => {
+src/App.tsx:457:        const property = filters.sortBy;
+src/App.tsx:463:  const handleForceRefresh = async () => {
+src/App.tsx:466:    const timestamp = new Date().toLocaleTimeString('en-US', {hour12: false}).substring(0, 8);
+src/App.tsx:467:    setLogs(prev => [{
+src/App.tsx:475:      const { liveCoins, logs: fetchLogs } = await fetchLiveTokens();
+src/App.tsx:478:        setCoins(current => {
+src/App.tsx:480:          const newIds = new Set(liveCoins.map(c => c.id));
+src/App.tsx:481:          const newSymbols = new Set(liveCoins.map(c => c.symbol));
+src/App.tsx:482:          const filteredCurrent = current.filter(c => !newIds.has(c.id) && !newSymbols.has(c.symbol));
+src/App.tsx:484:          return [...liveCoins, ...filteredCurrent].sort((a,b) => b.combinedScore - a.combinedScore).slice(0, 200);
+src/App.tsx:488:      setLogs(prev => [...fetchLogs, ...prev].slice(0, 50));
+src/App.tsx:496:  useEffect(() => {
+src/App.tsx:499:    const isInIframe = window.self !== window.top;
+src/App.tsx:502:      const urlParams = new URLSearchParams(window.location.search);
+src/App.tsx:503:      const hasReloadedParam = urlParams.get('reloaded') === 'true';
+src/App.tsx:504:      const hasReloaded = hasReloadedParam || safeSessionStorage.getItem('fomo_force_init_reload');
+src/App.tsx:520:        const newSearch = urlParams.toString();
+src/App.tsx:521:        const newPath = window.location.pathname + (newSearch ? '?' + newSearch : '');
+src/App.tsx:530:    const syncInterval = setInterval(() => {
+src/App.tsx:534:    return () => clearInterval(syncInterval);
+src/App.tsx:538:  const handleAddAlert = (symbol: string) => {
+src/App.tsx:540:    setAlerts(prev => [...prev, symbol]);
+src/App.tsx:542:    const timestamp = new Date().toISOString().substring(11, 19);
+src/App.tsx:543:    const alertLog: SystemLog = {
+src/App.tsx:549:    setLogs(prev => [alertLog, ...prev]);
+src/App.tsx:553:  const handleClearAlerts = () => {
+src/App.tsx:555:    const timestamp = new Date().toISOString().substring(11, 19);
+src/App.tsx:556:    setLogs(prev => [{
+src/App.tsx:565:  const handleMockBuy = (id: string, amountSol: number) => {
+src/App.tsx:566:    setCoins(currentCoins => {
+src/App.tsx:567:      return currentCoins.map(c => {
+src/App.tsx:568:        if (c.id !== id) return c;
+src/App.tsx:570:        const priceMultiplier = (amountSol * 0.42); // 42% spike for massive whale injection
+src/App.tsx:571:        const rawNewPrice = c.priceUsd * (1 + priceMultiplier / 100);
+src/App.tsx:572:        const precisionDigits = rawNewPrice < 0.001 ? 6 : 5;
+src/App.tsx:573:        const newPriceUsd = parseFloat(rawNewPrice.toFixed(precisionDigits));
+src/App.tsx:574:        const newVol5m = Math.round(c.volume5m + amountSol * 135);
+src/App.tsx:575:        const newVol1h = Math.round(c.volume1h + amountSol * 135);
+src/App.tsx:577:        let newBondingProgress = c.bondingCurveProgress;
+src/App.tsx:579:          newBondingProgress = Math.min(100, parseFloat((c.bondingCurveProgress + amountSol * 0.12).toFixed(1)));
+src/App.tsx:582:        const newHistory = [...c.priceHistory5m.slice(1), newPriceUsd];
+src/App.tsx:583:        const newVelocity = Math.min(100, c.velocityScore + (amountSol > 15 ? 5 : 2));
+src/App.tsx:586:        let combinedScore = Math.round((newVelocity * 0.45) + (c.socialScore * 0.35) + (c.securityScore * 0.20));
+src/App.tsx:590:          combinedScore = Math.min(32, combinedScore);
+src/App.tsx:593:        const breakoutProbability = Math.min(99, Math.max(5, Math.ceil(combinedScore * 1.02 + (newBondingProgress > 80 ? 3 : 0))));
+src/App.tsx:610:    const timestamp = new Date().toISOString().substring(11, 19);
+src/App.tsx:611:    const target = coins.find(c => c.id === id);
+src/App.tsx:613:      const userTxnLog: SystemLog = {
+src/App.tsx:619:      setLogs(prev => [userTxnLog, ...prev]);
+src/App.tsx:624:  const handleMockSell = (id: string, amountSol: number) => {
+src/App.tsx:625:    setCoins(currentCoins => {
+src/App.tsx:626:      return currentCoins.map(c => {
+src/App.tsx:627:        if (c.id !== id) return c;
+src/App.tsx:629:        const priceDrop = (amountSol * 0.28); // price drops
+src/App.tsx:630:        const rawNewPrice = c.priceUsd * (1 - priceDrop / 100);
+src/App.tsx:631:        const precisionDigits = rawNewPrice < 0.001 ? 6 : 5;
+src/App.tsx:632:        const newPriceUsd = parseFloat(Math.max(0.000001, rawNewPrice).toFixed(precisionDigits));
+src/App.tsx:633:        const newVol5m = Math.round(c.volume5m + amountSol * 135);
+src/App.tsx:635:        let newBondingProgress = c.bondingCurveProgress;
+src/App.tsx:637:          newBondingProgress = Math.max(1, parseFloat((c.bondingCurveProgress - amountSol * 0.08).toFixed(1)));
+src/App.tsx:640:        const newHistory = [...c.priceHistory5m.slice(1), newPriceUsd];
+src/App.tsx:641:        const newVelocity = Math.max(10, c.velocityScore - (amountSol > 15 ? 4 : 2));
+src/App.tsx:643:        let combinedScore = Math.round((newVelocity * 0.45) + (c.socialScore * 0.35) + (c.securityScore * 0.20));
+src/App.tsx:646:          combinedScore = Math.min(32, combinedScore);
+src/App.tsx:649:        const breakoutProbability = Math.min(99, Math.max(5, Math.ceil(combinedScore * 1.02 + (newBondingProgress > 80 ? 3 : 0))));
+src/App.tsx:665:    const timestamp = new Date().toISOString().substring(11, 19);
+src/App.tsx:666:    const target = coins.find(c => c.id === id);
+src/App.tsx:668:      const userTxnLog: SystemLog = {
+src/App.tsx:674:      setLogs(prev => [userTxnLog, ...prev]);
+src/App.tsx:679:  const handleCreateCustomToken = (e: React.FormEvent) => {
+src/App.tsx:686:    const nextId = (coins.length + 1).toString();
+src/App.tsx:687:    const tokenAddress = customAddress || (() => {
+src/App.tsx:688:      const prefix = customSymbol.toUpperCase().padEnd(4, 'X').substring(0, 4);
+src/App.tsx:689:      const middle = '1M9n2EuA6FfK9Ms6U98Wd1Ox1C2r8B3z4Y5x';
+src/App.tsx:690:      const suffix = customPlatform === 'pump.fun' ? 'pump' : 'rayd';
+src/App.tsx:693:    const nowTime = new Date().toISOString().substring(11, 19);
+src/App.tsx:696:    const isSafe = customSecurityProfile === 'safe';
+src/App.tsx:697:    const safetyScore = isSafe ? 96 : 14;
+src/App.tsx:698:    const velocity = 82;
+src/App.tsx:699:    const social = 75;
+src/App.tsx:702:    let calculatedCombined = Math.round((velocity * 0.45) + (social * 0.35) + (safetyScore * 0.20));
+src/App.tsx:704:      calculatedCombined = Math.min(32, calculatedCombined); // Apply strict Anti-scam capping limits
+src/App.tsx:707:    const breakoutProb = Math.min(99, Math.ceil(calculatedCombined * 1.03));
+src/App.tsx:709:    const newMeme: MemeCoin = {
+src/App.tsx:715:      priceUsd: customPlatform === 'pump.fun' ? 0.00012 : 0.0042,
+src/App.tsx:722:      isBondingCurve: customPlatform === 'pump.fun',
+src/App.tsx:723:      bondingCurveProgress: customPlatform === 'pump.fun' ? 20.0 : 100,
+src/App.tsx:748:      priceHistory5m: customPlatform === 'pump.fun' ? [0.00009, 0.00010, 0.00010, 0.00011, 0.00012, 0.00012] : [0.0039, 0.0041, 0.0040, 0.0041, 0.0042, 0.0042],
+src/App.tsx:764:    setCoins(current => [newMeme, ...current]);
+src/App.tsx:768:    setLogs(prev => [{
+src/App.tsx:780:    setTimeout(() => {
+src/App.tsx:787:    <div className={`min-h-[100dvh] w-full max-w-[100vw] overflow-x-hidden bg-neutral-950 text-white selection:bg-emerald-500 selection:text-neutral-950 font-sans flex flex-col gap-4 sm:gap-6 overscroll-none p-2 sm:p-4`}>
+src/App.tsx:789:      <div className="fixed inset-0 bg-neutral-950 -z-50 pointer-events-none" />
+src/App.tsx:792:      <header id="primary-header-rail" className="glass-panel rounded-xl px-4 py-3 sm:px-5 sm:py-4 w-full flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+src/App.tsx:793:        <div className="flex items-start lg:items-center gap-3 sm:gap-4 w-full lg:w-auto">
+src/App.tsx:794:          <div className="hidden sm:flex p-2.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl animate-pulse shrink-0 mt-1 lg:mt-0">
+src/App.tsx:795:            <Zap size={22} className="fill-emerald-400" />
+src/App.tsx:797:          <div className="flex flex-col gap-2 w-full lg:w-auto">
+src/App.tsx:798:            <div className="flex items-center gap-2 flex-wrap">
+src/App.tsx:799:              <span className="text-[9px] text-emerald-400 font-mono tracking-wider font-bold border border-emerald-500/40 bg-emerald-500/5 px-1.5 py-0.5 rounded">
+src/App.tsx:802:              <span className="text-[10px] sm:text-xs text-neutral-500 font-mono flex items-center gap-1.5 shrink-0">
+src/App.tsx:803:                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+src/App.tsx:808:            <div className="flex flex-col xl:flex-row xl:items-center gap-3 xl:gap-5 w-full">
+src/App.tsx:809:              <div className="flex items-center gap-2">
+src/App.tsx:810:                <img src="/favicon.svg" alt="Alpha Pump Logo" className="w-8 h-8 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
+src/App.tsx:811:                <h1 className="text-base sm:text-lg font-extrabold tracking-tight font-sans text-white shrink-0">
+src/App.tsx:816:              <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+src/App.tsx:819:                  <div id="alerts-notifier-pill" className="bg-amber-500/10 border border-amber-500/20 text-amber-400 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg flex items-center gap-1.5 text-[10px] sm:text-xs font-mono shrink-0">
+src/App.tsx:820:                    <BellRing size={13} className="animate-bounce" />
+src/App.tsx:823:                      onClick={handleClearAlerts}
+src/App.tsx:824:                      className="text-neutral-500 hover:text-white ml-1 underline cursor-pointer text-[10px]"
+src/App.tsx:825:                      title="Discard active alerts"
+src/App.tsx:833:                <div className="flex items-center gap-1.5 bg-neutral-950 p-1 rounded-lg border border-neutral-800 shrink-0">
+src/App.tsx:835:                    id="toggle-audio-alerts"
+src/App.tsx:836:                    onClick={() => {
+src/App.tsx:837:                      const nextEnabled = !audioEnabled;
+src/App.tsx:843:                    className={`px-2 py-1 sm:px-2.5 sm:py-1 rounded text-[9px] sm:text-[10px] font-mono font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+src/App.tsx:848:                    title="Toggle sound alarms on breakout signals"
+src/App.tsx:852:                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+src/App.tsx:857:                        <span className="h-1.5 w-1.5 rounded-full bg-neutral-600"></span>
+src/App.tsx:862:                  <div className="w-px h-4 bg-neutral-800 hidden sm:block"></div>
+src/App.tsx:866:                      id="test-audio-chime-btn"
+src/App.tsx:867:                      onClick={() => playHotBreakoutChime('TEST')}
+src/App.tsx:868:                      className="hover:bg-neutral-800 text-[9px] font-mono font-bold px-2 py-1 text-neutral-400 hover:text-white rounded transition-all cursor-pointer border border-neutral-800"
+src/App.tsx:869:                      title="Test sound pitch"
+src/App.tsx:878:                  id="pause-simulation-button"
+src/App.tsx:879:                  onClick={() => setIsSimulating(!isSimulating)}
+src/App.tsx:880:                  className={`p-1.5 sm:p-2 rounded-lg text-xs font-mono font-bold flex items-center justify-center border transition-all cursor-pointer shrink-0 ${
+src/App.tsx:885:                  title={isSimulating ? "Pause Feed Sim" : "Resume Feed Sim"}
+src/App.tsx:888:                    <Pause size={14} className="fill-neutral-300" />
+src/App.tsx:890:                    <Play size={14} className="fill-neutral-950" />
+src/App.tsx:899:        <div className="flex items-center gap-3 w-full lg:w-auto lg:justify-end border-t border-neutral-800/50 pt-3 lg:border-t-0 lg:pt-0">
+src/App.tsx:901:            onClick={() => setShowTokenSearchModal(true)}
+src/App.tsx:902:            className="px-3 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-2 transition-all cursor-pointer bg-neutral-900 border border-neutral-800 text-sky-400 hover:text-white hover:bg-sky-500/10 hover:border-sky-400 shrink-0"
+src/App.tsx:903:            title="Search and Buy any coin on Solana"
+src/App.tsx:905:            <Search size={14} /> SEARCH MEME COINS
+src/App.tsx:909:            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent("Alpha Pump is the very best app for finding the best meme coins on the market! https://www.alphapump.online/")}`}
+src/App.tsx:910:            target="_blank"
+src/App.tsx:911:            rel="noopener noreferrer"
+src/App.tsx:912:            className="p-1.5 sm:p-2 rounded-lg text-xs font-mono font-bold flex items-center justify-center transition-all cursor-pointer bg-neutral-900 border border-neutral-800 text-white hover:border-neutral-500 shrink-0"
+src/App.tsx:913:            title="Share on X"
+src/App.tsx:915:            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+src/App.tsx:916:              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+src/App.tsx:922:              onClick={() => setShowProfile(true)}
+src/App.tsx:923:              className="px-3 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-2 transition-all cursor-pointer bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-white hover:border-emerald-500/50 shrink-0"
+src/App.tsx:925:              <div className="w-5 h-5 rounded-full overflow-hidden bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px] shrink-0">
+src/App.tsx:927:                  <img src={profile.profileImage} alt={profile.username} className="w-full h-full object-cover" />
+src/App.tsx:932:              <span className="truncate max-w-[150px]">{profile.username}</span>
+src/App.tsx:936:              onClick={() => setShowAuthModal(true)}
+src/App.tsx:937:              className="px-4 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center justify-center gap-2 transition-all cursor-pointer bg-emerald-500 text-neutral-950 hover:bg-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)] uppercase shrink-0"
+src/App.tsx:939:              <UserIcon size={14} /> SIGN IN
+src/App.tsx:947:        stats={stats} 
+src/App.tsx:948:        isSimulating={isSimulating} 
+src/App.tsx:949:        onForceRefresh={handleForceRefresh}
+src/App.tsx:950:        coinsCount={coins.length}
+src/App.tsx:954:      <div id="workspace-layout-split" className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+src/App.tsx:957:        <div id="workspace-screener-col" className="lg:col-span-2 flex flex-col gap-6">
+src/App.tsx:960:          <div className="glass-panel rounded-xl overflow-hidden text-sm">
+src/App.tsx:962:              onClick={() => setShowFilters(!showFilters)}
+src/App.tsx:963:              className="w-full px-4 py-3 flex items-center justify-between text-neutral-300 hover:bg-neutral-800 transition-colors"
+src/App.tsx:965:              <div className="flex items-center gap-2 font-mono font-bold">
+src/App.tsx:966:                <ShieldCheck size={16} className="text-emerald-500" />
+src/App.tsx:969:              <span className="text-xs text-neutral-500 uppercase tracking-wider">{showFilters ? 'Hide' : 'Expand'}</span>
+src/App.tsx:972:              <div className="border-t border-neutral-800">
+src/App.tsx:973:                <RiskFilters filters={filters} onFilterChange={setFilters} />
+src/App.tsx:979:          <div className="flex border-b border-neutral-800 mb-2 items-center justify-between">
+src/App.tsx:980:            <div className="flex">
+src/App.tsx:982:                onClick={() => setActiveFeedTab('fresh')}
+src/App.tsx:983:                className={`pb-3 px-2 sm:px-4 text-[10px] sm:text-xs font-mono font-bold transition-all cursor-pointer ${
+src/App.tsx:984:                  activeFeedTab === 'fresh'
+src/App.tsx:992:                onClick={() => setActiveFeedTab('unverified')}
+src/App.tsx:993:                className={`pb-3 px-2 sm:px-4 text-[10px] sm:text-xs font-mono font-bold transition-all cursor-pointer ${
+src/App.tsx:994:                  activeFeedTab === 'unverified'
+src/App.tsx:1002:                onClick={() => setActiveFeedTab('verified')}
+src/App.tsx:1003:                className={`pb-3 px-2 sm:px-4 text-[10px] sm:text-xs font-mono font-bold transition-all cursor-pointer ${
+src/App.tsx:1004:                  activeFeedTab === 'verified'
+src/App.tsx:1015:              onClick={() => window.location.reload()}
+src/App.tsx:1016:              className="flex items-center justify-center p-2 glass-panel hover:border-emerald-500 hover:bg-neutral-800 text-neutral-300 hover:text-emerald-400 transition-colors uppercase tracking-wider text-[10px] font-mono font-bold rounded mb-2 group"
+src/App.tsx:1017:              title="Refresh List"
+src/App.tsx:1019:              <RefreshCw size={14} className="group-hover:animate-spin" />
+src/App.tsx:1026:              <div className="flex flex-col items-center justify-center p-12 glass-panel rounded-xl space-y-4">
+src/App.tsx:1027:                <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+src/App.tsx:1028:                <p className="text-neutral-400 font-mono text-sm animate-pulse">Initializing Terminal &amp; Fetching Global APIS...</p>
+src/App.tsx:1032:                {activeFeedTab === 'fresh' && (
+src/App.tsx:1034:                    <h3 className="text-xs sm:text-sm font-bold text-neutral-300 font-mono mb-3 flex items-center gap-2">
+src/App.tsx:1035:                      <Zap className="text-sky-400" size={16} />
+src/App.tsx:1036:                      <span className="truncate">Fresh Coins {"< 1 Hour Old"} for Quick Buy & Sells</span>
+src/App.tsx:1039:                      coins={filteredAndSortedCoins
+src/App.tsx:1040:                        .filter(c => c.ageInMinutes < 60)
+src/App.tsx:1041:                        .sort((a,b) => b.velocityScore - a.velocityScore)
+src/App.tsx:1043:                      onSelectCoin={handleSelectCoin}
+src/App.tsx:1044:                      onBuyCoin={handleBuyCoin}
+src/App.tsx:1045:                      onPremiumBlocked={() => setShowPremiumModal(true)}
+src/App.tsx:1046:                      selectedCoinId={selectedCoinId}
+src/App.tsx:1051:                {activeFeedTab === 'unverified' && (
+src/App.tsx:1053:                    <h3 className="text-xs sm:text-sm font-bold text-neutral-300 font-mono mb-3 flex items-center gap-2">
+src/App.tsx:1054:                      <Activity className="text-amber-400" size={16} />
+src/App.tsx:1055:                      <span className="truncate">Showing strictly unverified breakout tokens (1hr+)</span>
+src/App.tsx:1058:                      coins={filteredAndSortedCoins.filter(c => !c.isSafe && c.passesRugCheck && c.ageInMinutes >= 60)} 
+src/App.tsx:1059:                      onSelectCoin={handleSelectCoin}
+src/App.tsx:1060:                      onBuyCoin={handleBuyCoin}
+src/App.tsx:1061:                      onPremiumBlocked={() => setShowPremiumModal(true)}
+src/App.tsx:1062:                      selectedCoinId={selectedCoinId}
+src/App.tsx:1067:                {activeFeedTab === 'verified' && (
+src/App.tsx:1069:                    <h3 className="text-xs sm:text-sm font-bold text-neutral-300 font-mono mb-3 flex items-center gap-2">
+src/App.tsx:1070:                      <ShieldCheck className="text-emerald-400" size={16} />
+src/App.tsx:1071:                      <span className="truncate">All Verified & Monitored Signals (1hr+)</span>
+src/App.tsx:1074:                      coins={filteredAndSortedCoins.filter(c => c.isSafe && c.ageInMinutes >= 60)} 
+src/App.tsx:1075:                      onSelectCoin={handleSelectCoin}
+src/App.tsx:1076:                      onBuyCoin={handleBuyCoin}
+src/App.tsx:1077:                      onPremiumBlocked={() => setShowPremiumModal(true)}
+src/App.tsx:1078:                      selectedCoinId={selectedCoinId}
+src/App.tsx:1087:          <div className="glass-panel rounded-xl p-5">
+src/App.tsx:1088:            <div className="flex justify-between items-center">
+src/App.tsx:1090:                <h4 className="text-sm font-bold font-sans flex items-center gap-1.5">
+src/App.tsx:1091:                  <Plus className="text-emerald-400" size={16} />
+src/App.tsx:1094:                <p className="text-xs text-neutral-400 font-mono mt-0.5">
+src/App.tsx:1099:                id="toggle-creation-form"
+src/App.tsx:1100:                onClick={() => setShowCreatorForm(!showCreatorForm)}
+src/App.tsx:1101:                className="bg-neutral-800 border border-neutral-700 font-mono text-xs px-3.5 py-1.5 rounded-lg text-emerald-400 hover:bg-neutral-700 hover:text-white transition-all cursor-pointer"
+src/App.tsx:1108:              <form onSubmit={handleCreateCustomToken} className="mt-4 pt-4 border-t border-neutral-800/80 flex flex-col gap-4">
+src/App.tsx:1109:                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+src/App.tsx:1111:                  <div className="flex flex-col gap-1.5">
+src/App.tsx:1112:                    <label className="text-[11px] font-mono text-neutral-400 uppercase">Token Common Name</label>
+src/App.tsx:1114:                      id="custom-coin-name"
+src/App.tsx:1115:                      type="text"
+src/App.tsx:1116:                      placeholder="e.g. Flappy Doge"
+src/App.tsx:1117:                      className="bg-neutral-950 border border-neutral-800 focus:border-emerald-500 rounded py-1.5 px-3 text-xs outline-none text-white font-mono"
+src/App.tsx:1118:                      value={customName}
+src/App.tsx:1119:                      onChange={(e) => setCustomName(e.target.value)}
+src/App.tsx:1125:                  <div className="flex flex-col gap-1.5">
+src/App.tsx:1126:                    <label className="text-[11px] font-mono text-neutral-400 uppercase">Ticker Symbol</label>
+src/App.tsx:1128:                      id="custom-coin-symbol"
+src/App.tsx:1129:                      type="text"
+src/App.tsx:1130:                      placeholder="e.g. FLAP"
+src/App.tsx:1131:                      className="bg-neutral-950 border border-neutral-800 focus:border-emerald-500 rounded py-1.5 px-3 text-xs outline-none text-emerald-400 font-mono uppercase"
+src/App.tsx:1132:                      value={customSymbol}
+src/App.tsx:1133:                      onChange={(e) => {
+src/App.tsx:1134:                        if (e.target.value.length <= 8) setCustomSymbol(e.target.value);
+src/App.tsx:1141:                  <div className="flex flex-col gap-1.5">
+src/App.tsx:1142:                    <label className="text-[11px] font-mono text-neutral-400 uppercase">Mock Address (Optional)</label>
+src/App.tsx:1144:                      id="custom-coin-address"
+src/App.tsx:1145:                      type="text"
+src/App.tsx:1146:                      placeholder="e.g. 5xR8p...pump"
+src/App.tsx:1147:                      className="bg-neutral-950 border border-neutral-800 focus:border-emerald-500 rounded py-1.5 px-3 text-xs outline-none text-white font-mono"
+src/App.tsx:1148:                      value={customAddress}
+src/App.tsx:1149:                      onChange={(e) => setCustomAddress(e.target.value)}
+src/App.tsx:1154:                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-1">
+src/App.tsx:1156:                  <div className="flex flex-col gap-1.5">
+src/App.tsx:1157:                    <label className="text-[11px] font-mono text-neutral-400 uppercase">LP Platform Launching</label>
+src/App.tsx:1158:                    <div className="grid grid-cols-2 bg-neutral-950 border border-neutral-800 p-1 rounded gap-1">
+src/App.tsx:1160:                        type="button"
+src/App.tsx:1161:                        onClick={() => setCustomPlatform('pump.fun')}
+src/App.tsx:1162:                        className={`py-1 text-center font-mono text-[10px] rounded cursor-pointer ${
+src/App.tsx:1163:                          customPlatform === 'pump.fun' ? 'bg-neutral-800 font-bold text-purple-300' : 'text-neutral-500'
+src/App.tsx:1169:                        type="button"
+src/App.tsx:1170:                        onClick={() => setCustomPlatform('raydium')}
+src/App.tsx:1171:                        className={`py-1 text-center font-mono text-[10px] rounded cursor-pointer ${
+src/App.tsx:1172:                          customPlatform === 'raydium' ? 'bg-neutral-800 font-bold text-blue-300' : 'text-neutral-500'
+src/App.tsx:1181:                  <div className="flex flex-col gap-1.5">
+src/App.tsx:1182:                    <label className="text-[11px] font-mono text-neutral-400 uppercase">Security Threat Profile</label>
+src/App.tsx:1183:                    <div className="grid grid-cols-2 bg-neutral-950 border border-neutral-800 p-1 rounded gap-1">
+src/App.tsx:1185:                        type="button"
+src/App.tsx:1186:                        onClick={() => setCustomSecurityProfile('safe')}
+src/App.tsx:1187:                        className={`py-1 text-center font-mono text-[10px] rounded cursor-pointer ${
+src/App.tsx:1188:                          customSecurityProfile === 'safe' ? 'bg-emerald-950 text-emerald-400 font-bold border border-emerald-800/30' : 'text-neutral-500'
+src/App.tsx:1194:                        type="button"
+src/App.tsx:1195:                        onClick={() => setCustomSecurityProfile('scam')}
+src/App.tsx:1196:                        className={`py-1 text-center font-mono text-[10px] rounded cursor-pointer ${
+src/App.tsx:1197:                          customSecurityProfile === 'scam' ? 'bg-rose-950 text-rose-400 font-bold border border-rose-800/30 animate-pulse' : 'text-neutral-500'
+src/App.tsx:1206:                <div className="flex items-center justify-between mt-2 pt-2 border-t border-neutral-800/40">
+src/App.tsx:1207:                  <span className="text-[11px] text-neutral-400 font-mono">
+src/App.tsx:1208:                    {customSecurityProfile === 'safe' 
+src/App.tsx:1213:                    id="submit-register-custom-token"
+src/App.tsx:1214:                    type="submit"
+src/App.tsx:1215:                    className="bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold font-mono text-xs px-5 py-2 rounded-lg cursor-pointer transition-colors"
+src/App.tsx:1224:              <div id="creation-feedback-banner" className="mt-3 bg-emerald-950/20 border border-emerald-800/30 p-2 rounded text-xs text-emerald-300 font-mono text-center">
+src/App.tsx:1235:        <div id="workspace-sidebar-col" className="lg:col-span-1 flex flex-col gap-6">
+src/App.tsx:1238:          <div id="heuristics-log-monitor" className="glass-panel rounded-xl flex flex-col min-h-[50px] overflow-hidden">
+src/App.tsx:1240:              onClick={() => setShowLogs(!showLogs)}
+src/App.tsx:1241:              className="w-full p-4 flex justify-between items-center hover:bg-neutral-800 transition-colors"
+src/App.tsx:1243:              <div className="flex items-center gap-1.5">
+src/App.tsx:1244:                <Terminal className="text-emerald-400" size={15} />
+src/App.tsx:1245:                <span className="text-xs font-bold font-mono uppercase tracking-widest text-neutral-300">
+src/App.tsx:1249:              <div className="flex items-center gap-3">
+src/App.tsx:1250:                <div className="flex items-center gap-2">
+src/App.tsx:1251:                  <span className="flex h-2 w-2 relative">
+src/App.tsx:1252:                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+src/App.tsx:1253:                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+src/App.tsx:1255:                  <span className="text-[10px] text-emerald-400 font-mono uppercase tracking-wide">
+src/App.tsx:1259:                <span className="text-[10px] font-mono text-neutral-500 tracking-wider bg-neutral-950 px-2 py-0.5 rounded border border-neutral-800">{showLogs ? 'HIDE' : 'SHOW'}</span>
+src/App.tsx:1264:              <div className="flex flex-col gap-3.5 p-4 border-t border-neutral-800">
+src/App.tsx:1266:                <div id="risk-heatmap-display" className="bg-neutral-950 p-3 rounded-lg border border-neutral-800/80 flex flex-col gap-2.5">
+src/App.tsx:1267:                  <div className="flex justify-between items-center text-[10px] font-mono leading-none">
+src/App.tsx:1268:                    <span className="text-neutral-400 uppercase tracking-wider font-semibold flex items-center gap-1.5">
+src/App.tsx:1269:                      <Activity size={12} className="text-rose-400" />
+src/App.tsx:1272:                    <span className={`font-bold px-1.5 py-0.5 rounded text-[9px] uppercase ${
+src/App.tsx:1284:                  <div className="relative w-full h-3 bg-neutral-900 rounded overflow-hidden border border-neutral-800 flex">
+src/App.tsx:1285:                    <div className="w-1/3 h-full bg-emerald-500/15"></div>
+src/App.tsx:1286:                    <div className="w-1/3 h-full bg-amber-500/15"></div>
+src/App.tsx:1287:                    <div className="w-1/3 h-full bg-rose-500/20"></div>
+src/App.tsx:1291:                      className="absolute top-0 bottom-0 left-0 bg-rose-500/15 transition-all duration-500" 
+src/App.tsx:1292:                      style={{ width: `${scamRatioPercent}%` }}
+src/App.tsx:1297:                      className="absolute top-0 bottom-0 w-1 bg-white shadow-[0_0_8px_#ffffff] transition-all duration-500"
+src/App.tsx:1298:                      style={{ left: `calc(${scamRatioPercent}% - 2px)` }}
+src/App.tsx:1303:                  <div className="flex justify-between items-center text-[9px] font-mono text-neutral-500">
+src/App.tsx:1304:                    <span className="flex items-center gap-1">
+src/App.tsx:1305:                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+src/App.tsx:1306:                      Safe ({coins.filter(c => c.securityScore >= 75).length})
+src/App.tsx:1308:                    <span className="flex items-center gap-1">
+src/App.tsx:1309:                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+src/App.tsx:1310:                      Caution ({coins.filter(c => c.securityScore >= 40 && c.securityScore < 75).length})
+src/App.tsx:1312:                    <span className="flex items-center gap-1">
+src/App.tsx:1313:                      <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
+src/App.tsx:1314:                      Threats ({coins.filter(c => c.securityScore < 40).length})
+src/App.tsx:1321:                  id="terminal-logs-window"
+src/App.tsx:1322:                  ref={terminalLogsRef}
+src/App.tsx:1323:                  className="flex-1 bg-neutral-950 p-3 rounded-lg font-mono text-[10px] leading-tight overflow-y-auto space-y-2 select-all h-64 max-h-[350px] border border-neutral-800/60 scrollbar-thin"
+src/App.tsx:1325:                  {logs.map((log) => (
+src/App.tsx:1326:                    <div key={log.id} className="flex gap-2 items-start border-b border-neutral-900/40 pb-1.5">
+src/App.tsx:1327:                      <span className="text-neutral-500 shrink-0 select-none">[{log.timestamp}]</span>
+src/App.tsx:1328:                      <span className={`leading-normal ${
+src/App.tsx:1329:                        log.type === 'success' 
+src/App.tsx:1331:                          : log.type === 'warning' 
+src/App.tsx:1333:                            : log.type === 'alert'
+src/App.tsx:1343:                <div className="flex items-center justify-between text-[11px] text-neutral-500 font-mono pt-1">
+src/App.tsx:1346:                    id="clear-logs-button"
+src/App.tsx:1347:                    onClick={() => setLogs([])}
+src/App.tsx:1348:                    className="text-[10px] text-neutral-400 hover:text-emerald-400 underline transition-all cursor-pointer"
+src/App.tsx:1361:      <footer id="branding-footer" className="bg-neutral-900/40 border border-neutral-800/50 rounded-xl p-4 text-center text-xs font-mono text-neutral-500 mt-2 flex flex-col sm:flex-row justify-between items-center gap-2">
+src/App.tsx:1363:        <div className="flex items-center gap-4 text-neutral-400">
+src/App.tsx:1364:          <button onClick={() => setShowAbout(true)} className="hover:text-emerald-400 transition-colors">About Us</button>
+src/App.tsx:1365:          <button onClick={() => setShowPrivacy(true)} className="hover:text-emerald-400 transition-colors">Privacy Policy</button>
+src/App.tsx:1366:          <button onClick={() => setShowTerms(true)} className="hover:text-emerald-400 transition-colors">Terms of Service</button>
+src/App.tsx:1368:        <span className="text-neutral-500 flex items-center gap-1.5">
+src/App.tsx:1369:          <Globe size={11} className="text-emerald-500" />
+src/App.tsx:1375:        showAbout={showAbout} setShowAbout={setShowAbout}
+src/App.tsx:1376:        showPrivacy={showPrivacy} setShowPrivacy={setShowPrivacy}
+src/App.tsx:1377:        showTerms={showTerms} setShowTerms={setShowTerms}
+src/App.tsx:1384:          className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-sm shadow-2xl overflow-y-auto"
+src/App.tsx:1385:          onClick={() => setSelectedCoinId('')}
+src/App.tsx:1388:            className="w-full max-w-4xl bg-neutral-900 rounded-xl border border-neutral-700 shadow-2xl animate-in fade-in zoom-in-95 duration-200 overflow-hidden" 
+src/App.tsx:1389:            onClick={e => e.stopPropagation()}
+src/App.tsx:1390:            style={{ maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}
+src/App.tsx:1392:            <div className="flex-1 overflow-y-auto hide-scrollbar">
+src/App.tsx:1394:                 coin={selectedCoin} 
+src/App.tsx:1395:                 onClose={() => setSelectedCoinId('')}
+src/App.tsx:1396:                 onMockBuy={handleMockBuy}
+src/App.tsx:1397:                 onMockSell={handleMockSell}
+src/App.tsx:1398:                 onAddAlert={handleAddAlert}
+src/App.tsx:1399:                 onOpenTerminal={(mint) => {
+src/App.tsx:1411:        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-sm shadow-2xl">
+src/App.tsx:1412:          <div className="bg-neutral-900 border border-emerald-500/30 rounded-2xl p-6 max-w-sm w-full relative overflow-hidden shadow-[0_0_40px_rgba(16,185,129,0.15)] auto-fade-in relative z-10 flex flex-col items-center">
+src/App.tsx:1414:              onClick={() => setShowPremiumModal(false)}
+src/App.tsx:1415:              className="absolute top-4 right-4 text-neutral-500 hover:text-white bg-neutral-800 hover:bg-neutral-700 w-8 h-8 rounded-full flex items-center justify-center transition-colors shadow"
+src/App.tsx:1419:            <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mb-4 border border-emerald-500/20">
+src/App.tsx:1420:              <span className="text-3xl">✨</span>
+src/App.tsx:1422:            <h2 className="text-xl font-bold font-sans text-center mb-2">Unlock the Best Coins</h2>
+src/App.tsx:1423:            <p className="text-neutral-400 text-sm text-center mb-6">
+src/App.tsx:1427:            <div className="w-full bg-neutral-950 rounded-xl p-4 mb-6 border border-neutral-800">
+src/App.tsx:1428:               <div className="flex justify-between items-center mb-1">
+src/App.tsx:1429:                 <span className="font-mono text-emerald-400 font-bold">Premium Access</span>
+src/App.tsx:1430:                 <span className="font-mono text-white">$4.99 <span className="text-neutral-500 text-xs">/ week</span></span>
+src/App.tsx:1432:               <ul className="text-xs font-mono text-neutral-400 mt-3 space-y-2">
+src/App.tsx:1433:                 <li className="flex items-center gap-2"><Check size={12} className="text-emerald-500" /> View all Golden Targets</li>
+src/App.tsx:1434:                 <li className="flex items-center gap-2"><Check size={12} className="text-emerald-500" /> See exact breakout predictions &gt; 85%</li>
+src/App.tsx:1439:              onClick={async () => {
+src/App.tsx:1446:                    const res = await fetch('/api/create-checkout-session', {
+src/App.tsx:1451:                    const data = await res.json();
+src/App.tsx:1454:                       if (window.self !== window.top) {
+src/App.tsx:1466:              className="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold font-mono tracking-wider rounded-xl uppercase transition-colors shadow-[0_0_20px_rgba(16,185,129,0.2)]"
+src/App.tsx:1476:          onClose={() => setShowTerminalModal(false)} 
+src/App.tsx:1477:          initialMint={terminalMint} 
+src/App.tsx:1483:          onClose={() => setShowTokenSearchModal(false)}
+src/App.tsx:1484:          onSelectToken={(mint) => {
+src/App.tsx:1491:      {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
+src/App.tsx:1492:      {showProfile && <ProfileDashboard onClose={() => setShowProfile(false)} onSelectCoin={(id) => {
+src/types.ts:14:export type CreatorBehavior = 'clean' | 'suspicious' | 'neutral' | 'first_timer';
+src/vite-env.d.ts:1:/// <reference types="vite/client" />
+src/liveDataService.ts:5:const calculateMetrics = (pair: any, index: number) => {
+src/liveDataService.ts:6:  const isSolana = pair.chainId === 'solana';
+src/liveDataService.ts:7:  const fdv = pair.fdv || 0;
+src/liveDataService.ts:8:  const liquidity = pair.liquidity?.usd || 0;
+src/liveDataService.ts:9:  const volume24h = pair.volume?.h24 || 0;
+src/liveDataService.ts:10:  const volume1h = pair.volume?.h1 || 0;
+src/liveDataService.ts:11:  const volume5m = pair.volume?.m5 || 0;
+src/liveDataService.ts:12:  const priceChange1h = pair.priceChange?.h1 || 0;
+src/liveDataService.ts:13:  const priceChange24h = pair.priceChange?.h24 || 0;
+src/liveDataService.ts:16:  const isHighVolume = liquidity > 5000 && volume24h > 10000;
+src/liveDataService.ts:17:  const hasSocials = pair.info?.socials && pair.info.socials.length > 0;
+src/liveDataService.ts:20:  const passesRugCheck = liquidity >= 1000 && volume24h >= 1000 && hasSocials; 
+src/liveDataService.ts:21:  const isSafe = passesRugCheck && liquidity > 5000; 
+src/liveDataService.ts:22:  const isYoungDegen = true;
+src/liveDataService.ts:25:  const velocityScore = Math.min(100, Math.round((volume5m / (liquidity || 1)) * 10000) || (Math.random() * 20 + 80));
+src/liveDataService.ts:26:  const socialScore = hasSocials ? (Math.random() * 20 + 80) : (Math.random() * 30 + 70);
+src/liveDataService.ts:29:  const securityScore = isSafe ? (Math.random() * 10 + 90) : (passesRugCheck ? (Math.random() * 15 + 75) : (Math.random() * 40));
+src/liveDataService.ts:31:  let combinedScore = Math.round((velocityScore * 0.45) + (socialScore * 0.35) + (securityScore * 0.20));
+src/liveDataService.ts:33:  let breakoutProbability = Math.min(99, Math.floor(Math.random() * 15) + 85); // Always extremely high 100x potential
+src/liveDataService.ts:38:     breakoutProbability = Math.min(99, Math.max(breakoutProbability, Math.floor(Math.random() * 15) + 85)); // 85 - 99 range
+src/liveDataService.ts:39:     combinedScore = Math.max(combinedScore, Math.floor(Math.random() * 20) + 80);
+src/liveDataService.ts:42:  const isPumpFun = isSolana && pair.dexId === 'pump';
+src/liveDataService.ts:45:  const isFomoGem = Math.random() < 0.3; // 30% chance Alpha Pump identifies it as an early gem
+src/liveDataService.ts:47:      breakoutProbability = Math.min(99, breakoutProbability + 5);
+src/liveDataService.ts:48:      combinedScore = Math.min(100, combinedScore + 10);
+src/liveDataService.ts:72:  const logs: SystemLog[] = [];
+src/liveDataService.ts:74:    const timestamp = new Date().toLocaleTimeString('en-US', {hour12: false}).substring(0, 8);
+src/liveDataService.ts:83:    const [boostsRes, latestRes] = await Promise.all([
+src/liveDataService.ts:86:    ]).catch(err => {
+src/liveDataService.ts:93:    const boosted = await boostsRes.json();
+src/liveDataService.ts:94:    const latest = await latestRes.json();
+src/liveDataService.ts:97:    const solanaBoosted = (boosted || []).filter((t: any) => t.chainId === 'solana');
+src/liveDataService.ts:98:    const solanaLatest = (latest || []).filter((t: any) => t.chainId === 'solana');
+src/liveDataService.ts:100:    const latestAddressesSet = new Set<string>();
+src/liveDataService.ts:101:    solanaLatest.forEach((t: any) => latestAddressesSet.add(t.tokenAddress));
+src/liveDataService.ts:104:    const addressSet = new Set<string>();
+src/liveDataService.ts:105:    solanaLatest.forEach((t: any) => addressSet.add(t.tokenAddress)); // Add latest first to guarantee they are included
+src/liveDataService.ts:106:    solanaBoosted.forEach((t: any) => addressSet.add(t.tokenAddress));
+src/liveDataService.ts:108:    const tokenAddresses = Array.from(addressSet).slice(0, 30).join(',');
+src/liveDataService.ts:122:    const pairsRes = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${tokenAddresses}`);
+src/liveDataService.ts:124:    const pairsData = await pairsRes.json();
+src/liveDataService.ts:126:    const pairs = pairsData.pairs || [];
+src/liveDataService.ts:129:    const liveCoins: MemeCoin[] = [];
+src/liveDataService.ts:130:    const processedMap = new Set();
+src/liveDataService.ts:132:    pairs.forEach((pair: any, idx: number) => {
+src/liveDataService.ts:133:      const baseAddr = pair.baseToken?.address;
+src/liveDataService.ts:137:      const metrics = calculateMetrics(pair, idx);
+src/liveDataService.ts:144:      const p = parseFloat(pair.priceUsd) || 0.000001;
+src/liveDataService.ts:145:      const history = [
+src/liveDataService.ts:154:      let ageInMinutes = 0;
+src/liveDataService.ts:155:      let createdTimeAgo = '';
+src/liveDataService.ts:157:        const ageMs = Date.now() - pair.pairCreatedAt;
+src/liveDataService.ts:158:        ageInMinutes = Math.max(0, Math.floor(ageMs / 60000));
+src/liveDataService.ts:161:          ageInMinutes = Math.floor(Math.random() * 45) + 3;
+src/liveDataService.ts:163:          ageInMinutes = Math.floor(Math.random() * 120) + 65; // > 60 minutes
+src/liveDataService.ts:168:      if (latestAddressesSet.has(baseAddr) && ageInMinutes >= 60) {
+src/liveDataService.ts:169:        ageInMinutes = Math.floor(Math.random() * 45) + 3;
+src/liveDataService.ts:172:      const realOrFakeCreatedAt = Date.now() - (ageInMinutes * 60000);
+src/liveDataService.ts:175:        createdTimeAgo = ageInMinutes === 0 ? 'Just now' : `${ageInMinutes}m ago`;
+src/liveDataService.ts:177:        const ageHours = Math.floor(ageInMinutes / 60);
+src/liveDataService.ts:179:          createdTimeAgo = `${ageHours}h ago`;
+src/liveDataService.ts:181:          createdTimeAgo = `${Math.floor(ageHours / 24)}d ago`;
+src/liveDataService.ts:185:      const newCoin: MemeCoin = {
+src/liveDataService.ts:224:        priceHistory5m: history.map(v => parseFloat(v.toFixed(8))),
+src/liveDataService.ts:238:    if (liveCoins.length === 0) {
+src/liveDataService.ts:252:    const backupCoins: MemeCoin[] = generateBackupCoins();

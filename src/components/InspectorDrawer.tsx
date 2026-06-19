@@ -209,7 +209,7 @@ export const InspectorDrawer: React.FC<InspectorDrawerProps> = ({
         </div>
 
         {/* Dynamic Pasteable Links Grid */}
-        <div className="grid grid-cols-2 gap-2 text-center text-[10px] font-mono">
+        <div className="grid grid-cols-3 gap-2 text-center text-[10px] font-mono">
           <button
             onClick={() => {
               if (onOpenTerminal) {
@@ -222,7 +222,22 @@ export const InspectorDrawer: React.FC<InspectorDrawerProps> = ({
             title="Buy Securely via Jupiter inside Alpha Pump"
           >
             <Zap size={11} className="text-emerald-400" />
-            <span>EXCHANGE / TRADE (JUPITER)</span>
+            <span>TRADE</span>
+          </button>
+
+          <button
+            id="copy-jupiter-link-drawer"
+            onClick={() => {
+              navigator.clipboard.writeText(`https://jup.ag/swap/SOL-${coin.address}`);
+              // Using existing state variable for simple UI feedback, even if poorly named for this exact button
+              setCopiedDexLink(true);
+              setTimeout(() => setCopiedDexLink(false), 2000);
+            }}
+            className="border border-neutral-800 bg-neutral-950/60 hover:bg-purple-600/10 hover:border-purple-500/30 text-neutral-300 hover:text-purple-300 py-1.5 rounded transition-all flex items-center justify-center gap-1 cursor-pointer font-bold"
+            title="Copy Jupiter Swap URL for Phantom"
+          >
+            <Link size={11} className="text-purple-400" />
+            <span>COPY JUPITER</span>
           </button>
 
           {/* Option 3: DexScreener Link */}

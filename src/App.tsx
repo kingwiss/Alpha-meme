@@ -47,6 +47,52 @@ import { TokenSearchModal } from './components/TokenSearchModal';
 
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
+// Safe wrapper for localStorage to prevent security exceptions in sandboxed iframes
+const safeLocalStorage = {
+  getItem: (key: string): string | null => {
+    try {
+      return localStorage.getItem(key);
+    } catch (e) {
+      console.warn("Storage access denied:", e);
+      return null;
+    }
+  },
+  setItem: (key: string, value: string): void => {
+    try {
+      localStorage.setItem(key, value);
+    } catch (e) {
+      console.warn("Storage write denied:", e);
+    }
+  }
+};
+
+// Safe wrapper for sessionStorage to prevent security exceptions in sandboxed iframes
+const safeSessionStorage = {
+  getItem: (key: string): string | null => {
+    try {
+      return sessionStorage.getItem(key);
+    } catch (e) {
+      console.warn("Storage access denied:", e);
+      return null;
+    }
+  },
+  setItem: (key: string, value: string): void => {
+    try {
+      sessionStorage.setItem(key, value);
+    } catch (e) {
+      console.warn("Storage write denied:", e);
+    }
+  }
+};
+
+const safeReplaceState = (state: any, title: string, url: string) => {
+  try {
+    window.history.replaceState(state, title, url);
+  } catch (e) {
+    console.warn("History replaceState restricted or blocked:", e);
+  }
+};
+
 export default function App() {
   const { user, profile, updateProfile } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -83,12 +129,12 @@ export default function App() {
   useEffect(() => {
     if (profile?.isPremium) return;
     
-    const hasShown = localStorage.getItem('hasShownComingSoonPremium');
+    const hasShown = safeLocalStorage.getItem('hasShownComingSoonPremium');
     if (hasShown) return;
 
     const timer = setTimeout(() => {
       setShowComingSoonPremiumModal(true);
-      localStorage.setItem('hasShownComingSoonPremium', 'true');
+      safeLocalStorage.setItem('hasShownComingSoonPremium', 'true');
     }, 60000); // 60 seconds
 
     return () => clearTimeout(timer);
@@ -103,12 +149,12 @@ export default function App() {
     if (payment === 'success' && session_id && profile) {
       if (profile.isPremium) {
          // Clean the URL if already premium but somehow still has params
-         window.history.replaceState({}, document.title, window.location.pathname);
+         safeReplaceState({}, document.title, window.location.pathname);
          return; 
       }
       
       // Clean the URL IMMEDIATELY to prevent duplicate effects if re-rendered
-      window.history.replaceState({}, document.title, window.location.pathname);
+      safeReplaceState({}, document.title, window.location.pathname);
       
       const verifyPayment = async () => {
         try {
@@ -448,14 +494,6 @@ export default function App() {
 
   // Automatically update the tokens index from Dex Screener live data every 45 seconds
   useEffect(() => {
-    // Mandated by user: The entire page must refresh immediately when the user visits the page
-    const hasReloaded = sessionStorage.getItem('fomo_force_init_reload');
-    if (!hasReloaded) {
-      sessionStorage.setItem('fomo_force_init_reload', 'true');
-      window.location.reload();
-      return;
-    }
-
     // Do an immediate pull on component mount
     handleForceRefresh();
     
@@ -1387,7 +1425,7 @@ export default function App() {
                        if (window.self !== window.top) {
                          window.open(data.url, '_blank');
                        } else {
-                         window.location.href = data.url;
+                         window.location.assign(data.url);
                        }
                     } else {
                        alert("Error checking out: " + (data.error || 'Unknown Error'));

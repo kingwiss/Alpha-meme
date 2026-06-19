@@ -53,9 +53,12 @@ export const ScreenerTable: React.FC<ScreenerTableProps> = ({
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const copyLink = (e: React.MouseEvent, id: string, address: string) => {
+  const copyLink = (e: React.MouseEvent, id: string, address: string, platform: string) => {
     e.stopPropagation();
-    navigator.clipboard.writeText(address);
+    const url = platform === 'pump.fun' 
+      ? `https://pump.fun/${address}`
+      : `https://dexscreener.com/solana/${address}`;
+    navigator.clipboard.writeText(url);
     setCopiedLinkId(id);
     setTimeout(() => setCopiedLinkId(null), 2000);
   };
@@ -223,7 +226,7 @@ export const ScreenerTable: React.FC<ScreenerTableProps> = ({
                                 )}
                               </div>
                             </div>
-                            <div className="flex items-center justify-center p-1 bg-neutral-950 rounded border border-neutral-800 hover:border-sky-500/50 hover:bg-neutral-900 transition-colors" onClick={(e) => { if (!isPremiumHidden) copyLink(e, coin.id, coin.address); }} title="Click to copy Address for Phantom">
+                            <div className="flex items-center justify-center p-1 bg-neutral-950 rounded border border-neutral-800 hover:border-sky-500/50 hover:bg-neutral-900 transition-colors" onClick={(e) => { if (!isPremiumHidden) copyLink(e, coin.id, coin.address, coin.platform); }} title="Click to copy Link for Phantom">
                               {copiedLinkId === coin.id ? (
                                 <Check size={12} className="text-sky-400" />
                               ) : (
@@ -411,7 +414,7 @@ export const ScreenerTable: React.FC<ScreenerTableProps> = ({
                              {copiedId === coin.id ? <Check size={10} className="text-emerald-400" /> : <Copy size={10} />}
                           </div>
                         </div>
-                        <div className="flex items-center justify-center p-1 bg-neutral-900 rounded border border-neutral-800 hover:border-sky-500/50 hover:bg-neutral-800 transition-colors cursor-pointer" onClick={(e) => copyLink(e, coin.id, coin.address)} title="Click to copy Address for Phantom">
+                        <div className="flex items-center justify-center p-1 bg-neutral-900 rounded border border-neutral-800 hover:border-sky-500/50 hover:bg-neutral-800 transition-colors cursor-pointer" onClick={(e) => copyLink(e, coin.id, coin.address, coin.platform)} title="Click to copy Link for Phantom">
                           {copiedLinkId === coin.id ? (
                             <Check size={12} className="text-sky-400" />
                           ) : (

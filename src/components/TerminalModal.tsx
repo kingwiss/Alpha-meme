@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { PublicKey, VersionedTransaction } from '@solana/web3.js';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-
-// Note: Full Raydium SDK integration for swap routes requires deeper initialization of Liquidity pools.
-// This implements a standard Solana un-routed swap interface structure using the connected wallet.
+import { Buffer } from 'buffer';
 
 export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, initialMint: string }) => {
   const { connection } = useConnection();
@@ -13,6 +11,17 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
   const [solAmount, setSolAmount] = useState('0.1');
   const [isSwapping, setIsSwapping] = useState(false);
   const [status, setStatus] = useState('');
+  const [solBalance, setSolBalance] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (publicKey) {
+      connection.getBalance(publicKey)
+        .then(bal => setSolBalance(bal / 1e9))
+        .catch(console.error);
+    } else {
+      setSolBalance(null);
+    }
+  }, [publicKey, connection]);
 
   const handleSwap = async () => {
     if (!publicKey) {
@@ -22,36 +31,60 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
     
     try {
       setIsSwapping(true);
-      setStatus('Routing through Raydium Liquidity Pools...');
+      setStatus('Fetching Jupiter quotes...');
       
-      // Example transaction: In a full Raydium swap, you would build the Raydium SDK inner transaction here
-      // const { innerTransactions } = await Liquidity.makeSwapInstructionSimple(...)
-      
-      // Placeholder: A simple transfer instruction simulating network activity.
-      const tx = new Transaction().add(
-        SystemProgram.transfer({
-          fromPubkey: publicKey,
-          toPubkey: publicKey, // self transfer for dry-run
-          lamports: parseFloat(solAmount) * LAMPORTS_PER_SOL * 0.000001, // minimal dust
+      const lamports = Math.floor(parseFloat(solAmount) * 1e9);
+
+      // Fetch quote from Jupiter API V6
+      const quoteRes = await fetch(`https://quote-api.jup.ag/v6/quote?inputMint=So11111111111111111111111111111111111111112&outputMint=${initialMint}&amount=${lamports}&slippageBps=50`);
+      const quoteData = await quoteRes.json();
+
+      if (quoteData.error) {
+         throw new Error(quoteData.error || 'Failed to compute route.');
+      }
+
+      setStatus('Computing transaction payload...');
+
+      const txRes = await fetch(`https://quote-api.jup.ag/v6/swap`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          quoteResponse: quoteData,
+          userPublicKey: publicKey.toBase58(),
+          wrapAndUnwrapSol: true
         })
-      );
+      });
+
+      const txData = await txRes.json();
+      if (!txData.swapTransaction) {
+        throw new Error('Failed to generate swap transaction.');
+      }
+
+      setStatus('Please approve transaction in wallet...');
+
+      const swapTransactionBuf = Buffer.from(txData.swapTransaction, 'base64');
+      const transaction = VersionedTransaction.deserialize(swapTransactionBuf);
+
+      const signature = await sendTransaction(transaction, connection);
       
-      const signature = await sendTransaction(tx, connection);
       setStatus(`Confirming transaction: ${signature.slice(0,8)}...`);
       
-      const latestBlockhash = await connection.getLatestBlockhash();
-      await connection.confirmTransaction({
-        signature,
-        ...latestBlockhash
-      });
+      // Wait for propagation 
+      await new Promise(resolve => setTimeout(resolve, 3000));
       
-      setStatus('Swap successful via Native Routes!');
+      setStatus('Swap broadcasted successfully via Jupiter!');
+      
+      // Refresh balance
+      connection.getBalance(publicKey)
+        .then(bal => setSolBalance(bal / 1e9))
+        .catch(console.error);
+
     } catch (err: any) {
       console.error(err);
       setStatus(`Error: ${err.message}`);
     } finally {
       setIsSwapping(false);
-      setTimeout(() => setStatus(''), 5000);
+      setTimeout(() => setStatus(''), 8000);
     }
   };
 
@@ -59,7 +92,7 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
       <div className="w-full max-w-md bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden shadow-2xl flex flex-col">
         <div className="flex justify-between items-center p-4 border-b border-neutral-800 bg-neutral-950">
-          <h2 className="text-xl font-bold text-white tracking-widest font-mono">DEX SWAP (Raydium)</h2>
+          <h2 className="text-xl font-bold text-white tracking-widest font-mono">Jupiter Swap</h2>
           <div className="flex gap-2">
             <button 
               onClick={() => {
@@ -76,8 +109,26 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
         
         <div className="p-6 flex flex-col gap-6">
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-bold text-neutral-400 uppercase tracking-wider font-mono">Wallet Connection</label>
+            <div className="flex justify-between items-center">
+              <label className="text-xs font-bold text-neutral-400 uppercase tracking-wider font-mono">Wallet Connection</label>
+              {publicKey && solBalance !== null && (
+                <div className="text-xs font-mono text-emerald-400">
+                  Balance: {solBalance.toFixed(3)} SOL
+                </div>
+              )}
+            </div>
             <WalletMultiButton className="!bg-emerald-600 hover:!bg-emerald-500 !transition-colors !w-full !justify-center !rounded-xl font-mono !h-12" />
+            
+            {publicKey && (
+              <a 
+                href={`https://buy.moonpay.com?currencyCode=SOL&walletAddress=${publicKey.toBase58()}`}
+                target="_blank"
+                rel="noreferrer"
+                className="text-center mt-1 text-[10px] text-neutral-400 hover:text-white underline"
+              >
+                Deposit Fiat / Buy SOL using MoonPay
+              </a>
+            )}
           </div>
 
           <div className="flex flex-col gap-2">
@@ -90,7 +141,17 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
           </div>
 
           <div className="flex flex-col gap-2 relative">
-            <label className="text-xs font-bold text-neutral-400 uppercase tracking-wider font-mono">Amount (SOL)</label>
+            <div className="flex justify-between items-center">
+              <label className="text-xs font-bold text-neutral-400 uppercase tracking-wider font-mono">Amount (SOL)</label>
+              {solBalance !== null && solBalance > 0 && (
+                <button 
+                  onClick={() => setSolAmount((solBalance * 0.95).toFixed(3))}
+                  className="text-[10px] bg-neutral-800 text-neutral-300 px-2 py-1 rounded hover:bg-neutral-700 font-mono"
+                >
+                  MAX (Save Gas)
+                </button>
+              )}
+            </div>
             <input 
               type="number" 
               value={solAmount}
@@ -110,11 +171,11 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
               'bg-emerald-500 hover:bg-emerald-400 text-black shadow-[0_0_20px_rgba(16,185,129,0.3)]'
             }`}
           >
-            {isSwapping ? 'Executing Swaps...' : publicKey ? 'Swap Tokens' : 'Connect Wallet to Swap'}
+            {isSwapping ? 'Executing Swaps...' : publicKey ? 'Swap Tokens via Jupiter' : 'Connect Wallet to Swap'}
           </button>
           
           {status && (
-            <div className={`p-3 rounded-lg text-xs font-mono text-center border ${status.includes('Error') ? 'bg-red-500/10 border-red-500/20 text-red-400' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'}`}>
+            <div className={`p-3 rounded-lg text-xs font-mono text-center border ${status.includes('Error') ? 'bg-red-500/10 border-red-500/20 text-red-400 break-words' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400 break-words'}`}>
               {status}
             </div>
           )}
