@@ -6,8 +6,6 @@ import { MemeCoin } from '../types';
 interface InspectorDrawerProps {
   coin: MemeCoin | null;
   onClose: () => void;
-  onMockBuy: (id: string, amountSol: number) => void;
-  onMockSell: (id: string, amountSol: number) => void;
   onAddAlert: (symbol: string) => void;
   onOpenTerminal?: (mint: string) => void;
 }
@@ -15,8 +13,6 @@ interface InspectorDrawerProps {
 export const InspectorDrawer: React.FC<InspectorDrawerProps> = ({
   coin,
   onClose,
-  onMockBuy,
-  onMockSell,
   onAddAlert,
   onOpenTerminal
 }) => {
@@ -560,44 +556,6 @@ export const InspectorDrawer: React.FC<InspectorDrawerProps> = ({
                       {coin.bondingCurveProgress >= 100 ? 'Fully Seeded' : 'Seeding Curve'}
                     </span>
                   </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Interactive simulation utility */}
-            <div className="bg-neutral-950 p-4 rounded-lg border border-neutral-800/80">
-              <h4 className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest mb-1.5 flex items-center gap-1">
-                <ShoppingCart size={13} /> Simulation Play Sandbox
-              </h4>
-              <p className="text-[10px] text-neutral-400 font-mono mb-3">
-                Simulate buy and sell transactional orders to test real-time scoring recalculations and bonding velocity adjustments.
-              </p>
-              
-              <div className="flex flex-col gap-2">
-                <div className="flex gap-2">
-                  <button
-                    id="mock-buy-10sol"
-                    onClick={() => onMockBuy(coin.id, 10)}
-                    className="flex-1 bg-emerald-500 text-neutral-950 py-1.5 rounded text-xs font-mono font-bold cursor-pointer hover:bg-emerald-400 transition-colors"
-                  >
-                    +10 SOL Buy Surge
-                  </button>
-                  <button
-                    id="mock-buy-30sol"
-                    onClick={() => onMockBuy(coin.id, 30)}
-                    className="flex-1 bg-purple-600 text-white py-1.5 rounded text-xs font-mono font-bold cursor-pointer hover:bg-purple-500 transition-colors"
-                  >
-                    +30 SOL Whales
-                  </button>
-                </div>
-                <div className="flex gap-2 mt-1">
-                  <button
-                    id="mock-sell-10sol"
-                    onClick={() => onMockSell(coin.id, 10)}
-                    className="flex-1 border border-rose-500/30 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 py-1.5 rounded text-[11px] font-mono cursor-pointer transition-all"
-                  >
-                    Dump 10 SOL Sell
-                  </button>
                 </div>
               </div>
             </div>

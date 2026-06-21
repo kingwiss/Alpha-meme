@@ -27,7 +27,7 @@ export const TokenSearchModal: React.FC<TokenSearchModalProps> = ({ onClose, onS
 
   useEffect(() => {
     if (!query || query.length < 2) {
-      setResults([]);
+      setTimeout(() => setResults([]), 0);
       return;
     }
 

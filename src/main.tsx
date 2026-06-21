@@ -1,4 +1,9 @@
 import {StrictMode, useMemo} from 'react';
+import { Buffer } from 'buffer';
+if (typeof window !== 'undefined') {
+  (window as any).Buffer = (window as any).Buffer || Buffer;
+  (window as any).process = (window as any).process || { env: {} };
+}
 import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
@@ -11,7 +16,7 @@ import { messaging } from './firebase';
 import ErrorBoundary from './ErrorBoundary';
 
 const WrappedApp = () => {
-  const endpoint = "https://rpc.ankr.com/solana";
+  const endpoint = "https://solana-rpc.publicnode.com";
   const wallets = useMemo(() => [], []);
 
   return (

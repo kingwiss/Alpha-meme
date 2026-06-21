@@ -1,26 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { LogOut, Save, History, Eye, X, Settings2, Shield, User, Link as LinkIcon } from 'lucide-react';
+import { LogOut, Save, History, Eye, X, Settings2, Shield, User, Link as LinkIcon, Wallet, ArrowRightLeft, RefreshCw } from 'lucide-react';
 import { collection, query, getDocs, orderBy, limit } from 'firebase/firestore';
 import { db } from '../firebase';
 import { MemeCoin } from '../types';
+import { useConnection, useWallet } from '@solana/wallet-adapter-react';
+import { PublicKey } from '@solana/web3.js';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
 interface ProfileDashboardProps {
   onClose: () => void;
   onSelectCoin?: (coinId: string, coinData?: MemeCoin) => void;
+  onOpenSwap?: (mint: string) => void;
 }
 
-export const ProfileDashboard: React.FC<ProfileDashboardProps> = ({ onClose, onSelectCoin }) => {
+export const ProfileDashboard: React.FC<ProfileDashboardProps> = ({ onClose, onSelectCoin, onOpenSwap }) => {
   const { user, profile, updateProfile, signOut } = useAuth();
-  const [activeTab, setActiveTab] = useState<'saved' | 'history' | 'settings'>('saved');
+  const [activeTab, setActiveTab] = useState<'saved' | 'history' | 'settings' | 'wallet'>('wallet');
   const [savedCoins, setSavedCoins] = useState<any[]>([]);
   const [viewedCoins, setViewedCoins] = useState<any[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editUsername, setEditUsername] = useState(profile?.username || '');
 
+  const { connection } = useConnection();
+  const { publicKey } = useWallet();
+  const [solBalance, setSolBalance] = useState<number | null>(null);
+  const [tokens, setTokens] = useState<any[]>([]);
+  const [jupTokens, setJupTokens] = useState<any[]>([]);
+  const [isLoadingWallet, setIsLoadingWallet] = useState(false);
+
   useEffect(() => {
     if (user && profile) {
-      setEditUsername(profile.username);
+      setTimeout(() => setEditUsername(profile.username), 0);
     }
   }, [user, profile]);
 
@@ -42,6 +53,66 @@ export const ProfileDashboard: React.FC<ProfileDashboardProps> = ({ onClose, onS
     fetchCoinData();
   }, [user, activeTab]);
 
+  useEffect(() => {
+    // Fetch Jupiter Strict List for token symbols/logos
+    fetch('https://token.jup.ag/strict')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setJupTokens(data);
+        } else if (data && Array.isArray(data.tokens)) {
+          setJupTokens(data.tokens);
+        } else {
+          setJupTokens([]);
+        }
+      })
+      .catch(console.error);
+  }, []);
+
+  const refreshWallet = async () => {
+    if (!publicKey) {
+      setSolBalance(null);
+      setTokens([]);
+      return;
+    }
+    
+    setIsLoadingWallet(true);
+    try {
+      // Get SOL balance
+      const bal = await connection.getBalance(publicKey);
+      setSolBalance(bal / 1e9);
+
+      // Get SPL token accounts
+      const TOKEN_PROGRAM_ID = new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
+      const accounts = await connection.getParsedTokenAccountsByOwner(publicKey, {
+        programId: TOKEN_PROGRAM_ID
+      });
+
+      const tokenBalances = accounts.value
+        .map(acc => {
+          const info = acc.account.data.parsed.info;
+          return {
+            mint: info.mint,
+            amount: info.tokenAmount.uiAmount,
+            decimals: info.tokenAmount.decimals
+          };
+        })
+        .filter(t => t.amount > 0);
+      
+      setTokens(tokenBalances);
+    } catch (err) {
+      console.error("Error fetching wallet data:", err);
+    } finally {
+      setIsLoadingWallet(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'wallet') {
+      refreshWallet();
+    }
+  }, [publicKey, connection, activeTab]);
+
   const handleUpdateProfile = async () => {
     await updateProfile({
       username: editUsername,
@@ -53,6 +124,11 @@ export const ProfileDashboard: React.FC<ProfileDashboardProps> = ({ onClose, onS
     if (profile) {
       await updateProfile({ isPublic: !profile.isPublic });
     }
+  };
+
+  const getTokenMeta = (mint: string) => {
+    if (!Array.isArray(jupTokens)) return null;
+    return jupTokens.find(t => t.address === mint) || null;
   };
 
   if (!user || !profile) return null;
@@ -90,6 +166,12 @@ export const ProfileDashboard: React.FC<ProfileDashboardProps> = ({ onClose, onS
           {/* Sidebar */}
           <div className="w-full sm:w-64 border-b sm:border-b-0 sm:border-r border-neutral-800 bg-neutral-900/30 p-4 flex flex-row sm:flex-col gap-2 overflow-x-auto sm:overflow-visible shrink-0">
             <button 
+              onClick={() => setActiveTab('wallet')}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-mono transition-colors ${activeTab === 'wallet' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'text-neutral-400 hover:bg-neutral-800 hover:text-white'}`}
+            >
+              <Wallet size={16} /> <span className="hidden sm:inline">My Wallet</span>
+            </button>
+            <button 
               onClick={() => setActiveTab('saved')}
               className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-mono transition-colors ${activeTab === 'saved' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'text-neutral-400 hover:bg-neutral-800 hover:text-white'}`}
             >
@@ -120,6 +202,113 @@ export const ProfileDashboard: React.FC<ProfileDashboardProps> = ({ onClose, onS
 
           {/* Content */}
           <div className="flex-1 p-6 overflow-y-auto bg-neutral-950/50">
+            {activeTab === 'wallet' && (
+              <div className="max-w-2xl flex flex-col gap-6">
+                <div className="glass-panel p-6 rounded-2xl border border-indigo-500/30 bg-neutral-900/50">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-sm font-bold font-mono text-indigo-400 flex items-center gap-2">
+                      <Wallet size={16}/> Solana Wallet
+                    </h3>
+                    <button 
+                      onClick={refreshWallet} 
+                      className="text-neutral-500 hover:text-indigo-400 p-1"
+                      title="Refresh Balances"
+                    >
+                      <RefreshCw size={14} className={isLoadingWallet ? "animate-spin" : ""} />
+                    </button>
+                  </div>
+                  
+                  {!publicKey ? (
+                    <div className="flex flex-col gap-4">
+                      <div className="bg-neutral-950 border border-neutral-800 p-8 rounded-xl flex flex-col items-center justify-center gap-4 text-center">
+                        <Wallet size={32} className="text-neutral-600 mb-2" />
+                        <h4 className="text-white font-bold font-sans text-lg">Wallet Not Connected</h4>
+                        <p className="text-sm text-neutral-400 font-mono max-w-md">
+                          Connect your Phantom wallet or any Solana wallet. Your balances, transaction history, and swaps will be tracked across the Alpha Pump ecosystem.
+                        </p>
+                        <div className="mt-2">
+                          <WalletMultiButton className="!bg-indigo-600 hover:!bg-indigo-500 !transition-colors !rounded-lg font-mono !h-10 text-sm" />
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-6">
+                      <div className="flex items-center justify-between bg-neutral-950 border border-neutral-800 p-5 rounded-xl">
+                        <div className="flex flex-col gap-1">
+                          <span className="text-xs text-neutral-500 font-mono tracking-widest uppercase">SOL Balance</span>
+                          <span className="text-2xl font-bold text-white font-sans">
+                            {solBalance !== null ? solBalance.toLocaleString(undefined, { maximumFractionDigits: 4 }) : '...'} <span className="text-sm text-indigo-400">SOL</span>
+                          </span>
+                        </div>
+                        <a 
+                          href={`https://buy.moonpay.com?currencyCode=SOL&walletAddress=${publicKey.toBase58()}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 hover:bg-indigo-500/30 px-4 py-2 rounded-lg font-bold font-mono text-xs uppercase transition-colors"
+                        >
+                          Buy SOL
+                        </a>
+                      </div>
+
+                      <div className="flex flex-col gap-3">
+                        <h4 className="text-xs font-bold font-mono text-neutral-400 tracking-widest uppercase border-b border-neutral-800 pb-2">Your Meme Coins</h4>
+                        
+                        {isLoadingWallet && tokens.length === 0 ? (
+                          <div className="text-center py-8 text-neutral-500 text-sm font-mono animate-pulse">Scanning wallet...</div>
+                        ) : tokens.length === 0 ? (
+                          <div className="text-center py-8 text-neutral-600 text-sm font-mono bg-neutral-950 rounded-xl border border-neutral-800/50">
+                            No tokens found in this wallet.
+                          </div>
+                        ) : (
+                          <div className="flex flex-col gap-2">
+                            {tokens.map(token => {
+                              const meta = getTokenMeta(token.mint);
+                              const symbol = meta?.symbol || 'UNKNOWN';
+                              const name = meta?.name || 'Unknown Token';
+                              
+                              return (
+                                <div key={token.mint} className="flex justify-between items-center p-4 bg-neutral-950 border border-neutral-800 rounded-xl hover:border-indigo-500/30 transition-colors">
+                                  <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-full overflow-hidden bg-neutral-800 border border-neutral-700 flex items-center justify-center text-xs font-bold shrink-0">
+                                      {meta?.logoURI ? (
+                                        <img src={meta.logoURI} alt={symbol} className="w-full h-full object-cover" />
+                                      ) : (
+                                        symbol.charAt(0)
+                                      )}
+                                    </div>
+                                    <div className="flex flex-col">
+                                      <span className="font-bold text-white font-sans text-sm">{name}</span>
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-xs text-indigo-400 font-mono font-bold">{token.amount.toLocaleString(undefined, { maximumFractionDigits: 2 })} {symbol}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  
+                                  <button 
+                                    onClick={() => {
+                                      onClose();
+                                      if (onOpenSwap) onOpenSwap(token.mint);
+                                    }}
+                                    className="p-2.5 bg-neutral-900 border border-neutral-700 rounded-lg text-emerald-400 hover:bg-emerald-500/10 hover:border-emerald-500/30 transition-all group"
+                                    title="Swap / Sell"
+                                  >
+                                    <ArrowRightLeft size={14} className="group-hover:scale-110 transition-transform"/>
+                                  </button>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* MoonPay API configuration note for developers */}
+                  {/* To collect affiliate fees, replace the buy URL with a signed MoonPay URL using your secret API key on your backend, and pass your affiliate or wallet parameter */}
+                </div>
+              </div>
+            )}
+
             {activeTab === 'settings' && (
               <div className="max-w-md flex flex-col gap-6">
                 <div className="glass-panel p-5 rounded-xl border border-neutral-800">

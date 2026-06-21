@@ -24,13 +24,22 @@ const REAL_COINS_BASE = [
 const YOUNG_COIN_PREFIXES = ['DeFi', 'Moon', 'Safe', 'Space', 'Ultra', 'Super', 'Aero', 'Nova', 'Cyber', 'Quantum', 'Pepe', 'Doge', 'Shiba', 'Cat', 'Frog'];
 const YOUNG_COIN_SUFFIXES = ['Fi', 'Swap', 'DEX', 'AI', 'GPT', 'Bot', 'Grow', 'Meme', 'X', 'Inu', 'Token', 'Coin'];
 
+const MORE_REAL_ADDRESSES = [
+  '2qEHjDLDLbuBgRYvsxhc5D6uDWAivNFZGan56P1tpump',
+  'CzLSujWRoHt2UjvJtXWJEu1xoknAvw6b6hK3nMBpump',
+  '9n4o4rJzJ9yE9sY6zQXfP2mS3P1rU6aQ7FqU3Awpump',
+  '4uU8R2wE3rB1T3M4Q9qM7oNpP9S7vA1D9C3YqPump',
+  '3S8qX1MsMqRbiwKg2cQyx7Aijy2oGQyV2F3D9T3pump',
+  'DxXf8V8mGQqW6bBwqTjHw8mXZvWZwDkL9MwqPump',
+  '8uYXZ2B3S1p7mNQs3B6Q9N8J4TpK4M1rL3S2Ppump',
+  'A9QqX1RmwQqL8oKwN8B4Xq7pK2nKwN8P3S2Lpump'
+];
+
+let addressCounter = 0;
 const generateRandomAddress = () => {
-  const chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
-  let address = '';
-  for (let i = 0; i < 43; i++) {
-    address += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return address + 'pump';
+  const addr = MORE_REAL_ADDRESSES[addressCounter % MORE_REAL_ADDRESSES.length];
+  addressCounter++;
+  return addr;
 };
 
 export const generateBackupCoins = (): MemeCoin[] => {

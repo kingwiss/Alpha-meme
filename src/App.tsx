@@ -40,12 +40,12 @@ import { useAuth } from './contexts/AuthContext';
 import { AuthModal } from './components/AuthModal';
 import { ProfileDashboard } from './components/ProfileDashboard';
 import { viewCoin } from './lib/coinActions';
-import { FooterModals } from './components/FooterModals';
 import { ContactFloatingButton } from './components/ContactFloatingButton';
 import { TerminalModal } from './components/TerminalModal';
 import { TokenSearchModal } from './components/TokenSearchModal';
-
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { AboutPage } from './components/AboutPage';
+import { PrivacyPage } from './components/PrivacyPage';
+import { TermsPage } from './components/TermsPage';
 
 // Safe wrapper for localStorage to prevent security exceptions in sandboxed iframes
 const safeLocalStorage = {
@@ -105,9 +105,7 @@ export default function App() {
   
   const [showTokenSearchModal, setShowTokenSearchModal] = useState(false);
 
-  const [showAbout, setShowAbout] = useState(false);
-  const [showPrivacy, setShowPrivacy] = useState(false);
-  const [showTerms, setShowTerms] = useState(false);
+  const [currentPage, setCurrentPage] = useState<'home' | 'about' | 'privacy' | 'terms'>('home');
 
   // Core application states
   const [coins, setCoins] = useState<MemeCoin[]>(INITIAL_MEME_COINS);
@@ -532,120 +530,6 @@ export default function App() {
     }, ...prev]);
   };
 
-  // Interactive Sandbox Buy Mock Functionality
-  const handleMockBuy = (id: string, amountSol: number) => {
-    setCoins(currentCoins => {
-      return currentCoins.map(c => {
-        if (c.id !== id) return c;
-
-        const priceMultiplier = (amountSol * 0.42); // 42% spike for massive whale injection
-        const rawNewPrice = c.priceUsd * (1 + priceMultiplier / 100);
-        const precisionDigits = rawNewPrice < 0.001 ? 6 : 5;
-        const newPriceUsd = parseFloat(rawNewPrice.toFixed(precisionDigits));
-        const newVol5m = Math.round(c.volume5m + amountSol * 135);
-        const newVol1h = Math.round(c.volume1h + amountSol * 135);
-        
-        let newBondingProgress = c.bondingCurveProgress;
-        if (c.isBondingCurve) {
-          newBondingProgress = Math.min(100, parseFloat((c.bondingCurveProgress + amountSol * 0.12).toFixed(1)));
-        }
-
-        const newHistory = [...c.priceHistory5m.slice(1), newPriceUsd];
-        const newVelocity = Math.min(100, c.velocityScore + (amountSol > 15 ? 5 : 2));
-        
-        // Complete score recalculated
-        let combinedScore = Math.round((newVelocity * 0.45) + (c.socialScore * 0.35) + (c.securityScore * 0.20));
-        
-        // Safety lock penalties
-        if (c.securityScore < 40) {
-          combinedScore = Math.min(32, combinedScore);
-        }
-
-        const breakoutProbability = Math.min(99, Math.max(5, Math.ceil(combinedScore * 1.02 + (newBondingProgress > 80 ? 3 : 0))));
-
-        return {
-          ...c,
-          priceUsd: newPriceUsd,
-          priceChange1h: parseFloat((c.priceChange1h + priceMultiplier).toFixed(1)),
-          volume5m: newVol5m,
-          volume1h: newVol1h,
-          bondingCurveProgress: newBondingProgress,
-          priceHistory5m: newHistory,
-          velocityScore: newVelocity,
-          combinedScore,
-          breakoutProbability
-        };
-      });
-    });
-
-    const timestamp = new Date().toISOString().substring(11, 19);
-    const target = coins.find(c => c.id === id);
-    if (target) {
-      const userTxnLog: SystemLog = {
-        id: 'usr-' + Math.random().toString(36).substring(2, 5),
-        timestamp,
-        type: 'success',
-        message: `🟢 [USER INJECTION] Simulated buy of ${amountSol} SOL on $${target.symbol}. Progress updated! 🚀`
-      };
-      setLogs(prev => [userTxnLog, ...prev]);
-    }
-  };
-
-  // Interactive Sandbox Sell Mock Functionality
-  const handleMockSell = (id: string, amountSol: number) => {
-    setCoins(currentCoins => {
-      return currentCoins.map(c => {
-        if (c.id !== id) return c;
-
-        const priceDrop = (amountSol * 0.28); // price drops
-        const rawNewPrice = c.priceUsd * (1 - priceDrop / 100);
-        const precisionDigits = rawNewPrice < 0.001 ? 6 : 5;
-        const newPriceUsd = parseFloat(Math.max(0.000001, rawNewPrice).toFixed(precisionDigits));
-        const newVol5m = Math.round(c.volume5m + amountSol * 135);
-        
-        let newBondingProgress = c.bondingCurveProgress;
-        if (c.isBondingCurve) {
-          newBondingProgress = Math.max(1, parseFloat((c.bondingCurveProgress - amountSol * 0.08).toFixed(1)));
-        }
-
-        const newHistory = [...c.priceHistory5m.slice(1), newPriceUsd];
-        const newVelocity = Math.max(10, c.velocityScore - (amountSol > 15 ? 4 : 2));
-        
-        let combinedScore = Math.round((newVelocity * 0.45) + (c.socialScore * 0.35) + (c.securityScore * 0.20));
-        
-        if (c.securityScore < 40) {
-          combinedScore = Math.min(32, combinedScore);
-        }
-
-        const breakoutProbability = Math.min(99, Math.max(5, Math.ceil(combinedScore * 1.02 + (newBondingProgress > 80 ? 3 : 0))));
-
-        return {
-          ...c,
-          priceUsd: newPriceUsd,
-          priceChange1h: parseFloat((c.priceChange1h - priceDrop).toFixed(1)),
-          volume5m: newVol5m,
-          bondingCurveProgress: newBondingProgress,
-          priceHistory5m: newHistory,
-          velocityScore: newVelocity,
-          combinedScore,
-          breakoutProbability
-        };
-      });
-    });
-
-    const timestamp = new Date().toISOString().substring(11, 19);
-    const target = coins.find(c => c.id === id);
-    if (target) {
-      const userTxnLog: SystemLog = {
-        id: 'usr-' + Math.random().toString(36).substring(2, 5),
-        timestamp,
-        type: 'warning',
-        message: `🔴 [USER SELL SURGE] Simulated sale on $${target.symbol} of ${amountSol} SOL. Rating adjusted.`
-      };
-      setLogs(prev => [userTxnLog, ...prev]);
-    }
-  };
-
   // Simulated Registry function for launching custom tokens to see the tracker score them
   const handleCreateCustomToken = (e: React.FormEvent) => {
     e.preventDefault();
@@ -655,12 +539,8 @@ export default function App() {
     }
 
     const nextId = (coins.length + 1).toString();
-    const tokenAddress = customAddress || (() => {
-      const prefix = customSymbol.toUpperCase().padEnd(4, 'X').substring(0, 4);
-      const middle = '1M9n2EuA6FfK9Ms6U98Wd1Ox1C2r8B3z4Y5x';
-      const suffix = customPlatform === 'pump.fun' ? 'pump' : 'rayd';
-      return `${prefix}${middle}${suffix}`.substring(0, 44);
-    })();
+    // Providing a valid real fallback address so Phantom test works
+    const tokenAddress = customAddress || '8uYXZ2B3S1p7mNQs3B6Q9N8J4TpK4M1rL3S2Ppump';
     const nowTime = new Date().toISOString().substring(11, 19);
 
     // Differentiate security profiles based on selected parameters
@@ -753,6 +633,10 @@ export default function App() {
       setShowCreatorForm(false);
     }, 2500);
   };
+
+  if (currentPage === 'about') return <AboutPage onBack={() => setCurrentPage('home')} />;
+  if (currentPage === 'privacy') return <PrivacyPage onBack={() => setCurrentPage('home')} />;
+  if (currentPage === 'terms') return <TermsPage onBack={() => setCurrentPage('home')} />;
 
   return (
     <div className={`min-h-[100dvh] w-full max-w-[100vw] overflow-x-hidden bg-neutral-950 text-white selection:bg-emerald-500 selection:text-neutral-950 font-sans flex flex-col gap-4 sm:gap-6 overscroll-none p-2 sm:p-4`}>
@@ -889,19 +773,31 @@ export default function App() {
           </a>
           
           {user && profile ? (
-            <button
-              onClick={() => setShowProfile(true)}
-              className="px-3 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-2 transition-all cursor-pointer bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-white hover:border-emerald-500/50 shrink-0"
-            >
-              <div className="w-5 h-5 rounded-full overflow-hidden bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px] shrink-0">
-                {profile.profileImage ? (
-                  <img src={profile.profileImage} alt={profile.username} className="w-full h-full object-cover" />
-                ) : (
-                  profile.username.charAt(0).toUpperCase()
-                )}
-              </div>
-              <span className="truncate max-w-[150px]">{profile.username}</span>
-            </button>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={() => setShowProfile(true)}
+                className="px-3 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-2 transition-all cursor-pointer bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-white hover:border-emerald-500/50 shrink-0"
+              >
+                <div className="w-5 h-5 rounded-full overflow-hidden bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px] shrink-0">
+                  {profile.profileImage ? (
+                    <img src={profile.profileImage} alt={profile.username} className="w-full h-full object-cover" />
+                  ) : (
+                    profile.username.charAt(0).toUpperCase()
+                  )}
+                </div>
+                <span className="truncate max-w-[150px]">{profile.username}</span>
+              </button>
+              <button
+                onClick={() => {
+                  setTerminalMint('');
+                  setShowTerminalModal(true);
+                }}
+                className="w-8 h-8 rounded-full flex items-center justify-center transition-all cursor-pointer bg-emerald-500 text-neutral-950 hover:bg-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)] shrink-0"
+                title="Deposit Funds"
+              >
+                <Plus size={18} className="stroke-[3]" />
+              </button>
+            </div>
           ) : (
             <button
               onClick={() => setShowAuthModal(true)}
@@ -1332,9 +1228,9 @@ export default function App() {
       <footer id="branding-footer" className="bg-neutral-900/40 border border-neutral-800/50 rounded-xl p-4 text-center text-xs font-mono text-neutral-500 mt-2 flex flex-col sm:flex-row justify-between items-center gap-2">
         <span>Developed to meet professional decentralized exchange audit specifications.</span>
         <div className="flex items-center gap-4 text-neutral-400">
-          <button onClick={() => setShowAbout(true)} className="hover:text-emerald-400 transition-colors">About Us</button>
-          <button onClick={() => setShowPrivacy(true)} className="hover:text-emerald-400 transition-colors">Privacy Policy</button>
-          <button onClick={() => setShowTerms(true)} className="hover:text-emerald-400 transition-colors">Terms of Service</button>
+          <button onClick={() => setCurrentPage('about')} className="hover:text-emerald-400 transition-colors">About Us</button>
+          <button onClick={() => setCurrentPage('privacy')} className="hover:text-emerald-400 transition-colors">Privacy Policy</button>
+          <button onClick={() => setCurrentPage('terms')} className="hover:text-emerald-400 transition-colors">Terms of Service</button>
         </div>
         <span className="text-neutral-500 flex items-center gap-1.5">
           <Globe size={11} className="text-emerald-500" />
@@ -1342,11 +1238,6 @@ export default function App() {
         </span>
       </footer>
 
-      <FooterModals 
-        showAbout={showAbout} setShowAbout={setShowAbout}
-        showPrivacy={showPrivacy} setShowPrivacy={setShowPrivacy}
-        showTerms={showTerms} setShowTerms={setShowTerms}
-      />
       <ContactFloatingButton />
 
       {/* Modal for viewing coin details without jumping screen */}
@@ -1364,8 +1255,6 @@ export default function App() {
                <InspectorDrawer 
                  coin={selectedCoin} 
                  onClose={() => setSelectedCoinId('')}
-                 onMockBuy={handleMockBuy}
-                 onMockSell={handleMockSell}
                  onAddAlert={handleAddAlert}
                  onOpenTerminal={(mint) => {
                    setTerminalMint(mint);
@@ -1465,6 +1354,10 @@ export default function App() {
         // We ensure we close profile first
         setShowProfile(false);
         setSelectedCoinId(id);
+      }} onOpenSwap={(mint) => {
+        setShowProfile(false);
+        setTerminalMint(mint);
+        setShowTerminalModal(true);
       }} />}
     </div>
   );
