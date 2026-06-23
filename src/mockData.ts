@@ -25,14 +25,14 @@ const YOUNG_COIN_PREFIXES = ['DeFi', 'Moon', 'Safe', 'Space', 'Ultra', 'Super', 
 const YOUNG_COIN_SUFFIXES = ['Fi', 'Swap', 'DEX', 'AI', 'GPT', 'Bot', 'Grow', 'Meme', 'X', 'Inu', 'Token', 'Coin'];
 
 const MORE_REAL_ADDRESSES = [
-  '2qEHjDLDLbuBgRYvsxhc5D6uDWAivNFZGan56P1tpump',
-  'CzLSujWRoHt2UjvJtXWJEu1xoknAvw6b6hK3nMBpump',
-  '9n4o4rJzJ9yE9sY6zQXfP2mS3P1rU6aQ7FqU3Awpump',
-  '4uU8R2wE3rB1T3M4Q9qM7oNpP9S7vA1D9C3YqPump',
-  '3S8qX1MsMqRbiwKg2cQyx7Aijy2oGQyV2F3D9T3pump',
-  'DxXf8V8mGQqW6bBwqTjHw8mXZvWZwDkL9MwqPump',
-  '8uYXZ2B3S1p7mNQs3B6Q9N8J4TpK4M1rL3S2Ppump',
-  'A9QqX1RmwQqL8oKwN8B4Xq7pK2nKwN8P3S2Lpump'
+  'EKpQGSJtjMFqKZ9KQanUKAbziM1MhPjNBDhQc4D1pump', // wif
+  'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263', // bonk
+  'ukHH6c7mMyiWCf1b9pnWe25TSpkDDt3H5pQZgZ74J82', // bome
+  'HhJpBhRRn4g56VsyLuT8DL5Bv31HkXqsrahTTUCZeZg4', // myro
+  '7GCihgDB8fe6KNjn2MYtkzZcRjQy3t9GHdC8uHYmW2hr', // popcat
+  '7BgBvyjrZX1YKz4oh9mjb8ZScatkkwb8DzFx7LoiVkM3', // slerf
+  '3psH1Mj1f7yUfaD5gh6Zj7epE8hhrMkMETgv5TshQA4o', // boden
+  '25hAyBQfoDhfWx9ay6rarbgvWGwDdNqcHsXS3jQ3mTDJ'  // maneki
 ];
 
 let addressCounter = 0;

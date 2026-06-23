@@ -123,7 +123,7 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
       currentStep = 'Fetching Swap Quote';
       if (!finalQuote || !finalQuote.outAmount) {
         setStatus('Fetching Jupiter quotes...');
-        const url = `/api/jup/quote?inputMint=So11111111111111111111111111111111111111112&outputMint=${cleanMint}&amount=${swapLamports}&slippageBps=500`;
+        const url = `https://quote-api.jup.ag/v6/quote?inputMint=So11111111111111111111111111111111111111112&outputMint=${cleanMint}&amount=${swapLamports}&slippageBps=500`;
         const quoteRes = await fetch(url).catch(e => {
             throw new Error(e.message === 'Load failed' || e.message === 'Failed to fetch' ? "Jupiter API blocked by browser or rate limited." : e.message);
         });
@@ -144,7 +144,7 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
       };
 
       currentStep = 'Fetching Swap Transaction';
-      const txRes = await fetch(`/api/jup/swap`, {
+      const txRes = await fetch(`https://quote-api.jup.ag/v6/swap`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(swapBody)
