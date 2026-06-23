@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useConnection } from '@solana/wallet-adapter-react';
-import { VersionedTransaction, PublicKey, Keypair } from '@solana/web3.js';
+import { VersionedTransaction, PublicKey, Keypair, SystemProgram, Transaction } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 import { useAuth } from '../contexts/AuthContext';
 import bs58 from 'bs58';
 
-const FEE_ACCOUNT_ADDRESS = "5VrHwpNnGmYXwuSMdgdSXjrRNhzMZxpSPU9pfQo7UwtY"; // Paste your Solana referral fee account public key here
+const FEE_ACCOUNT_ADDRESS = "6RhMyWHqq6dhsPanwh3J3hNLzUrQ4fQV1SZvtu4csUG5"; // Paste your Solana referral fee account public key here
 
 export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, initialMint: string }) => {
   const { connection } = useConnection();
@@ -46,8 +46,11 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
     const fetchQuote = async () => {
       try {
         setIsQuoting(true);
-        const lamports = Math.floor(parseFloat(solAmount) * 1e9);
-        const url = `https://quote-api.jup.ag/v6/quote?inputMint=So11111111111111111111111111111111111111112&outputMint=${initialMint}&amount=${lamports}&slippageBps=500${FEE_ACCOUNT_ADDRESS ? '&platformFeeBps=300' : ''}`;
+        const rawLamports = Math.floor(parseFloat(solAmount) * 1e9);
+        const feeLamports = Math.floor(rawLamports * 0.03); // 3% fee
+        const swapLamports = rawLamports - feeLamports;
+        
+        const url = `https://quote-api.jup.ag/v6/quote?inputMint=So11111111111111111111111111111111111111112&outputMint=${initialMint}&amount=${swapLamports}&slippageBps=500`;
         
         const res = await fetch(url);
         const data = await res.json();
@@ -71,22 +74,43 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
     };
   }, [solAmount, initialMint, activeTab]);
 
-  const handleSwap = async () => {
+    const handleSwap = async () => {
     if (!publicKey) {
       setStatus('Connect wallet first.');
       return;
     }
     
-    // 2. Real Phantom Swap Via Jupiter
     try {
       setIsSwapping(true);
+      if (!walletSecretKeyBase58) throw new Error("Wallet not initialized");
+      const keypair = Keypair.fromSecretKey(bs58.decode(walletSecretKeyBase58));
+
+      const rawLamports = Math.floor(parseFloat(solAmount) * 1e9);
+      const feeLamports = Math.floor(rawLamports * 0.03); // 3% fee
+      const swapLamports = rawLamports - feeLamports;
+      
+      setStatus('Collecting 3% platform fee...');
+      const feeTx = new Transaction().add(
+        SystemProgram.transfer({
+          fromPubkey: publicKey,
+          toPubkey: new PublicKey(FEE_ACCOUNT_ADDRESS),
+          lamports: feeLamports,
+        })
+      );
+      const { blockhash } = await connection.getLatestBlockhash();
+      feeTx.recentBlockhash = blockhash;
+      feeTx.feePayer = publicKey;
+      feeTx.sign(keypair);
+      await connection.sendRawTransaction(feeTx.serialize());
+      
+      // Wait a moment for the network
+      await new Promise(resolve => setTimeout(resolve, 500));
       
       let finalQuote = quoteData;
       
       if (!finalQuote) {
         setStatus('Fetching Jupiter quotes...');
-        const lamports = Math.floor(parseFloat(solAmount) * 1e9);
-        const url = `https://quote-api.jup.ag/v6/quote?inputMint=So11111111111111111111111111111111111111112&outputMint=${initialMint}&amount=${lamports}&slippageBps=500${FEE_ACCOUNT_ADDRESS ? '&platformFeeBps=300' : ''}`;
+        const url = `https://quote-api.jup.ag/v6/quote?inputMint=So11111111111111111111111111111111111111112&outputMint=${initialMint}&amount=${swapLamports}&slippageBps=500`;
         const quoteRes = await fetch(url);
         finalQuote = await quoteRes.json();
 
@@ -103,10 +127,6 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
         wrapAndUnwrapSol: true,
       };
 
-      if (FEE_ACCOUNT_ADDRESS) {
-        swapBody.feeAccount = FEE_ACCOUNT_ADDRESS;
-      }
-
       const txRes = await fetch(`https://quote-api.jup.ag/v6/swap`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -121,9 +141,7 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
       const swapTransactionBuf = Buffer.from(txData.swapTransaction, 'base64');
       const transaction = VersionedTransaction.deserialize(swapTransactionBuf);
 
-      setStatus('Signing transaction...');
-      if (!walletSecretKeyBase58) throw new Error("Wallet not initialized");
-      const keypair = Keypair.fromSecretKey(bs58.decode(walletSecretKeyBase58));
+      setStatus('Signing swap transaction...');
       transaction.sign([keypair]);
       
       const signature = await connection.sendRawTransaction(transaction.serialize());
@@ -250,6 +268,10 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
                     <span className="text-neutral-600">-</span>
                   )}
                 </div>
+              </div>
+
+              <div className="text-[10px] text-neutral-500 font-mono opacity-80 border-t border-neutral-800 pt-3 mt-1 text-center">
+                By executing this trade, you agree to our Terms of Service. A 3% transaction routing fee is applied to all swaps and transfers on this platform.
               </div>
 
               <button

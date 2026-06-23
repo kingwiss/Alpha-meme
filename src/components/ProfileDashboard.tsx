@@ -300,7 +300,7 @@ export const ProfileDashboard: React.FC<ProfileDashboardProps> = ({ onClose, onS
                                       if (onOpenSwap) onOpenSwap(token.mint);
                                     }}
                                     className="p-2.5 bg-neutral-900 border border-neutral-700 rounded-lg text-emerald-400 hover:bg-emerald-500/10 hover:border-emerald-500/30 transition-all group"
-                                    title="Swap / Sell"
+                                    title="Buy More"
                                   >
                                     <ArrowRightLeft size={14} className="group-hover:scale-110 transition-transform"/>
                                   </button>
