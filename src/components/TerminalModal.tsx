@@ -304,7 +304,7 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
                   'bg-emerald-500 hover:bg-emerald-400 text-black shadow-[0_0_20px_rgba(16,185,129,0.3)]'
                 }`}
               >
-                {isSwapping ? 'Executing...' : publicKey ? 'Swap Tokens via Jupiter' : 'Connect Wallet First'}
+                {isSwapping ? 'Executing...' : publicKey ? 'Buy Meme Coin' : 'Connect Wallet First'}
               </button>
             </>
           )}

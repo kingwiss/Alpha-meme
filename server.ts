@@ -79,7 +79,7 @@ async function startServer() {
   // Proxy for Jupiter Quote
   app.get("/api/jup/quote", async (req, res) => {
     try {
-      const qs = new URLSearchParams(req.query as Record<string, string>).toString();
+      const qs = req.url.split('?')[1] || '';
       const response = await fetch(`https://quote-api.jup.ag/v6/quote?${qs}`);
       const data = await response.json();
       res.json(data);
