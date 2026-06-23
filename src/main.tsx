@@ -16,7 +16,7 @@ import ErrorBoundary from './ErrorBoundary';
 const WrappedApp = () => {
   const endpoint = import.meta.env.VITE_HELIUS_API_KEY 
     ? `https://mainnet.helius-rpc.com/?api-key=${import.meta.env.VITE_HELIUS_API_KEY}`
-    : "https://solana-rpc.publicnode.com";
+    : "https://mainnet.helius-rpc.com/?api-key=3d18e988-fdce-4070-86a3-f5c2dd98c15c";
 
   return (
     <ErrorBoundary>

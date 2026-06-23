@@ -76,6 +76,35 @@ async function startServer() {
     }
   });
 
+  // Proxy for Jupiter Quote
+  app.get("/api/jup/quote", async (req, res) => {
+    try {
+      const qs = new URLSearchParams(req.query as Record<string, string>).toString();
+      const response = await fetch(`https://quote-api.jup.ag/v6/quote?${qs}`);
+      const data = await response.json();
+      res.json(data);
+    } catch (e: any) {
+      console.error("Jupiter Quote Proxy error:", e);
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  // Proxy for Jupiter Swap
+  app.post("/api/jup/swap", async (req, res) => {
+    try {
+      const response = await fetch(`https://quote-api.jup.ag/v6/swap`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(req.body)
+      });
+      const data = await response.json();
+      res.json(data);
+    } catch (e: any) {
+      console.error("Jupiter Swap Proxy error:", e);
+      res.status(500).json({ error: e.message });
+    }
+  });
+
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({

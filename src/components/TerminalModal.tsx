@@ -49,8 +49,9 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
         const rawLamports = Math.floor(parseFloat(solAmount) * 1e9);
         const feeLamports = Math.floor(rawLamports * 0.03); // 3% fee
         const swapLamports = rawLamports - feeLamports;
+        const cleanMint = initialMint.trim();
         
-        const url = `https://quote-api.jup.ag/v6/quote?inputMint=So11111111111111111111111111111111111111112&outputMint=${initialMint}&amount=${swapLamports}&slippageBps=500`;
+        const url = `/api/jup/quote?inputMint=So11111111111111111111111111111111111111112&outputMint=${cleanMint}&amount=${swapLamports}&slippageBps=500`;
         
         const res = await fetch(url);
         const data = await res.json();
@@ -80,6 +81,7 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
       return;
     }
     
+    let currentStep = 'initializing';
     try {
       setIsSwapping(true);
       if (!walletSecretKeyBase58) throw new Error("Wallet not initialized");
@@ -88,7 +90,9 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
       const rawLamports = Math.floor(parseFloat(solAmount) * 1e9);
       const feeLamports = Math.floor(rawLamports * 0.03); // 3% fee
       const swapLamports = rawLamports - feeLamports;
+      const cleanMint = initialMint.trim();
       
+      currentStep = 'Platform Fee Transfer';
       setStatus('Collecting 3% platform fee...');
       const feeTx = new Transaction().add(
         SystemProgram.transfer({
@@ -97,21 +101,32 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
           lamports: feeLamports,
         })
       );
-      const { blockhash } = await connection.getLatestBlockhash();
+      
+      currentStep = 'Fetching Network Blockhash';
+      const { blockhash } = await connection.getLatestBlockhash().catch(() => {
+        throw new Error("RPC Rate Limit Exceeded. Please try again in a few seconds.");
+      });
       feeTx.recentBlockhash = blockhash;
       feeTx.feePayer = publicKey;
       feeTx.sign(keypair);
-      await connection.sendRawTransaction(feeTx.serialize());
+      
+      currentStep = 'Broadcasting Fee';
+      await connection.sendRawTransaction(feeTx.serialize()).catch(() => {
+         throw new Error("Failed to broadcast fee transaction (insufficient funds or rate limited).");
+      });
       
       // Wait a moment for the network
       await new Promise(resolve => setTimeout(resolve, 500));
       
       let finalQuote = quoteData;
       
-      if (!finalQuote) {
+      currentStep = 'Fetching Swap Quote';
+      if (!finalQuote || !finalQuote.outAmount) {
         setStatus('Fetching Jupiter quotes...');
-        const url = `https://quote-api.jup.ag/v6/quote?inputMint=So11111111111111111111111111111111111111112&outputMint=${initialMint}&amount=${swapLamports}&slippageBps=500`;
-        const quoteRes = await fetch(url);
+        const url = `/api/jup/quote?inputMint=So11111111111111111111111111111111111111112&outputMint=${cleanMint}&amount=${swapLamports}&slippageBps=500`;
+        const quoteRes = await fetch(url).catch(e => {
+            throw new Error(e.message === 'Load failed' || e.message === 'Failed to fetch' ? "Jupiter API blocked by browser or rate limited." : e.message);
+        });
         finalQuote = await quoteRes.json();
 
         if (finalQuote.error) {
@@ -119,6 +134,7 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
         }
       }
 
+      currentStep = 'Computing Swap Route';
       setStatus('Computing transaction payload...');
 
       const swapBody: any = {
@@ -127,10 +143,13 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
         wrapAndUnwrapSol: true,
       };
 
-      const txRes = await fetch(`https://quote-api.jup.ag/v6/swap`, {
+      currentStep = 'Fetching Swap Transaction';
+      const txRes = await fetch(`/api/jup/swap`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(swapBody)
+      }).catch(e => {
+        throw new Error(e.message === 'Load failed' || e.message === 'Failed to fetch' ? "Jupiter Swap API blocked by browser or rate limited." : e.message);
       });
 
       const txData = await txRes.json();
@@ -141,9 +160,11 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
       const swapTransactionBuf = Buffer.from(txData.swapTransaction, 'base64');
       const transaction = VersionedTransaction.deserialize(swapTransactionBuf);
 
+      currentStep = 'Signing Transaction';
       setStatus('Signing swap transaction...');
       transaction.sign([keypair]);
       
+      currentStep = 'Broadcasting Swap';
       const signature = await connection.sendRawTransaction(transaction.serialize());
       
       setStatus(`Confirming transaction: ${signature.slice(0,8)}...`);
@@ -160,7 +181,7 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
 
     } catch (err: any) {
       console.error(err);
-      setStatus(`Error: ${err.message}`);
+      setStatus(`Error during ${currentStep}: ${err.message}`);
     } finally {
       setIsSwapping(false);
       setTimeout(() => setStatus(''), 8000);

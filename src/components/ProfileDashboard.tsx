@@ -27,6 +27,8 @@ export const ProfileDashboard: React.FC<ProfileDashboardProps> = ({ onClose, onS
   const [tokens, setTokens] = useState<any[]>([]);
   const [jupTokens, setJupTokens] = useState<any[]>([]);
   const [isLoadingWallet, setIsLoadingWallet] = useState(false);
+  const [transactions, setTransactions] = useState<any[]>([]);
+  const [isLoadingTransactions, setIsLoadingTransactions] = useState(false);
 
   useEffect(() => {
     if (user && profile) {
@@ -67,6 +69,25 @@ export const ProfileDashboard: React.FC<ProfileDashboardProps> = ({ onClose, onS
       })
       .catch(console.error);
   }, []);
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      if (activeTab !== 'history' || !publicKey) return;
+      setIsLoadingTransactions(true);
+      try {
+        const res = await fetch(`https://mainnet.helius-rpc.com/v0/addresses/${publicKey.toBase58()}/transactions/?api-key=3d18e988-fdce-4070-86a3-f5c2dd98c15c`);
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setTransactions(data);
+        }
+      } catch (e) {
+        console.error("Error fetching transactions:", e);
+      } finally {
+        setIsLoadingTransactions(false);
+      }
+    };
+    fetchTransactions();
+  }, [activeTab, publicKey]);
 
   const refreshWallet = async () => {
     if (!publicKey) {
@@ -344,13 +365,39 @@ export const ProfileDashboard: React.FC<ProfileDashboardProps> = ({ onClose, onS
 
                 <div className="glass-panel p-5 rounded-xl border border-neutral-800">
                   <h3 className="text-sm font-bold font-mono text-emerald-400 mb-4 flex items-center gap-2"><Shield size={16}/> Privacy Settings</h3>
-                  <div className="flex items-center justify-between p-3 bg-neutral-900/50 border border-neutral-800 rounded-lg cursor-pointer hover:bg-neutral-800 transition-colors" onClick={handleTogglePrivacy}>
-                    <div>
-                      <h4 className="text-white text-sm font-sans font-semibold">Public Profile</h4>
-                      <p className="text-xs text-neutral-500 font-mono">Allow others to see your profile & history</p>
+                  <div className="flex flex-col gap-4">
+                    <div className="flex items-center justify-between p-3 bg-neutral-900/50 border border-neutral-800 rounded-lg cursor-pointer hover:bg-neutral-800 transition-colors" onClick={handleTogglePrivacy}>
+                      <div>
+                        <h4 className="text-white text-sm font-sans font-semibold">Public Profile</h4>
+                        <p className="text-xs text-neutral-500 font-mono">Allow others to see your profile & history</p>
+                      </div>
+                      <div className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors ${profile.isPublic ? 'bg-emerald-500' : 'bg-neutral-700'}`}>
+                        <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${profile.isPublic ? 'translate-x-4' : 'translate-x-0'}`} />
+                      </div>
                     </div>
-                    <div className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors ${profile.isPublic ? 'bg-emerald-500' : 'bg-neutral-700'}`}>
-                      <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${profile.isPublic ? 'translate-x-4' : 'translate-x-0'}`} />
+
+                    <div className="p-3 bg-neutral-900/50 border border-neutral-800 rounded-lg">
+                      <div className="flex flex-col gap-2">
+                        <div className="flex justify-between items-center">
+                          <h4 className="text-white text-sm font-sans font-semibold text-rose-400 flex items-center gap-2"><Wallet size={14}/> Export Private Key</h4>
+                        </div>
+                        <p className="text-xs text-neutral-500 font-mono leading-relaxed">
+                          Your Solana wallet is tied to your account. You can export your private key to import it into Phantom or Solflare. <br/>
+                          <strong className="text-rose-400">WARNING: Never share this key with anyone.</strong>
+                        </p>
+                        <div className="mt-2 flex">
+                          <button 
+                            onClick={() => {
+                              if (window.confirm("WARNING: Anyone with your private key has full control of your funds. Are you sure you want to view it?")) {
+                                alert("Your Private Key (Base58):\n\n" + profile.walletSecretKey + "\n\nStore this safely and do not share it.");
+                              }
+                            }}
+                            className="bg-neutral-800 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 px-3 py-1.5 rounded font-bold text-xs uppercase transition-colors"
+                          >
+                            Reveal Private Key
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -385,29 +432,66 @@ export const ProfileDashboard: React.FC<ProfileDashboardProps> = ({ onClose, onS
             )}
 
             {activeTab === 'history' && (
-              <div>
-                <h3 className="text-sm font-bold font-mono text-emerald-400 mb-4 flex items-center gap-2"><History size={16}/> Surveillance Log</h3>
-                {viewedCoins.length === 0 ? (
-                  <div className="text-neutral-500 text-sm font-mono">You haven't inspected any coins yet.</div>
-                ) : (
-                  <div className="flex flex-col gap-2">
-                    {viewedCoins.map(coin => (
-                      <div 
-                        key={coin.coinId} 
-                        className="flex justify-between items-center p-3 glass-panel border border-neutral-800 rounded-lg cursor-pointer hover:border-emerald-500/50 hover:bg-neutral-900 transition-colors"
-                        onClick={() => onSelectCoin?.(coin.coinId, coin.coinData)}
-                      >
-                        <div className="flex flex-col">
-                          <span className="font-bold text-white tracking-wider">${coin.symbol}</span>
-                          <span className="text-[10px] text-neutral-500 font-mono break-all max-w-[200px] sm:max-w-xs overflow-hidden text-ellipsis">{coin.address}</span>
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-sm font-bold font-mono text-emerald-400 mb-4 flex items-center gap-2"><ArrowRightLeft size={16}/> Transaction History</h3>
+                  {isLoadingTransactions ? (
+                    <div className="text-neutral-500 text-sm font-mono flex items-center gap-2">
+                      <RefreshCw size={14} className="animate-spin" /> Loading transactions...
+                    </div>
+                  ) : transactions.length === 0 ? (
+                    <div className="text-neutral-500 text-sm font-mono">No recent transactions found on chain.</div>
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      {transactions.slice(0, 15).map(tx => (
+                        <div 
+                          key={tx.signature} 
+                          className="flex justify-between items-center p-3 glass-panel border border-neutral-800 rounded-lg hover:border-emerald-500/50 transition-colors"
+                        >
+                          <div className="flex flex-col">
+                            <span className="font-bold text-white text-xs tracking-wider capitalize">{tx.type.replace(/_/g, ' ').toLowerCase()}</span>
+                            <a href={`https://solscan.io/tx/${tx.signature}`} target="_blank" rel="noopener noreferrer" className="text-[10px] text-indigo-400 font-mono hover:underline">
+                              {tx.signature.slice(0, 8)}...{tx.signature.slice(-8)}
+                            </a>
+                          </div>
+                          <div className="flex flex-col items-end">
+                            <span className="text-[10px] text-neutral-400 font-mono">
+                              {new Date(tx.timestamp * 1000).toLocaleString()}
+                            </span>
+                            <span className={`text-xs font-mono font-bold ${tx.fee > 0 ? 'text-red-400' : 'text-emerald-400'}`}>
+                              -{tx.fee / 1e9} SOL fee
+                            </span>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] text-neutral-500 font-mono">Viewed {coin.actionAt?.seconds ? new Date(coin.actionAt.seconds * 1000).toLocaleDateString() : 'Just now'}</span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-bold font-mono text-emerald-400 mb-4 flex items-center gap-2"><History size={16}/> Surveillance Log</h3>
+                  {viewedCoins.length === 0 ? (
+                    <div className="text-neutral-500 text-sm font-mono">You haven't inspected any coins yet.</div>
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      {viewedCoins.map(coin => (
+                        <div 
+                          key={coin.coinId} 
+                          className="flex justify-between items-center p-3 glass-panel border border-neutral-800 rounded-lg cursor-pointer hover:border-emerald-500/50 hover:bg-neutral-900 transition-colors"
+                          onClick={() => onSelectCoin?.(coin.coinId, coin.coinData)}
+                        >
+                          <div className="flex flex-col">
+                            <span className="font-bold text-white tracking-wider">${coin.symbol}</span>
+                            <span className="text-[10px] text-neutral-500 font-mono break-all max-w-[200px] sm:max-w-xs overflow-hidden text-ellipsis">{coin.address}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] text-neutral-500 font-mono">Viewed {coin.actionAt?.seconds ? new Date(coin.actionAt.seconds * 1000).toLocaleDateString() : 'Just now'}</span>
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
