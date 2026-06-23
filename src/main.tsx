@@ -8,27 +8,22 @@ import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 import { AuthProvider } from './contexts/AuthContext';
-import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
-import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
-import '@solana/wallet-adapter-react-ui/styles.css';
+import { ConnectionProvider } from '@solana/wallet-adapter-react';
 import { getToken } from 'firebase/messaging';
 import { messaging } from './firebase';
 import ErrorBoundary from './ErrorBoundary';
 
 const WrappedApp = () => {
-  const endpoint = "https://solana-rpc.publicnode.com";
-  const wallets = useMemo(() => [], []);
+  const endpoint = import.meta.env.VITE_HELIUS_API_KEY 
+    ? `https://mainnet.helius-rpc.com/?api-key=${import.meta.env.VITE_HELIUS_API_KEY}`
+    : "https://solana-rpc.publicnode.com";
 
   return (
     <ErrorBoundary>
       <ConnectionProvider endpoint={endpoint}>
-        <WalletProvider wallets={wallets} autoConnect>
-          <WalletModalProvider>
-            <AuthProvider>
-              <App />
-            </AuthProvider>
-          </WalletModalProvider>
-        </WalletProvider>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
       </ConnectionProvider>
     </ErrorBoundary>
   );

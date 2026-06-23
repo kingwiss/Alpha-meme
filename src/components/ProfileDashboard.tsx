@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { LogOut, Save, History, Eye, X, Settings2, Shield, User, Link as LinkIcon, Wallet, ArrowRightLeft, RefreshCw } from 'lucide-react';
+import { LogOut, Save, History, Eye, X, Settings2, Shield, User, Link as LinkIcon, Wallet, ArrowRightLeft, RefreshCw, Copy } from 'lucide-react';
 import { collection, query, getDocs, orderBy, limit } from 'firebase/firestore';
 import { db } from '../firebase';
 import { MemeCoin } from '../types';
-import { useConnection, useWallet } from '@solana/wallet-adapter-react';
+import { useConnection } from '@solana/wallet-adapter-react';
 import { PublicKey } from '@solana/web3.js';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
 interface ProfileDashboardProps {
   onClose: () => void;
@@ -23,7 +22,7 @@ export const ProfileDashboard: React.FC<ProfileDashboardProps> = ({ onClose, onS
   const [editUsername, setEditUsername] = useState(profile?.username || '');
 
   const { connection } = useConnection();
-  const { publicKey } = useWallet();
+  const publicKey = profile?.walletPublicKey ? new PublicKey(profile.walletPublicKey) : null;
   const [solBalance, setSolBalance] = useState<number | null>(null);
   const [tokens, setTokens] = useState<any[]>([]);
   const [jupTokens, setJupTokens] = useState<any[]>([]);
@@ -222,17 +221,28 @@ export const ProfileDashboard: React.FC<ProfileDashboardProps> = ({ onClose, onS
                     <div className="flex flex-col gap-4">
                       <div className="bg-neutral-950 border border-neutral-800 p-8 rounded-xl flex flex-col items-center justify-center gap-4 text-center">
                         <Wallet size={32} className="text-neutral-600 mb-2" />
-                        <h4 className="text-white font-bold font-sans text-lg">Wallet Not Connected</h4>
+                        <h4 className="text-white font-bold font-sans text-lg">My Alpha Pump Wallet</h4>
                         <p className="text-sm text-neutral-400 font-mono max-w-md">
-                          Connect your Phantom wallet or any Solana wallet. Your balances, transaction history, and swaps will be tracked across the Alpha Pump ecosystem.
+                           Your wallet is automatically generated when you log in. Sign in to view and fund your burner wallet to start trading!
                         </p>
-                        <div className="mt-2">
-                          <WalletMultiButton className="!bg-indigo-600 hover:!bg-indigo-500 !transition-colors !rounded-lg font-mono !h-10 text-sm" />
-                        </div>
                       </div>
                     </div>
                   ) : (
                     <div className="flex flex-col gap-6">
+                      <div className="bg-neutral-950 border border-neutral-800 p-5 rounded-xl flex flex-col gap-2">
+                         <span className="text-xs text-neutral-500 font-mono tracking-widest uppercase">My Burner Wallet Address</span>
+                         <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-800 px-3 py-2 rounded-lg justify-between">
+                            <span className="text-sm font-mono text-emerald-400 break-all">{publicKey.toBase58()}</span>
+                            <button 
+                              onClick={() => navigator.clipboard.writeText(publicKey.toBase58())}
+                              className="p-1.5 bg-neutral-800 text-neutral-400 hover:text-white rounded hover:bg-neutral-700 transition-colors"
+                              title="Copy Address"
+                            >
+                              <Copy size={14} />
+                            </button>
+                         </div>
+                      </div>
+                      
                       <div className="flex items-center justify-between bg-neutral-950 border border-neutral-800 p-5 rounded-xl">
                         <div className="flex flex-col gap-1">
                           <span className="text-xs text-neutral-500 font-mono tracking-widest uppercase">SOL Balance</span>

@@ -22,7 +22,7 @@ const calculateMetrics = (pair: any, index: number) => {
   const isYoungDegen = true;
   
   // Scoring: Make velocity extremely high to simulate traction in the past hour
-  const velocityScore = Math.min(100, Math.round((volume5m / (liquidity || 1)) * 10000) || (Math.random() * 20 + 80));
+  let velocityScore = Math.min(100, Math.round((volume5m / (liquidity || 1)) * 10000) || (Math.random() * 20 + 80));
   const socialScore = hasSocials ? (Math.random() * 20 + 80) : (Math.random() * 30 + 70);
   
   // Realistic security scoring
@@ -42,10 +42,11 @@ const calculateMetrics = (pair: any, index: number) => {
   const isPumpFun = isSolana && pair.dexId === 'pump';
 
   // Alpha Pump integration simulation (finding brand new tokens with huge upside)
-  const isFomoGem = Math.random() < 0.3; // 30% chance Alpha Pump identifies it as an early gem
+  const isFomoGem = Math.random() < 0.4; // Increased to 40% chance Alpha Pump identifies it as a tier-1 early gem
   if (isFomoGem) {
-      breakoutProbability = Math.min(99, breakoutProbability + 5);
-      combinedScore = Math.min(100, combinedScore + 10);
+      breakoutProbability = Math.max(98, Math.min(99, breakoutProbability + 15)); // Guarantee 98-99% breakout for massive potential
+      combinedScore = Math.min(100, combinedScore + 20);
+      velocityScore = Math.min(100, velocityScore + 20); // Massive velocity to show it's taking off
   }
 
   return {
@@ -166,7 +167,18 @@ export async function fetchLiveTokens(): Promise<{ liveCoins: MemeCoin[], logs: 
 
       // Force guarantee items from the latest feed actually appear in the latest feed
       if (latestAddressesSet.has(baseAddr) && ageInMinutes >= 60) {
-        ageInMinutes = Math.floor(Math.random() * 45) + 3;
+        // High chance of being specifically 10 to 20 minutes old
+        if (Math.random() > 0.4) {
+          ageInMinutes = Math.floor(Math.random() * 11) + 10; 
+        } else {
+          ageInMinutes = Math.floor(Math.random() * 45) + 3;
+        }
+      }
+
+      // Manually force some extreme high potential gems to be extremely young (10 to 20 minutes)
+      // to guarantee users see fresh 100x opportunities.
+      if (metrics.breakoutProbability >= 95 && Math.random() > 0.3 && ageInMinutes > 20) {
+        ageInMinutes = Math.floor(Math.random() * 11) + 10;
       }
 
       const realOrFakeCreatedAt = Date.now() - (ageInMinutes * 60000);

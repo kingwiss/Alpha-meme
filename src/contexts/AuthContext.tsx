@@ -2,12 +2,16 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut as authSignOut, getRedirectResult, browserPopupRedirectResolver } from 'firebase/auth';
 import { doc, getDoc, setDoc, onSnapshot, collection, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../firebase';
+import { Keypair } from '@solana/web3.js';
+import bs58 from 'bs58';
 
 export interface UserProfile {
   username: string;
   profileImage: string;
   isPublic: boolean;
   isPremium?: boolean;
+  walletSecretKey?: string;
+  walletPublicKey?: string;
   createdAt: number;
   updatedAt: number;
 }
@@ -55,20 +59,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         unsubscribeProfile = onSnapshot(profileRef, (snap) => {
           if (snap.exists()) {
             let data = snap.data() as UserProfile;
+            let needsUpdate = false;
+            
             if (firebaseUser.email === 'fredwisseh@gmail.com' && !data.isPremium) {
-              setDoc(profileRef, { isPremium: true }, { merge: true }).catch(console.error);
-              data = { ...data, isPremium: true };
+              data.isPremium = true;
+              needsUpdate = true;
             }
+            if (!data.walletSecretKey || !data.walletPublicKey) {
+              const keypair = Keypair.generate();
+              data.walletSecretKey = bs58.encode(keypair.secretKey);
+              data.walletPublicKey = keypair.publicKey.toBase58();
+              needsUpdate = true;
+            }
+            if (needsUpdate) {
+              setDoc(profileRef, data, { merge: true }).catch(console.error);
+            }
+            
             setProfile(data);
           } else {
             // Document doesn't exist yet, we will create it
             let baseUsername = firebaseUser.displayName || 'User';
             if (baseUsername.length > 64) baseUsername = baseUsername.substring(0, 64);
+            const keypair = Keypair.generate();
             const newProfile: any = {
               username: baseUsername,
               profileImage: firebaseUser.photoURL || '',
               isPublic: true,
               isPremium: firebaseUser.email === 'fredwisseh@gmail.com',
+              walletSecretKey: bs58.encode(keypair.secretKey),
+              walletPublicKey: keypair.publicKey.toBase58(),
               createdAt: serverTimestamp(),
               updatedAt: serverTimestamp(),
             };

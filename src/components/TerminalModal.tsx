@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { VersionedTransaction } from '@solana/web3.js';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { useConnection } from '@solana/wallet-adapter-react';
+import { VersionedTransaction, PublicKey, Keypair } from '@solana/web3.js';
 import { Buffer } from 'buffer';
+import { useAuth } from '../contexts/AuthContext';
+import bs58 from 'bs58';
+
+const FEE_ACCOUNT_ADDRESS = "5VrHwpNnGmYXwuSMdgdSXjrRNhzMZxpSPU9pfQo7UwtY"; // Paste your Solana referral fee account public key here
 
 export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, initialMint: string }) => {
   const { connection } = useConnection();
-  const { publicKey, sendTransaction } = useWallet();
+  const { profile } = useAuth();
+  
+  const walletPubkeyString = profile?.walletPublicKey;
+  const walletSecretKeyBase58 = profile?.walletSecretKey;
+  const publicKey = walletPubkeyString ? new PublicKey(walletPubkeyString) : null;
   
   const [activeTab, setActiveTab] = useState<'trade' | 'funding'>(initialMint === '' ? 'funding' : 'trade');
   
@@ -14,6 +21,8 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
   const [isSwapping, setIsSwapping] = useState(false);
   const [status, setStatus] = useState('');
   const [solBalance, setSolBalance] = useState<number | null>(null);
+  const [quoteData, setQuoteData] = useState<any>(null);
+  const [isQuoting, setIsQuoting] = useState(false);
   
   useEffect(() => {
     let active = true;
@@ -27,6 +36,41 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
     return () => { active = false; };
   }, [publicKey, connection]);
 
+  useEffect(() => {
+    let active = true;
+    if (activeTab !== 'trade' || !initialMint || !solAmount || isNaN(parseFloat(solAmount)) || parseFloat(solAmount) <= 0) {
+      setQuoteData(null);
+      return;
+    }
+
+    const fetchQuote = async () => {
+      try {
+        setIsQuoting(true);
+        const lamports = Math.floor(parseFloat(solAmount) * 1e9);
+        const url = `https://quote-api.jup.ag/v6/quote?inputMint=So11111111111111111111111111111111111111112&outputMint=${initialMint}&amount=${lamports}&slippageBps=500${FEE_ACCOUNT_ADDRESS ? '&platformFeeBps=300' : ''}`;
+        
+        const res = await fetch(url);
+        const data = await res.json();
+        
+        if (active && data && !data.error) {
+          setQuoteData(data);
+        } else if (active) {
+          setQuoteData(null);
+        }
+      } catch (err) {
+        if (active) setQuoteData(null);
+      } finally {
+        if (active) setIsQuoting(false);
+      }
+    };
+
+    const debounceId = setTimeout(fetchQuote, 500);
+    return () => {
+      active = false;
+      clearTimeout(debounceId);
+    };
+  }, [solAmount, initialMint, activeTab]);
+
   const handleSwap = async () => {
     if (!publicKey) {
       setStatus('Connect wallet first.');
@@ -36,30 +80,37 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
     // 2. Real Phantom Swap Via Jupiter
     try {
       setIsSwapping(true);
-      setStatus('Fetching Jupiter quotes...');
       
-      const lamports = Math.floor(parseFloat(solAmount) * 1e9);
+      let finalQuote = quoteData;
+      
+      if (!finalQuote) {
+        setStatus('Fetching Jupiter quotes...');
+        const lamports = Math.floor(parseFloat(solAmount) * 1e9);
+        const url = `https://quote-api.jup.ag/v6/quote?inputMint=So11111111111111111111111111111111111111112&outputMint=${initialMint}&amount=${lamports}&slippageBps=500${FEE_ACCOUNT_ADDRESS ? '&platformFeeBps=300' : ''}`;
+        const quoteRes = await fetch(url);
+        finalQuote = await quoteRes.json();
 
-      // Fetch quote from Jupiter API V6
-      // NOTE For Developer: To collect a fee, add `&feeBps=100` (for 1%) and provide your fee account!
-      const quoteRes = await fetch(`https://quote-api.jup.ag/v6/quote?inputMint=So11111111111111111111111111111111111111112&outputMint=${initialMint}&amount=${lamports}&slippageBps=50`);
-      const quoteData = await quoteRes.json();
-
-      if (quoteData.error) {
-         throw new Error(quoteData.error || 'Failed to compute route.');
+        if (finalQuote.error) {
+           throw new Error(finalQuote.error || 'Failed to compute route.');
+        }
       }
 
       setStatus('Computing transaction payload...');
 
+      const swapBody: any = {
+        quoteResponse: finalQuote,
+        userPublicKey: publicKey.toBase58(),
+        wrapAndUnwrapSol: true,
+      };
+
+      if (FEE_ACCOUNT_ADDRESS) {
+        swapBody.feeAccount = FEE_ACCOUNT_ADDRESS;
+      }
+
       const txRes = await fetch(`https://quote-api.jup.ag/v6/swap`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          quoteResponse: quoteData,
-          userPublicKey: publicKey.toBase58(),
-          wrapAndUnwrapSol: true,
-          // feeAccount: "YOUR_SOLANA_FEE_ACCOUNT_PUBKEY" // Required to actually collect the fee!
-        })
+        body: JSON.stringify(swapBody)
       });
 
       const txData = await txRes.json();
@@ -70,8 +121,12 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
       const swapTransactionBuf = Buffer.from(txData.swapTransaction, 'base64');
       const transaction = VersionedTransaction.deserialize(swapTransactionBuf);
 
-      setStatus('Please approve transaction in wallet...');
-      const signature = await sendTransaction(transaction, connection);
+      setStatus('Signing transaction...');
+      if (!walletSecretKeyBase58) throw new Error("Wallet not initialized");
+      const keypair = Keypair.fromSecretKey(bs58.decode(walletSecretKeyBase58));
+      transaction.sign([keypair]);
+      
+      const signature = await connection.sendRawTransaction(transaction.serialize());
       
       setStatus(`Confirming transaction: ${signature.slice(0,8)}...`);
       
@@ -113,15 +168,6 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
             </button>
           </div>
           <div className="flex gap-2">
-            <button 
-              onClick={() => {
-                const url = window.location.href;
-                window.open(`https://phantom.app/ul/browse/${encodeURIComponent(url)}`, '_blank');
-              }}
-              className="text-[10px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 font-mono px-2 py-1.5 rounded hover:bg-indigo-500/20 md:hidden flex items-center justify-center shrink-0 tracking-wider"
-            >
-              OPEN IN PHANTOM APP
-            </button>
             <button onClick={onClose} className="text-neutral-500 hover:text-white">✕</button>
           </div>
         </div>
@@ -129,7 +175,7 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
         <div className="p-6 flex flex-col gap-6">
           <div className="flex flex-col gap-2">
             <div className="flex justify-between items-center">
-              <label className="text-xs font-bold text-neutral-400 uppercase tracking-wider font-mono">Wallet Connection</label>
+              <label className="text-xs font-bold text-neutral-400 uppercase tracking-wider font-mono">My Burner Wallet</label>
               {publicKey && solBalance !== null && (
                 <div className="text-xs font-mono text-emerald-400">
                   Balance: {solBalance.toFixed(3)} SOL
@@ -137,7 +183,13 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
               )}
             </div>
             
-            <WalletMultiButton className="!bg-emerald-600 hover:!bg-emerald-500 !transition-colors !w-full !justify-center !rounded-xl font-mono !h-12" />
+            {publicKey ? (
+              <div className="bg-neutral-950 border border-neutral-800 p-4 rounded-xl flex flex-col items-center justify-center text-center">
+                 <span className="text-white font-mono break-all text-xs">{publicKey.toBase58()}</span>
+              </div>
+            ) : (
+                <div className="text-neutral-500 text-sm font-mono text-center">Please login to get a wallet</div>
+            )}
             
             {publicKey && activeTab === 'trade' && (
               <a 
@@ -182,6 +234,22 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
                   min="0.01"
                   className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-3 text-lg font-bold text-white font-mono outline-none focus:border-emerald-500"
                 />
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <div className="flex justify-between items-center text-xs font-mono">
+                  <span className="text-neutral-500">Expected Output:</span>
+                  {isQuoting ? (
+                    <span className="text-emerald-500/50 animate-pulse">Calculating...</span>
+                  ) : quoteData && quoteData.outAmount ? (
+                    <span className="text-emerald-400 font-bold">
+                      {FEE_ACCOUNT_ADDRESS ? 'Net after 3% fee: ' : ''}
+                      {(parseInt(quoteData.outAmount) / 1e6).toLocaleString(undefined, { maximumFractionDigits: 4 })} Tokens
+                    </span>
+                  ) : (
+                    <span className="text-neutral-600">-</span>
+                  )}
+                </div>
               </div>
 
               <button

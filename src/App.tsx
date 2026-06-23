@@ -484,6 +484,14 @@ export default function App() {
       }
       
       setLogs(prev => [...fetchLogs, ...prev].slice(0, 50));
+    } catch (err: any) {
+      console.error(err);
+      setLogs(prev => [{
+        id: 'err-' + Math.random().toString(36).substring(2, 5),
+        timestamp: new Date().toLocaleTimeString('en-US', {hour12: false}).substring(0, 8),
+        type: 'alert',
+        message: `[SYNC FAILED] API Error: ${err.message}`
+      }, ...prev]);
     } finally {
       setIsInitialLoad(false);
       setIsRefreshing(false);
