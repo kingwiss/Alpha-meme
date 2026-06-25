@@ -143,7 +143,7 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
 
       setSwapStatus("Executing swap...");
 
-      const rpcConnection = new Connection("https://solana-mainnet.rpc.extnode.com", 'confirmed');
+      const rpcConnection = new Connection("https://solana-rpc.publicnode.com", 'confirmed');
       const txid = await rpcConnection.sendTransaction(transaction, { skipPreflight: true, maxRetries: 3 });
       
       setSwapStatus(`Confirming...`);
