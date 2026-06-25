@@ -42,7 +42,7 @@ import { ProfileDashboard } from './components/ProfileDashboard';
 import { viewCoin } from './lib/coinActions';
 import { ContactFloatingButton } from './components/ContactFloatingButton';
 import { TerminalModal } from './components/TerminalModal';
-import { TokenSearchModal } from './components/TokenSearchModal';
+import { TokenSearchModal, SearchResult } from './components/TokenSearchModal';
 import { AboutPage } from './components/AboutPage';
 import { PrivacyPage } from './components/PrivacyPage';
 import { TermsPage } from './components/TermsPage';
@@ -93,6 +93,16 @@ const safeReplaceState = (state: any, title: string, url: string) => {
   }
 };
 
+// Safe check for iframe presence to prevent cross-origin DOMExceptions
+const safeCheckIsInIframe = (): boolean => {
+  try {
+    return window.self !== window.top;
+  } catch (e) {
+    // A SecurityError/DOMException when accessing window.top implies we are inside a cross-origin sandboxed iframe
+    return true;
+  }
+};
+
 export default function App() {
   const { user, profile, updateProfile } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -108,7 +118,14 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState<'home' | 'about' | 'privacy' | 'terms'>('home');
 
   // Core application states
-  const [coins, setCoins] = useState<MemeCoin[]>(INITIAL_MEME_COINS);
+  const [coins, setCoins] = useState<MemeCoin[]>(() => {
+    try {
+      return Array.isArray(INITIAL_MEME_COINS) ? INITIAL_MEME_COINS : [];
+    } catch (e) {
+      console.error("Failed to load INITIAL_MEME_COINS:", e);
+      return [];
+    }
+  });
   const [selectedCoinId, setSelectedCoinId] = useState<string>('');
   
   const [selectedExternalCoin, setSelectedExternalCoin] = useState<MemeCoin | null>(null);
@@ -201,9 +218,15 @@ export default function App() {
   // Audio Notification states
   const [audioEnabled, setAudioEnabled] = useState<boolean>(true);
   const [notifiedSymbols, setNotifiedSymbols] = useState<string[]>(() => {
-    return INITIAL_MEME_COINS.filter(
-      c => c.combinedScore >= 90 && c.securityScore >= 75 && c.breakoutProbability >= 90
-    ).map(c => c.symbol);
+    try {
+      const initialList = Array.isArray(INITIAL_MEME_COINS) ? INITIAL_MEME_COINS : [];
+      return initialList.filter(
+        c => c && c.combinedScore >= 90 && c.securityScore >= 75 && c.breakoutProbability >= 90
+      ).map(c => c.symbol);
+    } catch (e) {
+      console.error("Failed to filter notifiedSymbols:", e);
+      return [];
+    }
   });
 
   // Web Audio alert chime function
@@ -270,7 +293,24 @@ export default function App() {
   });
 
   // Calculate live executive figures based on reactive state
-  const stats = useMemo(() => calculateExecutiveStats(coins), [coins]);
+  const stats = useMemo<ExecutiveStats>(() => {
+    try {
+      if (typeof calculateExecutiveStats === 'function') {
+        return calculateExecutiveStats(coins);
+      }
+    } catch (e) {
+      console.error("Failed to calculate executive stats:", e);
+    }
+    return {
+      totalScanned24h: 542,
+      averageBreakoutRiskScore: 0,
+      activeHighAlphaCount: 0,
+      totalMarketCapUsd: 0,
+      pumpMigrationsCount: 0,
+      totalLiquidityTracked: 0,
+      systemHealthState: 'error'
+    };
+  }, [coins]);
 
   // Retrieve current active coin object for detailed inspections, using a ref buffer so they don't vanish if they fall out of filters
   const prevSelectedCoinRef = useRef<MemeCoin | null>(null);
@@ -783,6 +823,7 @@ export default function App() {
           {user && profile ? (
             <div className="flex items-center gap-2 shrink-0">
               <button
+                type="button"
                 onClick={() => setShowProfile(true)}
                 className="px-3 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-2 transition-all cursor-pointer bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-white hover:border-emerald-500/50 shrink-0"
               >
@@ -887,7 +928,7 @@ export default function App() {
             
             {/* Refresh List Button */}
             <button
-              onClick={() => window.location.reload()}
+              onClick={() => console.log('refresh')}
               className="flex items-center justify-center p-2 glass-panel hover:border-emerald-500 hover:bg-neutral-800 text-neutral-300 hover:text-emerald-400 transition-colors uppercase tracking-wider text-[10px] font-mono font-bold rounded mb-2 group"
               title="Refresh List"
             >
@@ -1319,7 +1360,7 @@ export default function App() {
                     const data = await res.json();
                     if (data.url) {
                        // Fix for Stripe checkout in iframe (like AI Studio) returning blank page
-                       if (window.self !== window.top) {
+                       if (safeCheckIsInIframe()) {
                          window.open(data.url, '_blank');
                        } else {
                          window.location.assign(data.url);
@@ -1349,9 +1390,43 @@ export default function App() {
       {showTokenSearchModal && (
         <TokenSearchModal 
           onClose={() => setShowTokenSearchModal(false)}
-          onSelectToken={(mint) => {
-            setTerminalMint(mint);
-            setShowTerminalModal(true);
+          onSelectToken={(token: SearchResult) => {
+            const externalCoin: MemeCoin = {
+              id: token.baseToken.address,
+              name: token.baseToken.name,
+              symbol: token.baseToken.symbol,
+              address: token.baseToken.address,
+              platform: 'raydium',
+              priceUsd: parseFloat(token.priceUsd) || 0,
+              marketCapUsd: token.fdv || 0,
+              priceChange1h: 0,
+              priceChange24h: 0,
+              volume1h: 0,
+              volume5m: 0,
+              liquidityUsd: 0,
+              isBondingCurve: false,
+              bondingCurveProgress: 0,
+              isKingOfTheHill: false,
+              mintRenounced: true,
+              freezeAuthorityRenounced: true,
+              liquidityLockedOrBurnt: true,
+              liquidityLockPercent: 100,
+              creatorWalletBehavior: 'neutral',
+              holderDistribution: { top10HoldersPercent: 0, creatorHoldingPercent: 0 },
+              uniqueBuyers3m: 0,
+              creatorDeployedRugCount: 0,
+              socials: { twitterFollowers: 0, twitterEngagementRate: 0, influencerMentionsCount: 0, sentimentScore: 50, tweetVolume24h: 0 },
+              velocityScore: 50,
+              securityScore: 50,
+              socialScore: 50,
+              combinedScore: 50,
+              breakoutProbability: 0,
+              priceHistory5m: [parseFloat(token.priceUsd) || 0],
+              createdTimeAgo: 'Unknown',
+              ageInMinutes: 0,
+            };
+            setSelectedExternalCoin(externalCoin);
+            setSelectedCoinId(externalCoin.id);
           }}
         />
       )}

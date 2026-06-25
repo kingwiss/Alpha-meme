@@ -5,6 +5,70 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Meme Dashboard</title>
+    <script>
+      // Safe shadow-assignment polyfill for fetch and DOMException to prevent "TypeError: Attempted to assign to readonly property"
+      function safeDefineShadow(target, prop, originalVal) {
+        try {
+          var currentVal = originalVal;
+          Object.defineProperty(target, prop, {
+            get: function() {
+              return currentVal;
+            },
+            set: function(val) {
+              if (this === target || this === window || (typeof globalThis !== 'undefined' && this === globalThis)) {
+                currentVal = val;
+              } else {
+                Object.defineProperty(this, prop, {
+                  value: val,
+                  writable: true,
+                  enumerable: true,
+                  configurable: true
+                });
+              }
+            },
+            configurable: true
+          });
+        } catch (e) {
+          console.warn("safeDefineShadow failed for " + prop + " on target:", e);
+        }
+      }
+
+      if (typeof window !== 'undefined') {
+        if (typeof window.fetch !== 'undefined') {
+          var nativeFetch = window.fetch;
+          if (typeof Window !== 'undefined' && Window.prototype) {
+            safeDefineShadow(Window.prototype, 'fetch', nativeFetch);
+          }
+          safeDefineShadow(window, 'fetch', nativeFetch);
+        }
+
+        if (typeof window.DOMException !== 'undefined') {
+          var nativeDOM = window.DOMException;
+          if (typeof Window !== 'undefined' && Window.prototype) {
+            safeDefineShadow(Window.prototype, 'DOMException', nativeDOM);
+          }
+          safeDefineShadow(window, 'DOMException', nativeDOM);
+        }
+      }
+
+      try {
+        if (typeof window.global === 'undefined') {
+          Object.defineProperty(window, 'global', {
+            value: window,
+            writable: true,
+            configurable: true
+          });
+        }
+      } catch (e) {
+        console.warn("global polyfill in index.html failed:", e);
+        try {
+          window.global = window;
+        } catch (err) {
+          console.error("Direct global assignment in index.html failed:", err);
+        }
+      }
+    </script>
+
   </head>
   <body>
     <div id="root"></div>

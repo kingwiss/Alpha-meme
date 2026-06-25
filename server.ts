@@ -1,6 +1,5 @@
 import express from "express";
 import path from "path";
-import { createServer as createViteServer } from "vite";
 import Stripe from "stripe";
 import cors from "cors";
 
@@ -15,6 +14,11 @@ async function startServer() {
   // Use JSON parser for all non-webhook routes
   app.use(express.json());
   app.use(cors());
+
+  // Health check endpoint for Cloud Run/container checks
+  app.get("/api/health", (req, res) => {
+    res.json({ status: "ok" });
+  });
 
   // API Route to create checkout session
   app.post("/api/create-checkout-session", async (req, res) => {
@@ -78,11 +82,21 @@ async function startServer() {
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: "spa",
-    });
-    app.use(vite.middlewares);
+    try {
+      const { createServer: createViteServer } = await import("vite");
+      const vite = await createViteServer({
+        server: { middlewareMode: true },
+        appType: "spa",
+      });
+      app.use(vite.middlewares);
+    } catch (e: any) {
+      console.warn("Failed to load Vite. Falling back to static production serving.", e);
+      const distPath = path.join(process.cwd(), "dist");
+      app.use(express.static(distPath));
+      app.get("*", (req, res) => {
+        res.sendFile(path.join(distPath, "index.html"));
+      });
+    }
   } else {
     // Production static file serving
     const distPath = path.join(process.cwd(), "dist");

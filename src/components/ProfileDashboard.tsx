@@ -23,7 +23,10 @@ export const ProfileDashboard: React.FC<ProfileDashboardProps> = ({ onClose, onS
 
   const { connection } = useConnection();
   const publicKey = profile?.walletPublicKey ? new PublicKey(profile.walletPublicKey) : null;
-  const [solBalance, setSolBalance] = useState<number | null>(null);
+  const [solBalance, setSolBalance] = useState<number | null>(() => {
+    const saved = localStorage.getItem(`solBalance_${profile?.walletPublicKey}`);
+    return saved ? parseFloat(saved) : null;
+  });
   const [tokens, setTokens] = useState<any[]>([]);
   const [jupTokens, setJupTokens] = useState<any[]>([]);
   const [isLoadingWallet, setIsLoadingWallet] = useState(false);
@@ -100,7 +103,9 @@ export const ProfileDashboard: React.FC<ProfileDashboardProps> = ({ onClose, onS
     try {
       // Get SOL balance
       const bal = await connection.getBalance(publicKey);
-      setSolBalance(bal / 1e9);
+      const newBal = bal / 1e9;
+      setSolBalance(newBal);
+      localStorage.setItem(`solBalance_${publicKey.toBase58()}`, newBal.toString());
 
       // Get SPL token accounts
       const TOKEN_PROGRAM_ID = new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');

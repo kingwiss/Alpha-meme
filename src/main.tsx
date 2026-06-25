@@ -1,76 +1,55 @@
-import {StrictMode, useMemo} from 'react';
-import { Buffer } from 'buffer';
-if (typeof window !== 'undefined') {
-  (window as any).Buffer = (window as any).Buffer || Buffer;
-  (window as any).process = (window as any).process || { env: {} };
-}
-import {createRoot} from 'react-dom/client';
+import './polyfills';
+
+import React, { StrictMode, useMemo } from 'react';
+import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
+
 import { AuthProvider } from './contexts/AuthContext';
-import { ConnectionProvider } from '@solana/wallet-adapter-react';
-import { getToken } from 'firebase/messaging';
-import { messaging } from './firebase';
+import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
+import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
 import ErrorBoundary from './ErrorBoundary';
 
 const WrappedApp = () => {
-  const endpoint = import.meta.env.VITE_HELIUS_API_KEY 
-    ? `https://mainnet.helius-rpc.com/?api-key=${import.meta.env.VITE_HELIUS_API_KEY}`
-    : "https://mainnet.helius-rpc.com/?api-key=3d18e988-fdce-4070-86a3-f5c2dd98c15c";
+  const endpoint = import.meta.env.VITE_RPC_URL || "https://solana-mainnet.rpc.extnode.com";
+
+  const wallets = useMemo(() => [
+    new PhantomWalletAdapter(),
+    new SolflareWalletAdapter(),
+  ], []);
 
   return (
     <ErrorBoundary>
       <ConnectionProvider endpoint={endpoint}>
-        <AuthProvider>
-          <App />
-        </AuthProvider>
+        <WalletProvider wallets={wallets} autoConnect>
+          <AuthProvider>
+            <App />
+          </AuthProvider>
+        </WalletProvider>
       </ConnectionProvider>
     </ErrorBoundary>
   );
 };
 
-if ('serviceWorker' in navigator && 'PushManager' in window) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/firebase-messaging-sw.js').then((registration) => {
-      console.log('Firebase SW registration successful with scope: ', registration.scope);
-      // Auto-request permission and get FCM token on load for meme coin alerts
-      if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
-        Notification.requestPermission().then((permission) => {
-          if (permission === 'granted') {
-             messaging().then(m => {
-               if(m) {
-                 // In production, we'd need a VAPID key here from Firebase console
-                 // getToken(m, { vapidKey: 'YOUR_VAPID_KEY', serviceWorkerRegistration: registration })
-                 // For now, it will attempt auto configuration based on firebase-config
-                 getToken(m, { serviceWorkerRegistration: registration }).then((currentToken) => {
-                   if (currentToken) {
-                     console.log('FCM Token retrieved. Ready to receive background messages.');
-                   }
-                 }).catch(console.error);
-               }
-             });
-          }
-        });
-      } else if (Notification.permission === 'granted') {
-         messaging().then(m => {
-           if(m) {
-             getToken(m, { serviceWorkerRegistration: registration }).then((currentToken) => {
-               if (currentToken) {
-                 console.log('FCM Token retrieved. Ready to receive background messages.');
-               }
-             }).catch(console.error);
-           }
-         });
-      }
-    }, (err) => {
-      console.log('ServiceWorker registration failed: ', err);
-    });
-  });
-}
+const rootElement = document.getElementById('root')!;
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <WrappedApp />
-  </StrictMode>,
-);
+try {
+  ReactDOM.createRoot(rootElement).render(
+    <StrictMode>
+      <ErrorBoundary>
+        <WrappedApp />
+      </ErrorBoundary>
+    </StrictMode>
+  );
+} catch (error: any) {
+  console.error("Top level render error:", error);
+  rootElement.innerHTML = `
+    <div style="padding: 25px; background: #ffe6e6; border: 2px solid #cc0000; color: #990000; font-family: monospace;">
+      <h2>🚨 Application Failed to Mount</h2>
+      <p>The screen is prevented from being blank. Here is the exact crash log:</p>
+      <pre style="background: #fff; padding: 12px; border: 1px solid #cc0000; overflow-x: auto;">${error.message || error}</pre>
+      <pre style="font-size: 11px;">${error.stack || ''}</pre>
+    </div>
+  `;
+}
 

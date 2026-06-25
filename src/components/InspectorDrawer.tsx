@@ -218,7 +218,7 @@ export const InspectorDrawer: React.FC<InspectorDrawerProps> = ({
             title="Buy Securely via Jupiter inside Alpha Pump"
           >
             <Zap size={11} className="text-emerald-400" />
-            <span>TRADE</span>
+            <span>BUY TOKEN</span>
           </button>
 
           <button

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, X, TrendingUp, AlertCircle } from 'lucide-react';
 
-interface SearchResult {
+export interface SearchResult {
   chainId: string;
   dexId: string;
   url: string;
@@ -15,9 +15,9 @@ interface SearchResult {
   fdv: number;
 }
 
-interface TokenSearchModalProps {
+export interface TokenSearchModalProps {
   onClose: () => void;
-  onSelectToken: (address: string) => void;
+  onSelectToken: (token: SearchResult) => void;
 }
 
 export const TokenSearchModal: React.FC<TokenSearchModalProps> = ({ onClose, onSelectToken }) => {
@@ -95,7 +95,7 @@ export const TokenSearchModal: React.FC<TokenSearchModalProps> = ({ onClose, onS
                 <button
                   key={`${r.baseToken.address}-${idx}`}
                   onClick={() => {
-                    onSelectToken(r.baseToken.address);
+                    onSelectToken(r);
                     onClose();
                   }}
                   className="flex items-center justify-between p-4 hover:bg-neutral-800 rounded-xl transition-colors text-left"
