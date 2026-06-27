@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { LogOut, Save, History, Eye, X, Settings2, Shield, User, Link as LinkIcon, Wallet, ArrowRightLeft, RefreshCw, Copy } from 'lucide-react';
 import { collection, query, getDocs, orderBy, limit } from 'firebase/firestore';
@@ -22,7 +22,9 @@ export const ProfileDashboard: React.FC<ProfileDashboardProps> = ({ onClose, onS
   const [editUsername, setEditUsername] = useState(profile?.username || '');
 
   const { connection } = useConnection();
-  const publicKey = profile?.walletPublicKey ? new PublicKey(profile.walletPublicKey) : null;
+  const publicKey = useMemo(() => {
+    return profile?.walletPublicKey ? new PublicKey(profile.walletPublicKey) : null;
+  }, [profile]);
   const [solBalance, setSolBalance] = useState<number | null>(() => {
     const saved = localStorage.getItem(`solBalance_${profile?.walletPublicKey}`);
     return saved ? parseFloat(saved) : null;
@@ -78,7 +80,7 @@ export const ProfileDashboard: React.FC<ProfileDashboardProps> = ({ onClose, onS
       if (activeTab !== 'history' || !publicKey) return;
       setIsLoadingTransactions(true);
       try {
-        const res = await fetch(`https://mainnet.helius-rpc.com/v0/addresses/${publicKey.toBase58()}/transactions/?api-key=3d18e988-fdce-4070-86a3-f5c2dd98c15c`);
+        const res = await fetch(`/api/helius-transactions/${publicKey.toBase58()}`);
         const data = await res.json();
         if (Array.isArray(data)) {
           setTransactions(data);
@@ -92,51 +94,84 @@ export const ProfileDashboard: React.FC<ProfileDashboardProps> = ({ onClose, onS
     fetchTransactions();
   }, [activeTab, publicKey]);
 
-  const refreshWallet = async () => {
+  const refreshWallet = useCallback(async () => {
     if (!publicKey) {
       setSolBalance(null);
       setTokens([]);
       return;
     }
     
-    setIsLoadingWallet(true);
-    try {
-      // Get SOL balance
-      const bal = await connection.getBalance(publicKey);
-      const newBal = bal / 1e9;
-      setSolBalance(newBal);
-      localStorage.setItem(`solBalance_${publicKey.toBase58()}`, newBal.toString());
+    const fetchWalletData = async (isRetry = false) => {
+      try {
+        if (!isRetry) {
+          setIsLoadingWallet(true);
+        }
+        // Get SOL balance
+        const bal = await connection.getBalance(publicKey);
+        const newBal = bal / 1e9;
+        setSolBalance(newBal);
+        localStorage.setItem(`solBalance_${publicKey.toBase58()}`, newBal.toString());
 
-      // Get SPL token accounts
-      const TOKEN_PROGRAM_ID = new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
-      const accounts = await connection.getParsedTokenAccountsByOwner(publicKey, {
-        programId: TOKEN_PROGRAM_ID
-      });
+        // Get SPL token accounts
+        const TOKEN_PROGRAM_ID = new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
+        const accounts = await connection.getParsedTokenAccountsByOwner(publicKey, {
+          programId: TOKEN_PROGRAM_ID
+        });
 
-      const tokenBalances = accounts.value
-        .map(acc => {
-          const info = acc.account.data.parsed.info;
-          return {
-            mint: info.mint,
-            amount: info.tokenAmount.uiAmount,
-            decimals: info.tokenAmount.decimals
-          };
-        })
-        .filter(t => t.amount > 0);
-      
-      setTokens(tokenBalances);
-    } catch (err) {
-      console.error("Error fetching wallet data:", err);
-    } finally {
-      setIsLoadingWallet(false);
-    }
-  };
+        const tokenBalances = accounts.value
+          .map(acc => {
+            const info = acc.account.data.parsed.info;
+            return {
+              mint: info.mint,
+              amount: info.tokenAmount.uiAmount,
+              decimals: info.tokenAmount.decimals
+            };
+          })
+          .filter(t => t.amount > 0);
+        
+        setTokens(tokenBalances);
+      } catch (err) {
+        console.error("Error fetching wallet data:", err);
+      } finally {
+        if (!isRetry) {
+          setIsLoadingWallet(false);
+        }
+      }
+    };
+
+    // First, immediate fetch
+    await fetchWalletData();
+
+    // Gracefully handle RPC indexing delays by running background updates
+    const timer1 = setTimeout(() => fetchWalletData(true), 3000);
+    const timer2 = setTimeout(() => fetchWalletData(true), 6000);
+
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+    };
+  }, [publicKey, connection]);
 
   useEffect(() => {
+    let active = true;
+    let cleanupFn: (() => void) | undefined;
+
     if (activeTab === 'wallet') {
-      refreshWallet();
+      const res = refreshWallet();
+      res.then(cleanup => {
+        if (typeof cleanup === 'function') {
+          cleanupFn = cleanup;
+        }
+      });
     }
-  }, [publicKey, connection, activeTab]);
+
+    return () => {
+      active = false;
+      if (cleanupFn) {
+        cleanupFn();
+      }
+    };
+  }, [activeTab, refreshWallet]);
 
   const handleUpdateProfile = async () => {
     await updateProfile({
@@ -454,7 +489,9 @@ export const ProfileDashboard: React.FC<ProfileDashboardProps> = ({ onClose, onS
                           className="flex justify-between items-center p-3 glass-panel border border-neutral-800 rounded-lg hover:border-emerald-500/50 transition-colors"
                         >
                           <div className="flex flex-col">
-                            <span className="font-bold text-white text-xs tracking-wider capitalize">{tx.type.replace(/_/g, ' ').toLowerCase()}</span>
+                            <span className="font-bold text-white text-xs tracking-wider capitalize">
+                                {tx.type.includes('SWAP') || tx.source === 'JUPITER' || tx.source === 'RAYDIUM' ? 'Swap Execution Completed' : tx.type.replace(/_/g, ' ').toLowerCase()}
+                            </span>
                             <a href={`https://solscan.io/tx/${tx.signature}`} target="_blank" rel="noopener noreferrer" className="text-[10px] text-indigo-400 font-mono hover:underline">
                               {tx.signature.slice(0, 8)}...{tx.signature.slice(-8)}
                             </a>
@@ -464,7 +501,7 @@ export const ProfileDashboard: React.FC<ProfileDashboardProps> = ({ onClose, onS
                               {new Date(tx.timestamp * 1000).toLocaleString()}
                             </span>
                             <span className={`text-xs font-mono font-bold ${tx.fee > 0 ? 'text-red-400' : 'text-emerald-400'}`}>
-                              -{tx.fee / 1e9} SOL fee
+                              -{tx.fee ? (tx.fee / 1e9).toFixed(5) : '0'} SOL fee
                             </span>
                           </div>
                         </div>

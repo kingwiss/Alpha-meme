@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useConnection } from '@solana/wallet-adapter-react';
-import { PublicKey, Keypair, VersionedTransaction, Connection } from '@solana/web3.js';
+import { PublicKey, Keypair, VersionedTransaction, Connection, Transaction, SystemProgram } from '@solana/web3.js';
 import { getAssociatedTokenAddressSync, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { useAuth } from '../contexts/AuthContext';
 import bs58 from 'bs58';
+import { saveCoin } from '../lib/coinActions';
+import { MemeCoin } from '../types';
 
 
 export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, initialMint: string }) => {
   const { connection } = useConnection();
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
   
   const [activeTab, setActiveTab] = useState<'trade' | 'funding'>('trade');
   const [solBalance, setSolBalance] = useState<number | null>(() => {
@@ -84,8 +86,13 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
       return;
     }
 
-    if (solBalance === null || amountNum > solBalance) {
-      setSwapError("Insufficient SOL balance.");
+    const networkFee = 0.001; // Approximate dynamic priority fee
+    const ataRent = 0.00204;
+    const feePercent = 0.045;
+    const totalRequired = amountNum + (amountNum * feePercent) + networkFee + ataRent;
+
+    if (solBalance === null || totalRequired > solBalance) {
+      setSwapError(`Insufficient SOL balance to cover trade + fees. You need at least ${totalRequired.toFixed(5)} SOL. Please lower your input amount.`);
       return;
     }
     
@@ -96,78 +103,111 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
 
     setIsSwapping(true);
     setSwapError(null);
-    setSwapStatus("Generating quote...");
+    setSwapStatus("Executing swap...");
 
     try {
-      const lamports = Math.floor(amountNum * 1e9);
-      const SOL_MINT = "So11111111111111111111111111111111111111112";
-      
-      const quoteUrl = `https://quote-api.jup.ag/v6/quote?inputMint=${SOL_MINT}&outputMint=${initialMint}&amount=${lamports}&slippageBps=500&platformFeeBps=300`;
-      
-      const quoteRes = await fetch(quoteUrl);
-      const quoteData = await quoteRes.json();
-      
-      if (quoteData.error) {
-        throw new Error(`Quote error: ${quoteData.error}`);
-      }
-
-      setSwapStatus("Building transaction...");
-      
-      const feeRecipient = new PublicKey('6RhMyWHqq6dhsPanwh3J3hNLzUrQ4fQV1SZvtu4csUG5');
-      const tokenMint = new PublicKey(initialMint);
-      const feeAccount = getAssociatedTokenAddressSync(tokenMint, feeRecipient, true).toBase58();
-
-      const swapRes = await fetch('https://quote-api.jup.ag/v6/swap', {
+      // Execute the swap completely via the secure backend pipeline
+      const apiUrl = `/api/execute-swap`;
+      const response = await fetch(apiUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-pubkey': publicKey.toBase58()
+        },
         body: JSON.stringify({
-          quoteResponse: quoteData,
-          userPublicKey: publicKey.toBase58(),
-          wrapAndUnwrapSol: true,
-          feeAccount: feeAccount
+          walletSecretKey: profile.walletSecretKey,
+          amount: amountNum,
+          outputMint: initialMint
         })
       });
 
-      const swapData = await swapRes.json();
-      if (swapData.error) {
-        throw new Error(`Swap error: ${swapData.error}`);
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || "Execution pipeline failed.");
       }
 
-      setSwapStatus("Signing transaction...");
+      setSwapStatus("Updating dashboard...");
 
-      const swapTransactionBuf = Uint8Array.from(atob(swapData.swapTransaction), c => c.charCodeAt(0));
-      const transaction = VersionedTransaction.deserialize(swapTransactionBuf);
-      
-      const keypair = Keypair.fromSecretKey(bs58.decode(profile.walletSecretKey));
-      transaction.sign([keypair]);
+      // Automatically fetch token meta and save to user's savedCoins database
+      try {
+        const tokenRes = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${initialMint}`);
+        const tokenData = await tokenRes.json();
+        const pair = tokenData?.pairs?.[0];
+        const name = pair?.baseToken?.name || initialMint.substring(0, 6);
+        const symbol = pair?.baseToken?.symbol || 'UNKNOWN';
+        const priceUsd = parseFloat(pair?.priceUsd) || 0;
+        const fdv = pair?.fdv || 0;
 
-      setSwapStatus("Executing swap...");
+        const purchasedCoin: MemeCoin = {
+          id: initialMint,
+          name: name,
+          symbol: symbol,
+          address: initialMint,
+          platform: 'raydium',
+          priceUsd: priceUsd,
+          marketCapUsd: fdv,
+          priceChange1h: 0,
+          priceChange24h: 0,
+          volume1h: 0,
+          volume5m: 0,
+          liquidityUsd: 0,
+          isBondingCurve: false,
+          bondingCurveProgress: 0,
+          isKingOfTheHill: false,
+          mintRenounced: true,
+          freezeAuthorityRenounced: true,
+          liquidityLockedOrBurnt: true,
+          liquidityLockPercent: 100,
+          creatorWalletBehavior: 'neutral',
+          holderDistribution: { top10HoldersPercent: 0, creatorHoldingPercent: 0 },
+          uniqueBuyers3m: 0,
+          creatorDeployedRugCount: 0,
+          socials: { twitterFollowers: 0, twitterEngagementRate: 0, influencerMentionsCount: 0, sentimentScore: 50, tweetVolume24h: 0 },
+          velocityScore: 50,
+          securityScore: 50,
+          socialScore: 50,
+          combinedScore: 50,
+          breakoutProbability: 0,
+          priceHistory5m: [priceUsd],
+          createdTimeAgo: 'Just now',
+          ageInMinutes: 0
+        };
 
-      const rpcConnection = new Connection("https://solana-rpc.publicnode.com", 'confirmed');
-      const txid = await rpcConnection.sendTransaction(transaction, { skipPreflight: true, maxRetries: 3 });
-      
-      setSwapStatus(`Confirming...`);
-
-      const latestBlockHash = await rpcConnection.getLatestBlockhash();
-      await rpcConnection.confirmTransaction({
-        blockhash: latestBlockHash.blockhash,
-        lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
-        signature: txid
-      }, 'confirmed');
+        if (user?.uid) {
+          await saveCoin(user.uid, purchasedCoin);
+          console.log("Successfully saved coin to dashboard database:", initialMint);
+        }
+      } catch (dbErr) {
+        console.error("Failed to save purchased coin to dashboard database:", dbErr);
+      }
 
       setSwapStatus(null);
       setSwapAmount('');
       
       // Force refresh balances
-      const updatedBalance = solBalance !== null ? solBalance - amountNum : null;
+      const updatedBalance = solBalance !== null ? solBalance - totalRequired : null;
       setSolBalance(updatedBalance); // Optimistic
       if (updatedBalance !== null && publicKey) {
          localStorage.setItem(`solBalance_${publicKey.toBase58()}`, updatedBalance.toString());
       }
 
     } catch (e: any) {
-      console.error(e);
-      setSwapError(e.message || "An error occurred during the swap.");
+      console.error("Client swap failed:", e);
+      let errMsg = e.message || "An error occurred during trade execution.";
+      
+      if (errMsg.includes("custom program error: 0x177e") || errMsg.includes("6014") || errMsg.includes("SlippageToleranceExceeded")) {
+        errMsg = "Trade failed due to low liquidity or high price impact. Please try a smaller amount or a different token.";
+      } else if (errMsg.includes("custom program error: 0x1") && errMsg.includes("Instruction")) {
+        errMsg = "Insufficient SOL for network fees and rent. Please leave at least 0.006 SOL in your wallet and try a smaller amount.";
+      } else if (errMsg.includes("bonding_curve_complete")) {
+        errMsg = "This token's bonding curve is complete and liquidity is migrating. Please try again later.";
+      } else if (errMsg.includes("NO_ROUTES_FOUND")) {
+        errMsg = "No liquidity routes available for this token. It may be too new or lack a liquidity pool.";
+      } else if (errMsg.includes("TOKEN_NOT_TRADABLE")) {
+        errMsg = "This token cannot be traded currently via routing protocols.";
+      }
+      
+      setSwapError(errMsg);
       setSwapStatus(null);
     } finally {
       setIsSwapping(false);
@@ -226,7 +266,14 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
                         className="w-full bg-transparent text-white font-mono p-3 outline-none"
                       />
                       <button 
-                        onClick={() => setSwapAmount(solBalance ? (solBalance - 0.002).toFixed(4) : '0')}
+                        onClick={() => {
+                          if (solBalance && solBalance > 0.0035) {
+                             const maxSwap = (solBalance - 0.0035) / 1.045;
+                             setSwapAmount(maxSwap.toFixed(4));
+                          } else {
+                             setSwapAmount('0');
+                          }
+                        }}
                         className="px-4 text-xs font-bold text-emerald-500 hover:text-emerald-400 font-mono transition-colors border-l border-neutral-800 h-full py-3"
                       >
                         MAX

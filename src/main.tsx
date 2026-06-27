@@ -11,7 +11,7 @@ import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adap
 import ErrorBoundary from './ErrorBoundary';
 
 const WrappedApp = () => {
-  const endpoint = import.meta.env.VITE_RPC_URL || "https://solana-rpc.publicnode.com";
+  const endpoint = import.meta.env.VITE_RPC_URL || `${window.location.origin}/api/solana-rpc`;
 
   const wallets = useMemo(() => [
     new PhantomWalletAdapter(),
