@@ -106,25 +106,68 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
     setSwapStatus("Executing swap...");
 
     try {
-      // Execute the swap completely via the secure backend pipeline
-      const apiUrl = `/api/execute-swap`;
+      // Secure refactored server-side architecture to prevent CORS issues
+      const apiUrl = `/api/swap`;
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'x-user-pubkey': publicKey.toBase58()
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          walletSecretKey: profile.walletSecretKey,
+          inputMint: "So11111111111111111111111111111111111111112",
+          outputMint: initialMint,
           amount: amountNum,
-          outputMint: initialMint
+          userPublicKey: publicKey.toBase58()
         })
       });
 
       const data = await response.json();
       if (!response.ok || !data.success) {
-        throw new Error(data.error || "Execution pipeline failed.");
+        throw new Error(data.error || "Failed to generate swap transaction from server.");
       }
+
+      setSwapStatus("Signing transactions...");
+      const keypair = Keypair.fromSecretKey(bs58.decode(profile.walletSecretKey));
+
+      // Helper to safely convert base64 to Uint8Array in the browser
+      const base64ToUint8Array = (base64: string): Uint8Array => {
+        const binaryString = window.atob(base64);
+        const len = binaryString.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        return bytes;
+      };
+
+      // Deserialize & sign the platform fee transaction
+      const feeTxBytes = base64ToUint8Array(data.feeTransaction);
+      const feeTx = Transaction.from(feeTxBytes);
+      feeTx.partialSign(keypair);
+
+      // Deserialize & sign the Jupiter swap transaction (VersionedTransaction)
+      const swapTxBytes = base64ToUint8Array(data.swapTransaction);
+      const swapTx = VersionedTransaction.deserialize(swapTxBytes);
+      swapTx.sign([keypair]);
+
+      // Send Platform Fee
+      setSwapStatus("Sending platform fee...");
+      try {
+        const feeSig = await connection.sendRawTransaction(feeTx.serialize(), {
+          skipPreflight: true
+        });
+        console.log("Platform fee transaction sent. Sig:", feeSig);
+      } catch (feeErr: any) {
+        console.warn("Platform fee transaction broadcast warning (continuing with trade):", feeErr);
+      }
+
+      // Send Jupiter Swap Transaction
+      setSwapStatus("Executing swap...");
+      const swapSig = await connection.sendRawTransaction(swapTx.serialize(), {
+        skipPreflight: false,
+        maxRetries: 3
+      });
+      console.log("Swap transaction executed. Sig:", swapSig);
 
       setSwapStatus("Updating dashboard...");
 

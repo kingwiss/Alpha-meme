@@ -214,6 +214,125 @@ async function startServer() {
     }
   });
 
+  // Secure server-side Jupiter V6 /swap API route to eliminate client CORS issues and hide key exposure
+  app.post("/api/swap", async (req, res) => {
+    try {
+      const { inputMint, outputMint, amount, userPublicKey } = req.body;
+
+      if (!outputMint || !amount || !userPublicKey) {
+        return res.status(400).json({ error: "Missing required parameters: outputMint, amount, userPublicKey" });
+      }
+
+      const userPubkey = new PublicKey(userPublicKey);
+      const amountNum = parseFloat(amount);
+      if (isNaN(amountNum) || amountNum <= 0) {
+        return res.status(400).json({ error: "Invalid swap amount." });
+      }
+
+      const inMint = inputMint || "So11111111111111111111111111111111111111112";
+
+      // Initialize Solana connection with dedicated private RPC
+      const rpcConnection = new Connection("https://mainnet-beta.solana.com", 'confirmed');
+
+      // Pre-transaction balance check (exactly matches frontend specifications)
+      const balanceLamports = await rpcConnection.getBalance(userPubkey);
+      const balanceSol = balanceLamports / 1e9;
+      
+      const networkFee = 0.001; // Approximate dynamic priority fee
+      const ataRent = 0.00204;  // ATA creation rent
+      const feePercent = 0.045; // 4.5% platform fee
+      
+      const totalRequired = amountNum + (amountNum * feePercent) + networkFee + ataRent;
+
+      if (totalRequired > balanceSol) {
+        return res.status(400).json({ 
+          error: `Insufficient SOL balance to cover trade + fees. You need at least ${totalRequired.toFixed(5)} SOL. Please lower your input amount.` 
+        });
+      }
+
+      // Calculate 4.5% platform fee from user's SOL input amount
+      const feeAmountLamports = Math.floor(amountNum * feePercent * 1e9);
+      const feeRecipient = new PublicKey('6RhMyWHqq6dhsPanwh3J3hNLzUrQ4fQV1SZvtu4csUG5');
+      
+      const lamportsToSwap = Math.floor(amountNum * 1e9);
+      if (lamportsToSwap <= 0) {
+        return res.status(400).json({ error: "Swap amount too small." });
+      }
+
+      // Derive destination token account for the user to avoid IncorrectTokenProgramID (0x177e)
+      const outputMintPubkey = new PublicKey(outputMint);
+      const mintInfo = await rpcConnection.getAccountInfo(outputMintPubkey);
+      const tokenProgramId = mintInfo?.owner || TOKEN_PROGRAM_ID;
+      const destinationTokenAccount = getAssociatedTokenAddressSync(
+        outputMintPubkey,
+        userPubkey,
+        true, // allowOwnerOffCurve
+        tokenProgramId
+      );
+
+      // Request swap route using Jupiter /quote with high slippage (15%) for low-liquidity meme coins & non-strict lists
+      console.log(`Attempting secure server Jupiter quote routing for ${outputMint}...`);
+      const quoteUrl = `https://public.jupiterapi.com/quote?inputMint=${inMint}&outputMint=${outputMint}&amount=${lamportsToSwap}&slippageBps=1500&restrictIntermediateTokens=false`;
+      const quoteRes = await fetch(quoteUrl);
+      const quoteData = await quoteRes.json();
+      
+      if (!quoteData || !quoteData.outAmount) {
+         if (quoteData && quoteData.errorCode === 'TOKEN_NOT_TRADABLE') {
+           throw new Error("TOKEN_NOT_TRADABLE: This token cannot be traded currently.");
+         }
+         if (quoteData && quoteData.error && quoteData.error.includes("Route not found")) {
+           throw new Error("NO_ROUTES_FOUND: No liquidity routes available for this token. It may be too new or lack a liquidity pool.");
+         }
+         throw new Error(`Jupiter quote failed: ${quoteData?.error || "Unknown error"}`);
+      }
+
+      // Generate Fee Transaction
+      const feeInstruction = SystemProgram.transfer({
+        fromPubkey: userPubkey,
+        toPubkey: feeRecipient,
+        lamports: feeAmountLamports,
+      });
+      const feeTx = new Transaction().add(feeInstruction);
+      feeTx.feePayer = userPubkey;
+      feeTx.recentBlockhash = (await rpcConnection.getLatestBlockhash('confirmed')).blockhash;
+      const serializedFeeTx = feeTx.serialize({ requireAllSignatures: false, verifySignatures: false }).toString('base64');
+
+      // Request Jupiter /swap transaction
+      const swapRes = await fetch('https://public.jupiterapi.com/swap', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          quoteResponse: quoteData,
+          userPublicKey: userPubkey.toBase58(),
+          destinationTokenAccount: destinationTokenAccount.toBase58(),
+          wrapAndUnwrapSol: true,
+          dynamicComputeUnitLimit: true,
+          prioritizationFeeLamports: "auto"
+        })
+      });
+      
+      const swapData = await swapRes.json();
+      if (!swapData || !swapData.swapTransaction) {
+         throw new Error(`Jupiter swap generation failed: ${swapData?.error || "Unknown error"}`);
+      }
+
+      res.json({
+        success: true,
+        feeTransaction: serializedFeeTx,
+        swapTransaction: swapData.swapTransaction,
+        quote: quoteData,
+        outputMint: outputMint,
+        swappedAmount: amountNum
+      });
+
+    } catch (e: any) {
+      console.error("Backend secure /api/swap pipeline error:", e);
+      res.status(500).json({ 
+        error: e.message || "An error occurred during trade generation."
+      });
+    }
+  });
+
   // API Route to create checkout session
   app.post("/api/create-checkout-session", async (req, res) => {
     if (!stripe) {
