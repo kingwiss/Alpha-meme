@@ -3,6 +3,7 @@ import path from "path";
 import Stripe from "stripe";
 import cors from "cors";
 import { Connection, Keypair, PublicKey, VersionedTransaction, Transaction, SystemProgram, TransactionMessage, AddressLookupTableAccount, TransactionInstruction } from "@solana/web3.js";
+import { getAssociatedTokenAddressSync, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import bs58 from "bs58";
 
 // It's safe to not throw error here if not set, as it allows frontend to boot.
@@ -115,7 +116,18 @@ async function startServer() {
 
       const SOL_MINT = "So11111111111111111111111111111111111111112";
 
-      // 3. Request swap route using Jupiter /quote
+      // 3. Derive destination token account for the user to avoid IncorrectTokenProgramID (0x177e)
+      const outputMintPubkey = new PublicKey(outputMint);
+      const mintInfo = await rpcConnection.getAccountInfo(outputMintPubkey);
+      const tokenProgramId = mintInfo?.owner || TOKEN_PROGRAM_ID;
+      const destinationTokenAccount = getAssociatedTokenAddressSync(
+        outputMintPubkey,
+        publicKey,
+        true, // allowOwnerOffCurve (true is safer for PDAs, false is fine for standard users, but true avoids edge cases)
+        tokenProgramId
+      );
+
+      // 4. Request swap route using Jupiter /quote
       console.log(`Attempting Jupiter routing for ${outputMint}...`);
       // Increase slippage tolerance to 1500 bps (15%) for micro-cap meme coins
       const quoteUrl = `https://public.jupiterapi.com/quote?inputMint=${SOL_MINT}&outputMint=${outputMint}&amount=${lamportsToSwap}&slippageBps=1500`;
@@ -159,6 +171,7 @@ async function startServer() {
         body: JSON.stringify({
           quoteResponse: quoteData,
           userPublicKey: publicKey.toBase58(),
+          destinationTokenAccount: destinationTokenAccount.toBase58(),
           wrapAndUnwrapSol: true,
           dynamicComputeUnitLimit: true,
           prioritizationFeeLamports: "auto"

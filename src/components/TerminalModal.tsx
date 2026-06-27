@@ -195,8 +195,10 @@ export const TerminalModal = ({ onClose, initialMint }: { onClose: () => void, i
       console.error("Client swap failed:", e);
       let errMsg = e.message || "An error occurred during trade execution.";
       
-      if (errMsg.includes("custom program error: 0x177e") || errMsg.includes("6014") || errMsg.includes("SlippageToleranceExceeded")) {
-        errMsg = "Trade failed due to low liquidity or high price impact. Please try a smaller amount or a different token.";
+      if (errMsg.includes("SlippageToleranceExceeded") || errMsg.includes("0x114a")) {
+        errMsg = "Trade failed due to low liquidity or high price impact (Slippage Tolerance Exceeded). Please try a smaller amount.";
+      } else if (errMsg.includes("custom program error: 0x177e") || errMsg.includes("6014")) {
+        errMsg = "Incorrect Token Program ID (0x177e). The swap routed a Token-2022 token through standard SPL or vice versa. Please try again.";
       } else if (errMsg.includes("custom program error: 0x1") && errMsg.includes("Instruction")) {
         errMsg = "Insufficient SOL for network fees and rent. Please leave at least 0.006 SOL in your wallet and try a smaller amount.";
       } else if (errMsg.includes("bonding_curve_complete")) {
